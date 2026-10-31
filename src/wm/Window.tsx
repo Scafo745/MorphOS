@@ -49,7 +49,7 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
       default:
         return (
           <div className="h-full flex items-center justify-center">
-            <p className="text-xs font-mono text-white/20">App not found</p>
+            <p className="text-xs font-mono" style={{ color: 'var(--text-faint, #a1a1a1)' }}>App not found</p>
           </div>
         );
     }
@@ -95,11 +95,11 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
         background: profile.customTokens?.windowBg || 'var(--window-bg)',
         backdropFilter: `blur(${profile.customTokens?.windowBlur || 'var(--window-blur)'}) saturate(160%)`,
         WebkitBackdropFilter: `blur(${profile.customTokens?.windowBlur || 'var(--window-blur)'}) saturate(160%)`,
-        border: `1px solid ${isActive ? (profile.customTokens?.accentColor || 'rgba(255,255,255,0.24)') : (profile.customTokens?.windowBorder || 'var(--window-border)')}`,
+        border: `1px solid ${isActive ? (profile.customTokens?.accentColor || 'var(--window-border, #ebebeb)') : (profile.customTokens?.windowBorder || 'var(--window-border)')}`,
         borderRadius: profile.customTokens?.windowRadius || 'var(--window-radius)',
         boxShadow: isActive
-          ? `0 32px 80px rgba(0,0,0,0.85), 0 0 25px ${profile.customTokens?.accentGlow || 'rgba(0,0,0,0.5)'}`
-          : 'var(--window-shadow, 0 32px 80px -12px rgba(0,0,0,0.7))',
+          ? `var(--window-shadow-active, 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10)), 0 0 25px ${profile.customTokens?.accentGlow || 'transparent'}`
+          : 'var(--window-shadow, 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06))',
         transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
       }}
     >
@@ -113,8 +113,8 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
           className="win-drag flex items-center justify-between px-3 flex-shrink-0 cursor-move"
           style={{
             height: '36px',
-            background: 'var(--window-header-bg, rgba(255,255,255,0.03))',
-            borderBottom: `1px solid ${profile.customTokens?.windowBorder || 'var(--window-header-border, rgba(255,255,255,0.06))'}`,
+            background: 'var(--window-header-bg, rgba(250,250,250,0.9))',
+            borderBottom: `1px solid ${profile.customTokens?.windowBorder || 'var(--window-header-border, var(--hairline, #ebebeb))'}`,
             borderTopLeftRadius: `calc(${profile.customTokens?.windowRadius || 'var(--window-radius)'} - 1px)`,
             borderTopRightRadius: `calc(${profile.customTokens?.windowRadius || 'var(--window-radius)'} - 1px)`,
           }}
@@ -123,9 +123,9 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
           {!isWin && !isCyber ? (
             <>
               <WindowControls windowId={win.id} />
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-white/70">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium">
                 {APP_ICONS[win.appId]?.(iconTheme.iconColor)}
-                <span className="truncate max-w-[200px]" style={{ color: isActive ? '#fff' : 'rgba(255,255,255,0.6)' }}>
+                <span className="truncate max-w-[200px]" style={{ color: isActive ? 'var(--ink, #171717)' : 'var(--text-mute, #8f8f8f)' }}>
                   {win.title}
                 </span>
               </div>

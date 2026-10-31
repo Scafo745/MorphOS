@@ -43,6 +43,16 @@ export const Desktop: React.FC = () => {
         '--dock-bg': profile.customTokens?.dockBg,
         '--dock-border': profile.customTokens?.dockBorder,
         '--dock-radius': profile.customTokens?.dockRadius,
+        /* Geist ladder vars — published so descendant chrome can read them */
+        '--ink': profile.customTokens?.ink,
+        '--text-body': profile.customTokens?.textBody,
+        '--text-mute': profile.customTokens?.textMute,
+        '--text-faint': profile.customTokens?.textFaint,
+        '--hairline': profile.customTokens?.hairline,
+        '--hairline-soft': profile.customTokens?.hairlineSoft,
+        '--canvas': profile.customTokens?.canvas,
+        '--canvas-elevated': profile.customTokens?.canvasElevated,
+        '--link': profile.customTokens?.link,
       } as React.CSSProperties}
     >
       {/* ── Ambient orbs ─────────────────────────────── */}
@@ -87,7 +97,6 @@ export const Desktop: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="flex flex-col items-center gap-1 p-1.5 rounded-xl group w-[68px]"
-              style={{ background: 'rgba(255,255,255,0.02)' }}
             >
               <div
                 className="w-12 h-12 flex items-center justify-center shadow-xl relative overflow-hidden transition-all duration-300"
@@ -105,8 +114,8 @@ export const Desktop: React.FC = () => {
                 />
               </div>
               <span
-                className="text-[11px] font-medium text-white/80 group-hover:text-white transition-colors"
-                style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}
+                className="text-[11px] font-medium transition-colors"
+                style={{ color: 'var(--text-body, var(--ink))' }}
               >
                 {item.label}
               </span>
@@ -126,11 +135,11 @@ export const Desktop: React.FC = () => {
             transition={{ type: 'spring', damping: 28, stiffness: 340 }}
             className="flex items-center gap-2.5 pl-2 pr-3.5 py-2 rounded-xl"
             style={{
-              background: 'rgba(5,5,15,0.7)',
+              background: 'var(--spotlight-bg, #ffffff)',
               backdropFilter: 'blur(24px) saturate(180%)',
               WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-              border: '1px solid rgba(255,255,255,0.09)',
-              boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+              border: '1px solid var(--hairline, #ebebeb)',
+              boxShadow: 'var(--window-shadow, 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06))',
             }}
           >
             {/* Pulsing status dot */}
@@ -140,15 +149,15 @@ export const Desktop: React.FC = () => {
             </span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[12px] font-semibold text-white/90">{profile.name}</span>
+                <span className="text-[12px] font-semibold" style={{ color: 'var(--ink, #171717)' }}>{profile.name}</span>
                 <span
                   className="text-[9px] font-mono font-bold uppercase tracking-[0.12em] px-1.5 py-0.5 rounded-md"
-                  style={{ background: 'var(--accent-dim)', color: 'var(--accent-text)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  style={{ background: 'var(--accent-dim)', color: 'var(--accent-text)', border: '1px solid var(--hairline, #ebebeb)' }}
                 >
                   {profile.theme}
                 </span>
               </div>
-              <p className="text-[10px] text-white/30 max-w-[230px] truncate mt-0.5">{profile.tagline}</p>
+              <p className="text-[10px] max-w-[230px] truncate mt-0.5" style={{ color: 'var(--text-mute, #8f8f8f)' }}>{profile.tagline}</p>
             </div>
           </motion.div>
         </AnimatePresence>
@@ -187,11 +196,11 @@ export const Desktop: React.FC = () => {
             style={{
               top: ctx.y,
               left: ctx.x,
-              background: 'rgba(6,6,18,0.92)',
+              background: 'var(--spotlight-bg, #ffffff)',
               backdropFilter: 'blur(48px) saturate(200%)',
               WebkitBackdropFilter: 'blur(48px) saturate(200%)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 24px 60px rgba(0,0,0,0.8)',
+              border: '1px solid var(--hairline, #ebebeb)',
+              boxShadow: 'var(--window-shadow-active, 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10))',
             }}
           >
             {[
@@ -206,12 +215,13 @@ export const Desktop: React.FC = () => {
               { label: 'Cloud & n8n Gateway', icon: <Cloud className="w-3.5 h-3.5 text-sky-400" />, action: () => toggleCloudModal(true) },
             ].map((item, i) =>
               item === null ? (
-                <div key={`sep-${i}`} className="mx-2 my-1 h-px bg-white/8" />
+                <div key={`sep-${i}`} className="mx-2 my-1 h-px" style={{ background: 'var(--hairline, #ebebeb)' }} />
               ) : (
                 <button
                   key={item.label}
                   onClick={() => { item.action(); setCtx(null); }}
-                  className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs text-white/80 hover:bg-white/8 hover:text-white transition-colors text-left"
+                  className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left hover:bg-geist-hairlineSoft"
+                  style={{ color: 'var(--text-body, var(--ink))' }}
                 >
                   {item.icon}
                   <span>{item.label}</span>

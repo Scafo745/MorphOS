@@ -43,10 +43,10 @@ export const MenuBar: React.FC = () => {
     <header
       className="fixed top-0 left-0 right-0 h-8 z-50 select-none"
       style={{
-        background: 'var(--menubar-bg, rgba(5,5,12,0.6))',
+        background: 'var(--menubar-bg, rgba(250,250,250,0.8))',
         backdropFilter: 'blur(24px) saturate(180%)',
         WebkitBackdropFilter: 'blur(24px) saturate(180%)',
-        borderBottom: '1px solid var(--menubar-border, rgba(255,255,255,0.06))',
+        borderBottom: '1px solid var(--menubar-border, var(--hairline, #ebebeb))',
       }}
     >
       <div className="h-full flex items-center justify-between px-3">
@@ -57,7 +57,7 @@ export const MenuBar: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setAppleMenuOpen(v => !v)}
-              className="flex items-center justify-center w-7 h-6 rounded-md hover:bg-white/8 transition-colors text-sm"
+              className="flex items-center justify-center w-7 h-6 rounded-md hover:bg-geist-hairlineSoft transition-colors text-sm"
             >
               {isCyber ? (
                 <span className="font-mono text-[10px] font-bold" style={{ color: 'var(--accent)' }}>&gt;_</span>
@@ -74,8 +74,8 @@ export const MenuBar: React.FC = () => {
                 </svg>
               ) : (
                 <svg width="14" height="17" viewBox="0 0 14 17" fill="none">
-                  <path d="M9.9 0C9.9 1.93-1.1 3.25 0.88 5.37 2.64 3.04 9.9 3.1 9.9 0Z" fill="rgba(255,255,255,0.85)" />
-                  <path d="M10.5 5.7C8.5 5.7 6.9 6.8 5.9 6.8c-1 0-2.5-1-4.1-1C-.2 5.8-2.3 7.6-3 10c-1.3 4.5 1 9 2.5 11 .7 1 1.6 2 2.7 2 1.1 0 1.5-.7 2.8-.7 1.3 0 1.7.7 2.8.7 1.2 0 2.1-1.1 2.8-2.1.7-1 1-1.9 1-1.9s-2-.8-2-3.1c0-2 1.6-3 1.7-3C12 11 11 10 10.5 9.8c-.4-.2-1-.3-1-.3.1 0 .6-.2 1-.6.8-.5 1.4-1.3 1.4-2.5 0-.1 0-.2 0-.3-.1 0-.2.1-.4.1-.5.1-.8-.1-1-.8z" fill="rgba(255,255,255,0.85)" />
+                  <path d="M9.9 0C9.9 1.93-1.1 3.25 0.88 5.37 2.64 3.04 9.9 3.1 9.9 0Z" fill="var(--ink, #171717)" />
+                  <path d="M10.5 5.7C8.5 5.7 6.9 6.8 5.9 6.8c-1 0-2.5-1-4.1-1C-.2 5.8-2.3 7.6-3 10c-1.3 4.5 1 9 2.5 11 .7 1 1.6 2 2.7 2 1.1 0 1.5-.7 2.8-.7 1.3 0 1.7.7 2.8.7 1.2 0 2.1-1.1 2.8-2.1.7-1 1-1.9 1-1.9s-2-.8-2-3.1c0-2 1.6-3 1.7-3C12 11 11 10 10.5 9.8c-.4-.2-1-.3-1-.3.1 0 .6-.2 1-.6.8-.5 1.4-1.3 1.4-2.5 0-.1 0-.2 0-.3-.1 0-.2.1-.4.1-.5.1-.8-.1-1-.8z" fill="var(--ink, #171717)" />
                 </svg>
               )}
             </button>
@@ -92,17 +92,17 @@ export const MenuBar: React.FC = () => {
                     transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
                     className="absolute left-0 top-full mt-1 w-52 z-50 rounded-xl overflow-hidden"
                     style={{
-                      background: 'rgba(8, 8, 20, 0.92)',
+                      background: 'var(--spotlight-bg, #ffffff)',
                       backdropFilter: 'blur(48px) saturate(200%)',
                       WebkitBackdropFilter: 'blur(48px) saturate(200%)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      boxShadow: '0 24px 60px rgba(0,0,0,0.8), 0 0 0 0.5px rgba(255,255,255,0.06)',
+                      border: '1px solid var(--hairline, #ebebeb)',
+                      boxShadow: 'var(--window-shadow-active, 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10))',
                     }}
                   >
                     <div className="py-1.5 px-1">
                       {appleItems.map((item, i) =>
                         item === null ? (
-                          <div key={`sep-${i}`} className="mx-2 my-1 h-px bg-white/8" />
+                          <div key={`sep-${i}`} className="mx-2 my-1 h-px" style={{ background: 'var(--hairline, #ebebeb)' }} />
                         ) : (
                           <button
                             key={item.label}
@@ -111,11 +111,11 @@ export const MenuBar: React.FC = () => {
                               if (item.label === 'Cloud & n8n Gateway...') toggleCloudModal(true);
                               setAppleMenuOpen(false);
                             }}
-                            className="flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-xs hover:bg-white/10 transition-colors text-left group"
+                            className="flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-xs hover:bg-geist-hairlineSoft transition-colors text-left group"
                           >
-                            <span className="text-white/90">{item.label}</span>
+                            <span style={{ color: 'var(--ink, #171717)' }}>{item.label}</span>
                             {item.hint && (
-                              <span className="text-white/30 font-mono text-[10px] group-hover:text-white/50 transition-colors">
+                              <span className="font-mono text-[10px]" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
                                 {item.hint}
                               </span>
                             )}
@@ -130,8 +130,8 @@ export const MenuBar: React.FC = () => {
           </div>
 
           {/* App name */}
-          <div className="h-4 w-px bg-white/10 mx-0.5" />
-          <span className="text-[12px] font-semibold text-white/80 tracking-tight">{appName}</span>
+          <div className="h-4 w-px mx-0.5" style={{ background: 'var(--hairline, #ebebeb)' }} />
+          <span className="text-[12px] font-semibold tracking-tight" style={{ color: 'var(--ink, #171717)' }}>{appName}</span>
         </div>
 
         {/* ── CENTER: Prompt trigger ──────────────────────── */}
@@ -141,9 +141,9 @@ export const MenuBar: React.FC = () => {
           whileTap={{ scale: 0.98 }}
           className="flex items-center gap-2 px-3 py-1 rounded-full text-xs transition-all"
           style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.09)',
-            color: 'rgba(255,255,255,0.45)',
+            background: 'var(--canvas-elevated, #ffffff)',
+            border: '1px solid var(--hairline, #ebebeb)',
+            color: 'var(--text-mute, #8f8f8f)',
           }}
         >
           <Search className="w-3 h-3" style={{ color: 'var(--accent)' }} />
@@ -151,9 +151,9 @@ export const MenuBar: React.FC = () => {
           <kbd
             className="hidden sm:inline-flex items-center px-1.5 h-4 rounded text-[9px] font-mono"
             style={{
-              background: 'rgba(255,255,255,0.07)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              color: 'rgba(255,255,255,0.4)',
+              background: 'var(--canvas, #fafafa)',
+              border: '1px solid var(--hairline, #ebebeb)',
+              color: 'var(--text-faint, #a1a1a1)',
             }}
           >
             ⌘K
@@ -166,11 +166,11 @@ export const MenuBar: React.FC = () => {
           <button
             onClick={() => toggleCloudModal(true)}
             title="Configure Cloud & n8n Gateway"
-            className="hidden lg:flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono hover:bg-white/10 transition-colors"
+            className="hidden lg:flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono hover:bg-geist-hairlineSoft transition-colors"
             style={{
-              background: cloudConfig.n8nWebhookUrl ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)',
-              color: cloudConfig.n8nWebhookUrl ? '#a5b4fc' : 'rgba(255,255,255,0.4)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: cloudConfig.n8nWebhookUrl ? 'var(--accent-dim)' : 'var(--canvas, #fafafa)',
+              color: cloudConfig.n8nWebhookUrl ? 'var(--accent)' : 'var(--text-mute, #8f8f8f)',
+              border: '1px solid var(--hairline, #ebebeb)',
             }}
           >
             <Cloud className="w-3 h-3" />
@@ -183,7 +183,7 @@ export const MenuBar: React.FC = () => {
             style={{
               background: 'var(--accent-dim)',
               color: 'var(--accent)',
-              border: '1px solid rgba(255,255,255,0.06)',
+              border: '1px solid var(--hairline, #ebebeb)',
             }}
           >
             <Lock className="w-2.5 h-2.5" />
@@ -191,22 +191,22 @@ export const MenuBar: React.FC = () => {
           </div>
 
           {/* System icons */}
-          <div className="flex items-center gap-2.5 text-white/40">
+          <div className="flex items-center gap-2.5" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
             <Wifi className="w-3.5 h-3.5" />
             <Volume2 className="w-3.5 h-3.5" />
             <Battery className="w-3.5 h-3.5" />
           </div>
 
           {/* User role chip */}
-          <div className="flex items-center gap-1 text-white/30 text-[11px] font-mono">
+          <div className="flex items-center gap-1 text-[11px] font-mono" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
             <span style={{ color: 'var(--accent-text)', opacity: 0.7 }}>{profile.userRole}</span>
             <ChevronRight className="w-2.5 h-2.5" />
           </div>
 
           {/* Clock */}
           <div className="text-right">
-            <div className="text-[12px] font-semibold text-white/80 tabular-nums leading-tight">{time}</div>
-            <div className="text-[9px] text-white/30 font-mono leading-tight">{date}</div>
+            <div className="text-[12px] font-semibold tabular-nums leading-tight" style={{ color: 'var(--ink, #171717)' }}>{time}</div>
+            <div className="text-[9px] font-mono leading-tight" style={{ color: 'var(--text-mute, #8f8f8f)' }}>{date}</div>
           </div>
         </div>
       </div>

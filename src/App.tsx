@@ -4,7 +4,7 @@ import { BootScreen } from './shell/BootScreen';
 
 export const App: React.FC = () => {
   return (
-    <div className="w-screen h-screen overflow-hidden bg-black text-slate-100 font-sans select-none">
+    <div className="w-screen h-screen overflow-hidden bg-geist-canvas text-geist-ink font-sans select-none">
       <BootScreen />
       <Desktop />
     </div>
