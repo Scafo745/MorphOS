@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useOSStore } from '../core/store';
 import { executeShell } from '../kernel/shell';
 import { compilePromptAsync } from '../core/prompt-compiler';
-import { answerQuestionAsync } from '../core/ai-chat';
+import { answerQuestionAsync, isOsSynthesisIntent } from '../core/ai-chat';
 import { Bot, User, Send, Sparkles, Terminal, ShieldAlert, ArrowRight, CornerDownLeft } from 'lucide-react';
 
 interface Message {
@@ -182,6 +182,31 @@ export const Copilot: React.FC = () => {
             tool: 'scheduler.query_processes(filter: daemon)',
             input: 'ps | grep daemon',
             output: shellRes.output || 'PID 1: morph-init, PID 3: morph-policyd, PID 4: auditd',
+          },
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages((prev) => [...prev, agentMsg]);
+        setIsThinking(false);
+        return;
+      }
+
+      // Consistency guard: if the prompt is an OS-synthesis intent that did not
+      // match any specific branch above, treat it as a reconfigure request so
+      // Copilot and Spotlight (which gates on isOsSynthesisIntent) agree. This
+      // mirrors the isReconfigure branch exactly to avoid classifier drift.
+      if (isOsSynthesisIntent(query)) {
+        const { profile: newProfile, source } = await compilePromptAsync(query, cloudConfig);
+        setProfile(newProfile);
+
+        const agentMsg: Message = {
+          id: `msg-${Date.now()}`,
+          sender: 'agent',
+          text: `Successfully synthesized and recompiled your entire operating system environment from your prompt!\n\n• **Architecture**: ${newProfile.name}\n• **Theme Canvas**: ${newProfile.theme.toUpperCase()}\n• **App & Dock Icons**: ${newProfile.customTokens?.iconStyle?.toUpperCase()} (${newProfile.customTokens?.iconShape || 'geometry'})\n• **Accent & Luminescence**: \`${newProfile.customTokens?.accentColor}\`\n• **Window Compositor**: ${newProfile.snapMode}\n• **Microkernel Security**: ${newProfile.securityLevel}\n• **Synthesis Engine**: ${source.toUpperCase()}\n\nEvery desktop element, wallpaper gradient, dock icon, and window border has adapted in real time.`,
+          toolCall: {
+            tool: `morph_compiler.recompile(engine: ${source})`,
+            input: query,
+            output: newProfile.aiSummary,
+            isError: false,
           },
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
