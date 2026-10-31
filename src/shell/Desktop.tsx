@@ -10,7 +10,7 @@ import { Window } from '../wm/Window';
 import { SnapGuides } from '../wm/SnapGuides';
 import { SnapZone } from '../core/types';
 import { Toasts } from './Toasts';
-import { Terminal, Folder, Sparkles, Settings, Shield, Bot, Cloud, Zap } from 'lucide-react';
+import { Terminal, Folder, Sparkles, Settings, Shield, Bot, Cloud, Zap, Globe } from 'lucide-react';
 import { getIconTheme } from '../core/icon-theme';
 import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
 
@@ -215,6 +215,7 @@ export const Desktop: React.FC = () => {
               null,
               { label: 'Open Terminal',    icon: <Terminal className="w-3.5 h-3.5 text-emerald-400" />, action: () => openApp('terminal') },
               { label: 'Open Files',       icon: <Folder className="w-3.5 h-3.5 text-sky-400" />,     action: () => openApp('filemanager') },
+              { label: 'Open Browser',     icon: <Globe className="w-3.5 h-3.5 text-teal-400" />,     action: () => openApp('browser') },
               { label: 'OS Synthesizer',   icon: <Settings className="w-3.5 h-3.5 text-violet-400" />, action: () => openApp('settings') },
               { label: 'Audit & Guard',    icon: <Shield className="w-3.5 h-3.5 text-amber-400" />,    action: () => openApp('security') },
               null,

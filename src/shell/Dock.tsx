@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useOSStore } from '../core/store';
 import { AppId } from '../core/types';
-import { Terminal, Folder, Settings, ShieldAlert, FileText, Sparkles, Bot, Zap } from 'lucide-react';
+import { Terminal, Folder, Settings, ShieldAlert, FileText, Sparkles, Bot, Zap, Globe } from 'lucide-react';
 import { getIconTheme } from '../core/icon-theme';
 import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
 
@@ -42,6 +42,11 @@ const ITEMS: DockItemDef[] = [
     id: 'security',
     label: 'Audit Guard',
     icon: (c) => <ShieldAlert className="w-6 h-6" style={{ color: c }} />,
+  },
+  {
+    id: 'browser',
+    label: 'Browser',
+    icon: (c) => <Globe className="w-6 h-6" style={{ color: c }} />,
   },
   {
     id: 'notes',

@@ -184,6 +184,12 @@ export function getIconTheme(
       glow: 'rgba(14,165,233,0.55)',
       text: '#38bdf8',
     },
+    browser: {
+      bg: 'linear-gradient(145deg, #042f2e, #0e7490)',
+      border: 'rgba(45,212,191,0.35)',
+      glow: 'rgba(45,212,191,0.5)',
+      text: '#5eead4',
+    },
     spotlight: {
       bg: 'linear-gradient(145deg, #1e1b4b, #312e81)',
       border: 'rgba(129,140,248,0.3)',
