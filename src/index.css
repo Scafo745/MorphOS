@@ -1,0 +1,211 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Premium Fonts ──────────────────────────────────────── */
+@layer base {
+  html {
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ─── Design Tokens (default = macOS glass) ─────────────── */
+:root {
+  /* wallpaper */
+  --bg-desktop: radial-gradient(ellipse 120% 80% at 60% -10%,
+      #1a1040 0%, #0c0c1a 45%, #030308 100%);
+  --bg-orb-1: radial-gradient(circle at 25% 35%, rgba(99,102,241,0.18) 0%, transparent 60%);
+  --bg-orb-2: radial-gradient(circle at 75% 65%, rgba(14,165,233,0.12) 0%, transparent 55%);
+
+  /* window chrome */
+  --window-bg: rgba(12, 12, 22, 0.72);
+  --window-border: rgba(255, 255, 255, 0.09);
+  --window-blur: 32px;
+  --window-radius: 14px;
+  --window-header-bg: rgba(255, 255, 255, 0.04);
+  --window-header-border: rgba(255, 255, 255, 0.07);
+  --window-shadow: 0 32px 80px -12px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.08);
+  --window-shadow-active: 0 40px 100px -12px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.13);
+
+  /* dock */
+  --dock-bg: rgba(255, 255, 255, 0.07);
+  --dock-border: rgba(255, 255, 255, 0.12);
+  --dock-blur: 40px;
+  --dock-radius: 22px;
+  --dock-shadow: 0 -1px 0 0 rgba(255,255,255,0.08) inset, 0 20px 60px rgba(0,0,0,0.6);
+
+  /* menu bar */
+  --menubar-bg: rgba(8, 8, 16, 0.55);
+  --menubar-border: rgba(255, 255, 255, 0.06);
+
+  /* spotlight */
+  --spotlight-bg: rgba(10, 10, 20, 0.88);
+  --spotlight-border: rgba(255, 255, 255, 0.1);
+
+  /* accent */
+  --accent: #818cf8;
+  --accent-dim: rgba(129,140,248,0.15);
+  --accent-glow: rgba(129,140,248,0.3);
+  --accent-text: #c7d2fe;
+}
+
+/* ─── macOS Cupertino ──────────────────────────────────────── */
+.theme-macos {
+  --bg-desktop: radial-gradient(ellipse 130% 100% at 70% -20%,
+      #1e1040 0%, #0d0a1e 50%, #050508 100%);
+  --bg-orb-1: radial-gradient(circle at 20% 30%, rgba(129,140,248,0.22) 0%, transparent 60%);
+  --bg-orb-2: radial-gradient(circle at 80% 70%, rgba(56,189,248,0.14) 0%, transparent 55%);
+  --window-bg: rgba(10, 10, 20, 0.70);
+  --window-border: rgba(255,255,255,0.10);
+  --window-blur: 40px;
+  --window-radius: 16px;
+  --accent: #a5b4fc;
+  --accent-dim: rgba(165,180,252,0.12);
+  --accent-glow: rgba(165,180,252,0.35);
+  --accent-text: #e0e7ff;
+  --dock-bg: rgba(255,255,255,0.08);
+  --dock-border: rgba(255,255,255,0.14);
+  --dock-blur: 48px;
+  --dock-radius: 24px;
+}
+
+/* ─── Windows Fluent ───────────────────────────────────────── */
+.theme-windows {
+  --bg-desktop: linear-gradient(145deg, #071428 0%, #0a1f3a 40%, #060e1c 100%);
+  --bg-orb-1: radial-gradient(circle at 30% 40%, rgba(0,120,212,0.18) 0%, transparent 55%);
+  --bg-orb-2: radial-gradient(circle at 70% 60%, rgba(0,180,255,0.10) 0%, transparent 50%);
+  --window-bg: rgba(10, 18, 32, 0.82);
+  --window-border: rgba(255,255,255,0.08);
+  --window-blur: 24px;
+  --window-radius: 8px;
+  --dock-bg: rgba(10, 18, 32, 0.88);
+  --dock-border: rgba(255,255,255,0.1);
+  --dock-blur: 20px;
+  --dock-radius: 8px;
+  --accent: #38bdf8;
+  --accent-dim: rgba(56,189,248,0.12);
+  --accent-glow: rgba(56,189,248,0.35);
+  --accent-text: #bae6fd;
+}
+
+/* ─── Cyber Arch ───────────────────────────────────────────── */
+.theme-cyber {
+  --bg-desktop: radial-gradient(ellipse 100% 100% at 50% 50%, #030a0f 0%, #010305 100%);
+  --bg-orb-1: radial-gradient(circle at 20% 80%, rgba(0,255,180,0.08) 0%, transparent 50%);
+  --bg-orb-2: radial-gradient(circle at 80% 20%, rgba(0,200,255,0.06) 0%, transparent 50%);
+  --window-bg: rgba(3, 10, 16, 0.92);
+  --window-border: rgba(0,255,180,0.22);
+  --window-blur: 12px;
+  --window-radius: 2px;
+  --dock-bg: rgba(2, 8, 12, 0.95);
+  --dock-border: rgba(0,255,180,0.35);
+  --dock-blur: 8px;
+  --dock-radius: 0px;
+  --window-shadow: 0 0 0 1px rgba(0,255,180,0.25), 0 20px 60px rgba(0,0,0,0.9);
+  --window-shadow-active: 0 0 0 1px rgba(0,255,180,0.5), 0 0 40px rgba(0,255,180,0.1), 0 20px 60px rgba(0,0,0,0.9);
+  --accent: #00ffb4;
+  --accent-dim: rgba(0,255,180,0.08);
+  --accent-glow: rgba(0,255,180,0.4);
+  --accent-text: #a7ffdf;
+}
+
+/* ─── Enterprise ───────────────────────────────────────────── */
+.theme-enterprise {
+  --bg-desktop: radial-gradient(ellipse 110% 70% at 50% 10%,
+      #061525 0%, #040e1c 40%, #020810 100%);
+  --bg-orb-1: radial-gradient(circle at 25% 30%, rgba(14,165,233,0.14) 0%, transparent 55%);
+  --bg-orb-2: radial-gradient(circle at 75% 70%, rgba(99,102,241,0.09) 0%, transparent 50%);
+  --window-bg: rgba(5, 14, 25, 0.85);
+  --window-border: rgba(14,165,233,0.15);
+  --window-blur: 28px;
+  --window-radius: 10px;
+  --dock-bg: rgba(5, 14, 25, 0.90);
+  --dock-border: rgba(14,165,233,0.2);
+  --dock-blur: 28px;
+  --dock-radius: 12px;
+  --accent: #0ea5e9;
+  --accent-dim: rgba(14,165,233,0.12);
+  --accent-glow: rgba(14,165,233,0.35);
+  --accent-text: #bae6fd;
+}
+
+/* ─── Gothic Obsidian Dark ─────────────────────────────────── */
+.theme-gothic {
+  --bg-desktop: radial-gradient(ellipse 120% 90% at 50% -10%, #1c040e 0%, #090206 50%, #010002 100%);
+  --bg-orb-1: radial-gradient(circle at 30% 30%, rgba(225,29,72,0.2) 0%, transparent 60%);
+  --bg-orb-2: radial-gradient(circle at 70% 70%, rgba(147,51,234,0.16) 0%, transparent 55%);
+  --window-bg: rgba(12, 3, 8, 0.92);
+  --window-border: rgba(225,29,72,0.32);
+  --window-blur: 32px;
+  --window-radius: 8px;
+  --dock-bg: rgba(15, 3, 9, 0.95);
+  --dock-border: rgba(225,29,72,0.38);
+  --dock-blur: 24px;
+  --dock-radius: 12px;
+  --window-shadow: 0 0 0 1px rgba(225,29,72,0.2), 0 32px 80px rgba(0,0,0,0.95);
+  --window-shadow-active: 0 0 0 1px rgba(225,29,72,0.55), 0 0 40px rgba(225,29,72,0.2), 0 40px 100px rgba(0,0,0,0.95);
+  --accent: #f43f5e;
+  --accent-dim: rgba(244,63,94,0.14);
+  --accent-glow: rgba(244,63,94,0.45);
+  --accent-text: #fecdd3;
+}
+
+/* ─── Utility Surfaces ─────────────────────────────────────── */
+.surface-window {
+  background: var(--window-bg);
+  backdrop-filter: blur(var(--window-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--window-blur)) saturate(160%);
+  border: 1px solid var(--window-border);
+  border-radius: var(--window-radius);
+  box-shadow: var(--window-shadow);
+}
+
+.surface-window.is-active {
+  box-shadow: var(--window-shadow-active);
+  border-color: rgba(255,255,255,0.14);
+}
+
+.surface-dock {
+  background: var(--dock-bg);
+  backdrop-filter: blur(var(--dock-blur)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--dock-blur)) saturate(150%);
+  border: 1px solid var(--dock-border);
+  border-radius: var(--dock-radius);
+  box-shadow: var(--dock-shadow);
+}
+
+.surface-glass {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+}
+
+/* ─── Noise texture overlay ────────────────────────────────── */
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Scrollbar ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+/* ─── Text Selection ───────────────────────────────────────── */
+::selection {
+  background: var(--accent-dim);
+  color: var(--accent-text);
+}

@@ -1,0 +1,103 @@
+import { FileItem, AuditLog } from '../core/types';
+
+export const INITIAL_FILESYSTEM: FileItem[] = [
+  // Root directories
+  { id: '1', name: 'bin', path: '/bin', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+  { id: '2', name: 'etc', path: '/etc', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'RESTRICTED', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+  { id: '3', name: 'home', path: '/home', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+  { id: '4', name: 'var', path: '/var', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'CONFIDENTIAL', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+
+  // etc files (system config, sensitive)
+  {
+    id: '5',
+    name: 'passwd',
+    path: '/etc/passwd',
+    type: 'file',
+    permissions: '-rw-------',
+    owner: 'root',
+    classification: 'RESTRICTED',
+    updatedAt: '2026-10-31 09:05',
+    size: '1.2 KB',
+    content: `root:x:0:0:root:/root:/bin/zsh\ndeveloper:x:1000:1000:Dev User:/home/developer:/bin/zsh\nintern:x:1001:1001:Junior Intern:/home/intern:/bin/bash\nfintech_auditor:x:1002:1002:Juspay Auditor:/home/auditor:/bin/zsh`,
+  },
+  {
+    id: '6',
+    name: 'os-release',
+    path: '/etc/os-release',
+    type: 'file',
+    permissions: '-rw-r--r--',
+    owner: 'root',
+    classification: 'PUBLIC',
+    updatedAt: '2026-10-31 09:00',
+    size: '340 B',
+    content: `NAME="MorphOS"\nVERSION="2.4.0-Enterprise"\nID=morphos\nPRETTY_NAME="MorphOS Prompt-Synthesized Dynamic Runtime"\nHOME_URL="https://morphos.xyz"`,
+  },
+  {
+    id: '6b',
+    name: 'hyperswitch.json',
+    path: '/etc/hyperswitch.json',
+    type: 'file',
+    permissions: '-rw-r-----',
+    owner: 'root',
+    classification: 'CONFIDENTIAL',
+    updatedAt: '2026-10-31 09:02',
+    size: '580 B',
+    content: `{\n  "switch_id": "hyperswitch_blr_prod_01",\n  "routing_policy": "ml_cost_latency_optimized",\n  "pci_dss_compliance": "Level_1_Enforced",\n  "max_tps_capacity": 5000,\n  "auto_failover_enabled": true,\n  "active_rails": [\n    {"gateway": "HDFC_UPI", "weight": 40, "status": "HEALTHY"},\n    {"gateway": "ICICI_DIRECT", "weight": 30, "status": "HEALTHY"},\n    {"gateway": "AXIS_TURBO", "weight": 20, "status": "HEALTHY"},\n    {"gateway": "SBI_DIRECT", "weight": 10, "status": "FAILOVER_CANDIDATE"}\n  ]\n}`,
+  },
+
+  // var/log
+  { id: '7', name: 'log', path: '/var/log', type: 'directory', permissions: 'drwx------', owner: 'root', classification: 'CONFIDENTIAL', updatedAt: '2026-10-31 09:10', size: '4.0 KB' },
+  {
+    id: '8',
+    name: 'transactions.csv',
+    path: '/var/log/transactions.csv',
+    type: 'file',
+    permissions: '-r--------',
+    owner: 'root',
+    classification: 'RESTRICTED',
+    updatedAt: '2026-10-31 09:12',
+    size: '12.4 KB',
+    content: `txn_id,amount,currency,gateway,status,risk_score\nTXN_98412,4500.00,INR,JUSPAY_HYPERSWITCH,SUCCESS,0.02\nTXN_98413,12999.00,INR,JUSPAY_EXPRESS,SUCCESS,0.01\nTXN_98414,249.50,USD,STRIPE_ROUTED,SUCCESS,0.05\nTXN_98415,89000.00,INR,UPI_INTENT,CHALLENGED,0.89`,
+  },
+
+  // home/developer
+  { id: '9', name: 'developer', path: '/home/developer', type: 'directory', permissions: 'drwxr-xr-x', owner: 'developer', classification: 'PUBLIC', updatedAt: '2026-10-31 09:15', size: '4.0 KB' },
+  { id: '10', name: 'projects', path: '/home/developer/projects', type: 'directory', permissions: 'drwxr-xr-x', owner: 'developer', classification: 'PUBLIC', updatedAt: '2026-10-31 09:16', size: '4.0 KB' },
+  {
+    id: '11',
+    name: 'morph_kernel.ts',
+    path: '/home/developer/projects/morph_kernel.ts',
+    type: 'file',
+    permissions: '-rw-r--r--',
+    owner: 'developer',
+    classification: 'PUBLIC',
+    updatedAt: '2026-10-31 09:20',
+    size: '3.1 KB',
+    content: `// MorphOS Adaptive Kernel Subsystem\nexport function recompileKernelState(prompt: string) {\n  console.log("Synthesizing UI + Security parameters for:", prompt);\n  return { status: "MORPH_SUCCESS", timestamp: Date.now() };\n}`,
+  },
+  {
+    id: '12',
+    name: 'secrets.env',
+    path: '/home/developer/secrets.env',
+    type: 'file',
+    permissions: '-rw-------',
+    owner: 'developer',
+    classification: 'CONFIDENTIAL',
+    updatedAt: '2026-10-31 09:25',
+    size: '420 B',
+    content: `AWS_ACCESS_KEY_ID=AKIA_JUSPAY_HACK_PROD_99\nDATABASE_URL=postgresql://root:ultra_secure_hash@aws-rds.internal:5432/payments\nJWT_SECRET_SIGNING_KEY=morphos_zero_trust_super_entropy_token_2026`,
+  },
+  {
+    id: '13',
+    name: 'README.md',
+    path: '/home/developer/README.md',
+    type: 'file',
+    permissions: '-rw-r--r--',
+    owner: 'developer',
+    classification: 'PUBLIC',
+    updatedAt: '2026-10-31 09:30',
+    size: '850 B',
+    content: `# Welcome to MorphOS\n\nThe prompt-synthesized operating system for modern developers and security engineers.\n- Press Cmd+K or click the search bar to morph your system.\n- Try typing: "I want macOS glass design with Windows snap tiling and strict Linux security"\n- Test running "cat /etc/passwd" or "cat /var/log/transactions.csv" in Terminal!`,
+  },
+];
+

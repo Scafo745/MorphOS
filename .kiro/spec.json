@@ -1,0 +1,50 @@
+{
+  "name": "MorphOS",
+  "version": "2.4.0",
+  "description": "Prompt-Synthesized Adaptive Operating System for FinTech, Cloud & Zero-Trust Security",
+  "hackathon": {
+    "event": "Juspay Ship Happens Hackathon (Bangalore)",
+    "primaryTrack": "Track 01: Cloud Nine (AWS + Kiro)",
+    "secondaryTrack": "Track 03: Trust Issues (Failproof AI & Zero Accidental Data Loss)"
+  },
+  "architecture": {
+    "engine": "React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion + Zustand",
+    "subsystems": [
+      {
+        "name": "Microkernel VFS",
+        "path": "src/kernel/filesystem.ts",
+        "description": "POSIX-compliant in-memory virtual file system with ACLs, classification tags, and encrypted /etc /var structures"
+      },
+      {
+        "name": "SELinux & LSM Security Interceptor",
+        "path": "src/kernel/security.ts",
+        "description": "Kernel security module intercepting destructive signatures (rm -rf, DROP TABLE, mkfs) and enforcing PCI-DSS 4.0 Level 1 policies"
+      },
+      {
+        "name": "Window Manager (WM)",
+        "path": "src/wm/Window.tsx",
+        "description": "Floating, magnetic snapping (Windows 11 Snap), and auto-tiling (Hyprland) compositor with capture-phase z-index management"
+      },
+      {
+        "name": "Prompt Compiler (Local + n8n + Gemini)",
+        "path": "src/core/prompt-compiler.ts",
+        "description": "High-precision NLP compiler synthesizing design tokens, icon packs, window geometry, and security profiles with fallback resilience"
+      },
+      {
+        "name": "Dynamic Design Token Engine",
+        "path": "src/core/icon-theme.ts",
+        "description": "Runtime token injection for custom canvas shaders, ambient orbs, window glass, and icon styles (Gothic, Matrix, Gold, Synthwave, FinTech)"
+      },
+      {
+        "name": "Juspay Hyperswitch™ Payment Router",
+        "path": "src/apps/Hyperswitch.tsx",
+        "description": "Live financial switch stream (1,842 TPS), bank routing rails (HDFC, ICICI, SBI, Axis), and automated failover orchestration"
+      },
+      {
+        "name": "Morph Copilot AI Agent",
+        "path": "src/apps/Copilot.tsx",
+        "description": "Autonomous OS copilot executing microkernel syscalls, querying telemetry, and performing system recompilation"
+      }
+    ]
+  }
+}
