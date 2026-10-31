@@ -19,3 +19,4 @@ You are working inside **MorphOS** — a browser-based, prompt-synthesized Opera
 4. **Juspay & Hyperswitch Context**:
    - Juspay is a high-throughput payments orchestrator.
    - The primary FinTech app is `src/apps/Hyperswitch.tsx`. Any new financial feature must preserve PCI-DSS 4.0 Level 1 tokenization and multi-bank routing rails (HDFC, ICICI, SBI, Axis).
+
