@@ -1,7 +1,15 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, RotateCw, Home, Search, Globe, Shield, Terminal, Folder, Sparkles } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, RotateCw, Home, Search, Globe, Shield, Terminal, Folder, Sparkles, ExternalLink, Loader2 } from 'lucide-react';
+import { useOSStore } from '../core/store';
+import { answerQuestionAsync } from '../core/ai-chat';
+import type { CloudConfig } from '../core/types';
 
 const HOME_URL = 'morphos://start';
+
+/** Launch the real Google results for a query in a new real browser tab. */
+const openInGoogle = (query: string) => {
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer');
+};
 
 interface QuickLink {
   label: string;
@@ -33,6 +41,7 @@ const normalizeUrl = (raw: string): string => {
 const isExternal = (url: string): boolean => /^https?:\/\//i.test(url);
 
 export const Browser: React.FC = () => {
+  const { cloudConfig } = useOSStore();
   const [history, setHistory] = useState<string[]>([HOME_URL]);
   const [index, setIndex] = useState(0);
   const [address, setAddress] = useState(HOME_URL);
@@ -144,6 +153,19 @@ export const Browser: React.FC = () => {
             Go
           </button>
         </form>
+
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => openInGoogle(searchQuery)}
+            className="ml-1.5 flex items-center gap-1 px-2.5 h-8 rounded-[10px] text-[12px] font-medium border transition-colors hover:bg-geist-hairlineSoft flex-shrink-0"
+            style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--ink, #171717)' }}
+            title="Open this search on Google in a new tab"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Google
+          </button>
+        )}
       </div>
 
       {/* ── Content ─────────────────────────────── */}
@@ -161,6 +183,8 @@ export const Browser: React.FC = () => {
               onError={() => setFrameError(true)}
             />
           )
+        ) : searchQuery ? (
+          <SearchResults key={`${searchQuery}-${reloadKey}`} query={searchQuery} cloudConfig={cloudConfig} onNavigate={navigate} />
         ) : (
           <StartPage key={reloadKey} query={searchQuery} onNavigate={navigate} />
         )}
@@ -189,6 +213,147 @@ const ExternalError: React.FC<{ url: string; onHome: () => void }> = ({ url, onH
     </button>
   </div>
 );
+
+/**
+ * Real answer-engine style results page. Runs the query through the shared
+ * Gemini helper (answerQuestionAsync) and renders the returned answer as a
+ * Perplexity-like answer card, with a loading state, a graceful local fallback,
+ * and an Open in Google escape hatch for full web results.
+ */
+const SearchResults: React.FC<{
+  query: string;
+  cloudConfig: CloudConfig;
+  onNavigate: (url: string) => void;
+}> = ({ query, cloudConfig, onNavigate }) => {
+  const [search, setSearch] = useState(query);
+  const [loading, setLoading] = useState(true);
+  const [answer, setAnswer] = useState('');
+  const [source, setSource] = useState<'gemini' | 'local'>('local');
+  const [failed, setFailed] = useState(false);
+  const reqId = useRef(0);
+
+  useEffect(() => {
+    const id = ++reqId.current;
+    setLoading(true);
+    setFailed(false);
+    setAnswer('');
+
+    answerQuestionAsync(query, cloudConfig)
+      .then((result) => {
+        if (id !== reqId.current) return; // stale response, ignore
+        setAnswer(result.answer);
+        setSource(result.source);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (id !== reqId.current) return;
+        setFailed(true);
+        setLoading(false);
+      });
+  }, [query, cloudConfig]);
+
+  const hasGeminiKey = Boolean(cloudConfig.geminiApiKey) && cloudConfig.engineMode !== 'local';
+
+  return (
+    <div className="min-h-full flex flex-col items-center px-6 py-8 gap-6">
+      {/* Search box so the user can refine the query from the results page. */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onNavigate(search);
+        }}
+        className="w-full max-w-2xl flex items-center gap-2 px-3.5 h-11 rounded-[14px] border flex-shrink-0"
+        style={{ borderColor: 'var(--hairline, #ebebeb)', background: 'var(--canvas-elevated, #ffffff)', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}
+      >
+        <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--text-faint, #a1a1a1)' }} />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          spellCheck={false}
+          placeholder="Search or enter a URL"
+          className="flex-1 bg-transparent outline-none text-[13px]"
+          style={{ color: 'var(--ink, #171717)' }}
+          aria-label="Search"
+        />
+        <button
+          type="button"
+          onClick={() => openInGoogle(query)}
+          className="flex items-center gap-1 px-2.5 h-8 rounded-[10px] text-[12px] font-medium border transition-colors hover:bg-geist-hairlineSoft flex-shrink-0"
+          style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--ink, #171717)' }}
+          title="Open this search on Google in a new tab"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          Open in Google
+        </button>
+      </form>
+
+      {/* Answer card. */}
+      <div className="w-full max-w-2xl">
+        <div className="mb-2 flex items-center gap-2">
+          <h2 className="text-base font-semibold tracking-tight" style={{ color: 'var(--ink, #171717)' }}>
+            {query}
+          </h2>
+        </div>
+
+        <div
+          className="rounded-[14px] border p-4"
+          style={{ borderColor: 'var(--hairline, #ebebeb)', background: 'var(--canvas-elevated, #ffffff)', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}
+        >
+          {loading ? (
+            <div className="flex items-center gap-2 py-6 justify-center" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-[12px]">Searching...</span>
+            </div>
+          ) : failed ? (
+            <div className="flex flex-col gap-3">
+              <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-body, #4d4d4d)' }}>
+                Sorry, I could not complete the search just now. You can try again, or open the full web results on Google.
+              </p>
+              <button
+                onClick={() => openInGoogle(query)}
+                className="self-start flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[12px] font-medium transition-opacity hover:opacity-90"
+                style={{ background: 'var(--link, #0070f3)', color: '#ffffff' }}
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Open in Google
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--link, #0070f3)' }} />
+                <span className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-faint, #a1a1a1)' }}>
+                  {source === 'gemini' ? 'Answer by Gemini' : 'Offline answer (local assistant)'}
+                </span>
+              </div>
+
+              <p className="text-[13px] leading-[1.7] whitespace-pre-wrap" style={{ color: 'var(--text-body, #4d4d4d)' }}>
+                {answer}
+              </p>
+
+              {source === 'local' && !hasGeminiKey && (
+                <p className="text-[11px] leading-relaxed pt-1 border-t" style={{ color: 'var(--text-faint, #a1a1a1)', borderColor: 'var(--hairline, #ebebeb)' }}>
+                  Add a Gemini API key in Cloud Gateway settings (the Cloud icon, or press Ctrl/Cmd+K) to get fuller web-backed answers here.
+                </p>
+              )}
+
+              <div className="pt-1">
+                <button
+                  onClick={() => openInGoogle(query)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] text-[12px] font-medium border transition-colors hover:bg-geist-hairlineSoft"
+                  style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--ink, #171717)' }}
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Open in Google for full web results
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 /** MorphOS-branded local start / new-tab page. */
 const StartPage: React.FC<{ query: string | null; onNavigate: (url: string) => void }> = ({ query, onNavigate }) => {
@@ -232,13 +397,9 @@ const StartPage: React.FC<{ query: string | null; onNavigate: (url: string) => v
         />
       </form>
 
-      {query && (
-        <div className="w-full max-w-md -mt-4 text-[12px]" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
-          Showing simulated results for{' '}
-          <span className="font-medium" style={{ color: 'var(--ink, #171717)' }}>&ldquo;{query}&rdquo;</span>. This is a
-          local demo page; no network request left the sandbox.
-        </div>
-      )}
+      <div className="w-full max-w-md -mt-4 text-[12px] text-center" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
+        Searches run through the configured AI engine for a real answer, with Open in Google for full web results.
+      </div>
 
       <div className="w-full max-w-md grid grid-cols-2 gap-3">
         {QUICK_LINKS.map((link) => (
