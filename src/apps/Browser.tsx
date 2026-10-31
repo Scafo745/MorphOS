@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, RotateCw, Home, Search, Globe, Shield, Terminal, Folder, Sparkles, ExternalLink, Loader2 } from 'lucide-react';
 import { useOSStore } from '../core/store';
-import { answerQuestionAsync } from '../core/ai-chat';
+import { answerQuestionAsync, getLastGeminiDiagnostic } from '../core/ai-chat';
 import type { CloudConfig } from '../core/types';
 
 const HOME_URL = 'morphos://start';
@@ -230,6 +230,7 @@ const SearchResults: React.FC<{
   const [answer, setAnswer] = useState('');
   const [source, setSource] = useState<'gemini' | 'local'>('local');
   const [failed, setFailed] = useState(false);
+  const [geminiNote, setGeminiNote] = useState<string | null>(null);
   const reqId = useRef(0);
 
   useEffect(() => {
@@ -237,12 +238,27 @@ const SearchResults: React.FC<{
     setLoading(true);
     setFailed(false);
     setAnswer('');
+    setGeminiNote(null);
 
     answerQuestionAsync(query, cloudConfig)
       .then((result) => {
         if (id !== reqId.current) return; // stale response, ignore
         setAnswer(result.answer);
         setSource(result.source);
+        // When we fell back to local with a key configured, surface the real
+        // HTTP reason Gemini could not be reached instead of a vague message.
+        if (result.source === 'local') {
+          const diag = getLastGeminiDiagnostic();
+          if (diag && !diag.ok && diag.reason !== 'no-key' && diag.status !== null) {
+            setGeminiNote(
+              `Gemini could not be reached (${diag.reason}). Check the key in Cloud Gateway settings.`
+            );
+          } else if (diag && !diag.ok && diag.reason === 'network error/timeout') {
+            setGeminiNote(
+              'Gemini could not be reached (network error or timeout). Check your connection and the key in Cloud Gateway settings.'
+            );
+          }
+        }
         setLoading(false);
       })
       .catch(() => {
@@ -334,6 +350,12 @@ const SearchResults: React.FC<{
               {source === 'local' && !hasGeminiKey && (
                 <p className="text-[11px] leading-relaxed pt-1 border-t" style={{ color: 'var(--text-faint, #a1a1a1)', borderColor: 'var(--hairline, #ebebeb)' }}>
                   Add a Gemini API key in Cloud Gateway settings (the Cloud icon, or press Ctrl/Cmd+K) to get fuller web-backed answers here.
+                </p>
+              )}
+
+              {source === 'local' && hasGeminiKey && geminiNote && (
+                <p className="text-[11px] leading-relaxed pt-1 border-t" style={{ color: 'var(--link, #0070f3)', borderColor: 'var(--hairline, #ebebeb)' }}>
+                  {geminiNote}
                 </p>
               )}
 

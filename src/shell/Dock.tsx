@@ -81,8 +81,11 @@ const DockIcon: React.FC<{
     return Math.abs(val - (left + width / 2));
   });
 
-  const sizeRaw = useTransform(distance, [0, 80, 150], [68, 56, 44]);
-  const size = useSpring(sizeRaw, { stiffness: 700, damping: 40, mass: 0.1 });
+  // Animate a GPU-composited `scale` transform instead of width/height so no
+  // browser layout runs per pointer move (the magnify stays smooth). 1.5 * 44
+  // ≈ 66, close to the previous 68px max.
+  const scaleRaw = useTransform(distance, [0, 80, 150], [1.5, 1.28, 1]);
+  const scale = useSpring(scaleRaw, { stiffness: 700, damping: 40, mass: 0.1 });
   const yRaw = useTransform(distance, [0, 80, 150], [-14, -6, 0]);
   const y = useSpring(yRaw, { stiffness: 700, damping: 40, mass: 0.1 });
 
@@ -109,9 +112,11 @@ const DockIcon: React.FC<{
         ref={ref}
         onClick={onClick}
         style={{
-          width: isMagnify ? size : 44,
-          height: isMagnify ? size : 44,
+          width: 44,
+          height: 44,
+          scale: isMagnify ? scale : 1,
           y: isMagnify ? y : 0,
+          transformOrigin: 'bottom center',
           borderRadius: iconTheme.borderRadius,
         }}
         whileTap={{ scale: 0.88 }}
