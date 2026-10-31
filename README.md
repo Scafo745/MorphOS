@@ -117,6 +117,16 @@ npm run dev
 
 Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/) in your browser.
 
+### Deploying to Render
+MorphOS is pre-configured with a Render Infrastructure Blueprint (`render.yaml`):
+1. In the [Render Dashboard](https://dashboard.render.com), click **New +** > **Static Site** (or **Blueprint**).
+2. Connect your `MorphOS` repository.
+3. Settings:
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+   - **Rewrite Rule**: `/*` ➔ `/index.html`
+4. Click **Deploy** — your live MorphOS instance will be online in under 60 seconds with global CDN and automatic SSL!
+
 ---
 
 ## 🎯 Hackathon Presentation Cheatsheet
