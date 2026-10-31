@@ -30,6 +30,9 @@ interface OSStore {
   // Toast notifications
   toasts: Toast[];
 
+  // Seeding channel: a question routed from Spotlight into Copilot
+  pendingCopilotPrompt: string | null;
+
   // Actions
   setProfile: (profile: OSProfile) => void;
   setBooting: (booting: boolean) => void;
@@ -62,6 +65,9 @@ interface OSStore {
   // Toasts
   addToast: (message: string, variant?: ToastVariant) => void;
   dismissToast: (id: string) => void;
+
+  // Seeding channel action
+  setPendingCopilotPrompt: (prompt: string | null) => void;
 }
 
 const getSavedCloudConfig = (): CloudConfig => {
@@ -120,6 +126,8 @@ export const useOSStore = create<OSStore>((set, get) => ({
   sudoPromptMessage: '',
 
   toasts: [],
+
+  pendingCopilotPrompt: null,
 
   windows: [
     {
@@ -521,4 +529,6 @@ export const useOSStore = create<OSStore>((set, get) => ({
 
   dismissToast: (id) =>
     set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+
+  setPendingCopilotPrompt: (prompt) => set({ pendingCopilotPrompt: prompt }),
 }));

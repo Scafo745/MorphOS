@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOSStore } from '../core/store';
 import { compilePromptAsync } from '../core/prompt-compiler';
+import { isOsSynthesisIntent } from '../core/ai-chat';
 import { OS_PRESETS } from '../core/presets';
 import { ArrowRight, ShieldCheck, LayoutGrid, Terminal, Wand2, Mic, MicOff, Cloud } from 'lucide-react';
 
@@ -24,7 +25,7 @@ const PLACEHOLDERS = [
 ];
 
 export const Spotlight: React.FC = () => {
-  const { isSpotlightOpen, toggleSpotlight, setProfile, cloudConfig, toggleCloudModal, addToast } = useOSStore();
+  const { isSpotlightOpen, toggleSpotlight, setProfile, cloudConfig, toggleCloudModal, addToast, openApp, setPendingCopilotPrompt } = useOSStore();
   const [prompt, setPrompt] = useState('');
   const [busy, setBusy] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -57,6 +58,18 @@ export const Spotlight: React.FC = () => {
   const synthesize = async (text?: string) => {
     const q = (text ?? prompt).trim();
     if (!q) return;
+
+    // General question: do not recompile the theme. Route it to Morph Copilot,
+    // which is the single canonical surface that renders the real AI answer.
+    if (!isOsSynthesisIntent(q)) {
+      openApp('copilot');
+      setPendingCopilotPrompt(q);
+      addToast('Asked Morph Copilot', 'info');
+      toggleSpotlight(false);
+      setPrompt('');
+      return;
+    }
+
     setBusy(true);
 
     try {

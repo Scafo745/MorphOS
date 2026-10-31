@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useOSStore } from '../core/store';
 import { executeShell } from '../kernel/shell';
 import { compilePromptAsync } from '../core/prompt-compiler';
+import { answerQuestionAsync } from '../core/ai-chat';
 import { Bot, User, Send, Sparkles, Terminal, ShieldAlert, ArrowRight, CornerDownLeft } from 'lucide-react';
 
 interface Message {
@@ -18,12 +19,12 @@ interface Message {
 }
 
 export const Copilot: React.FC = () => {
-  const { profile, setProfile, cloudConfig, openApp } = useOSStore();
+  const { profile, setProfile, cloudConfig, openApp, addToast, pendingCopilotPrompt, setPendingCopilotPrompt } = useOSStore();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
       sender: 'agent',
-      text: `Hello! I am **Morph Copilot**, your autonomous operating system assistant. I can execute commands against the microkernel, recompile the UI/security architecture, and inspect system telemetry.\n\nTry asking me to audit payments, inspect processes, or test our accidental data loss security guards!`,
+      text: `Hello! I am **Morph Copilot**, your autonomous operating system assistant. I can execute commands against the microkernel, recompile the UI/security architecture, and inspect system telemetry.\n\nTry asking me to audit payments, inspect processes, or test our accidental data loss security guards. You can also ask me general questions, like any AI chatbot.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -35,7 +36,7 @@ export const Copilot: React.FC = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
 
-  const handleSend = async (customPrompt?: string) => {
+  const handleSend = useCallback(async (customPrompt?: string) => {
     const query = (customPrompt || input).trim();
     if (!query) return;
 
@@ -189,18 +190,38 @@ export const Copilot: React.FC = () => {
         return;
       }
 
-      // Default AI agent answer with tool query
-      const sysRes = executeShell('whoami');
+      // Default: general-purpose conversational answer via the QA brain.
+      const { answer, source } = await answerQuestionAsync(query, cloudConfig);
       const agentMsg: Message = {
         id: `msg-${Date.now()}`,
         sender: 'agent',
-        text: `Understood! I analyzed your request within the current session (Active Role: \`${sysRes.output}\`). You can ask me to reconfigure the desktop, audit transaction files, or test system security boundaries.`,
+        text: answer,
+        toolCall: {
+          tool: `ai.answer(engine: ${source})`,
+          input: query,
+          output: source === 'gemini' ? 'Answered via Gemini 1.5 Flash' : 'Answered via local assistant',
+          isError: false,
+        },
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, agentMsg]);
+      addToast(
+        source === 'gemini' ? 'Answered via Gemini 1.5 Flash' : 'Offline — local assistant reply',
+        source === 'gemini' ? 'success' : 'info'
+      );
       setIsThinking(false);
     }, 600);
-  };
+  }, [input, profile, cloudConfig, setProfile, openApp, addToast]);
+
+  // Consume a question seeded from Spotlight: answer it here, then clear the
+  // channel immediately so it never re-fires.
+  useEffect(() => {
+    if (pendingCopilotPrompt) {
+      const seeded = pendingCopilotPrompt;
+      setPendingCopilotPrompt(null);
+      handleSend(seeded);
+    }
+  }, [pendingCopilotPrompt, setPendingCopilotPrompt, handleSend]);
 
   return (
     <div
@@ -366,7 +387,7 @@ export const Copilot: React.FC = () => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Ask Morph Copilot to reconfigure the OS, execute commands, or audit security..."
+          placeholder="Ask Morph Copilot anything, reconfigure the OS, audit security, or any general question..."
           className="flex-1 px-3.5 py-2 rounded-[6px] border text-xs placeholder-geist-mute focus:outline-none"
           style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)', color: 'var(--ink, #171717)' }}
         />
