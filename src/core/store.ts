@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { OSProfile, WindowState, AppId, FileItem, AuditLog, SnapZone, ProcessInfo, SELinuxState, CloudConfig } from './types';
+import { OSProfile, WindowState, AppId, FileItem, AuditLog, SnapZone, ProcessInfo, SELinuxState, CloudConfig, Toast, ToastVariant } from './types';
 import { OS_PRESETS } from './presets';
 import { INITIAL_FILESYSTEM } from '../kernel/filesystem';
 import { INITIAL_PROCESSES } from '../kernel/process';
@@ -26,6 +26,9 @@ interface OSStore {
   isSudoModalOpen: boolean;
   sudoPendingAction: (() => void) | null;
   sudoPromptMessage: string;
+
+  // Toast notifications
+  toasts: Toast[];
 
   // Actions
   setProfile: (profile: OSProfile) => void;
@@ -55,6 +58,10 @@ interface OSStore {
   triggerSudoChallenge: (message: string, onAuthorized: () => void) => void;
   resolveSudoChallenge: (success: boolean) => void;
   addAuditLog: (command: string, status: AuditLog['status'], reason?: string, severity?: AuditLog['severity']) => void;
+
+  // Toasts
+  addToast: (message: string, variant?: ToastVariant) => void;
+  dismissToast: (id: string) => void;
 }
 
 const getSavedCloudConfig = (): CloudConfig => {
@@ -111,6 +118,8 @@ export const useOSStore = create<OSStore>((set, get) => ({
   isSudoModalOpen: false,
   sudoPendingAction: null,
   sudoPromptMessage: '',
+
+  toasts: [],
 
   windows: [
     {
@@ -501,4 +510,15 @@ export const useOSStore = create<OSStore>((set, get) => ({
       ],
     }));
   },
+
+  addToast: (message, variant = 'info') => {
+    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    set((state) => ({ toasts: [...state.toasts, { id, message, variant }] }));
+    setTimeout(() => {
+      set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+    }, 4000);
+  },
+
+  dismissToast: (id) =>
+    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));

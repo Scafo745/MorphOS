@@ -24,7 +24,7 @@ const PLACEHOLDERS = [
 ];
 
 export const Spotlight: React.FC = () => {
-  const { isSpotlightOpen, toggleSpotlight, setProfile, cloudConfig, toggleCloudModal } = useOSStore();
+  const { isSpotlightOpen, toggleSpotlight, setProfile, cloudConfig, toggleCloudModal, addToast } = useOSStore();
   const [prompt, setPrompt] = useState('');
   const [busy, setBusy] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -60,10 +60,24 @@ export const Spotlight: React.FC = () => {
     setBusy(true);
 
     try {
-      const { profile: resProfile } = await compilePromptAsync(q, cloudConfig);
+      const { profile: resProfile, source } = await compilePromptAsync(q, cloudConfig);
       setProfile(resProfile);
+
+      const expectedCloud =
+        cloudConfig.engineMode !== 'local' &&
+        Boolean(cloudConfig.n8nWebhookUrl || cloudConfig.geminiApiKey);
+
+      if (source === 'n8n') {
+        addToast('Synthesized via n8n Cloud Webhook', 'success');
+      } else if (source === 'gemini') {
+        addToast('Synthesized via Gemini 1.5 Flash', 'success');
+      } else if (source === 'local' && expectedCloud) {
+        addToast('Cloud engine unreachable — fell back to local 0ms compiler', 'warning');
+      } else {
+        addToast('Synthesized via 0ms local engine', 'info');
+      }
     } catch {
-      // Fallback already handled inside compiler
+      addToast('Synthesis failed — please try again', 'error');
     } finally {
       setBusy(false);
       toggleSpotlight(false);
@@ -83,7 +97,7 @@ export const Spotlight: React.FC = () => {
   const startVoice = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+      addToast('Speech recognition is not supported in this browser. Please use Chrome or Edge.', 'warning');
       return;
     }
 
@@ -160,7 +174,8 @@ export const Spotlight: React.FC = () => {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && synthesize()}
-                  className="flex-1 bg-transparent text-[15px] text-white placeholder-white/20 focus:outline-none"
+                  aria-label="Describe your operating system"
+                  className="flex-1 bg-transparent text-[15px] text-white placeholder-white/20 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0"
                   placeholder={isListening ? 'Listening to your voice...' : PLACEHOLDERS[phIdx]}
                   disabled={busy}
                 />
@@ -170,7 +185,8 @@ export const Spotlight: React.FC = () => {
                   type="button"
                   onClick={startVoice}
                   title="Voice Prompt (Web Speech API)"
-                  className={`p-1.5 rounded-lg border transition-colors ${
+                  aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+                  className={`p-1.5 rounded-lg border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0 ${
                     isListening
                       ? 'bg-rose-500/20 border-rose-500 text-rose-300 animate-pulse'
                       : 'bg-white/5 hover:bg-white/10 border-white/10 text-slate-400 hover:text-white'
@@ -187,7 +203,8 @@ export const Spotlight: React.FC = () => {
                     toggleCloudModal(true);
                   }}
                   title="Cloud & n8n Gateway Settings"
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-sky-300 transition-colors"
+                  aria-label="Open cloud and n8n gateway settings"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-sky-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0"
                 >
                   <Cloud className="w-4 h-4" />
                 </button>
@@ -197,7 +214,8 @@ export const Spotlight: React.FC = () => {
                   disabled={busy || !prompt.trim()}
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-30 transition-all"
+                  aria-label="Synthesize operating system from prompt"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white disabled:opacity-30 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0"
                   style={{ background: 'var(--accent)', boxShadow: `0 0 20px var(--accent-glow)` }}
                 >
                   <span>{busy ? 'Compiling...' : 'Synthesize'}</span>

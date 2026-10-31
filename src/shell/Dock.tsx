@@ -4,6 +4,7 @@ import { useOSStore } from '../core/store';
 import { AppId } from '../core/types';
 import { Terminal, Folder, Settings, ShieldAlert, FileText, Sparkles, Bot, Zap } from 'lucide-react';
 import { getIconTheme } from '../core/icon-theme';
+import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
 
 interface DockItemDef {
   id: AppId | 'spotlight';
@@ -108,8 +109,9 @@ const DockIcon: React.FC<{
           borderRadius: iconTheme.borderRadius,
         }}
         whileTap={{ scale: 0.88 }}
-        className="relative flex items-center justify-center overflow-hidden focus:outline-none transition-all duration-300"
+        className="relative flex items-center justify-center overflow-hidden transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0"
         title={item.label}
+        aria-label={item.label}
       >
         {/* App icon background */}
         <div
@@ -165,9 +167,10 @@ const DockIcon: React.FC<{
 
 export const Dock: React.FC = () => {
   const { profile, windows, openApp, toggleSpotlight } = useOSStore();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const mouseX = useMotionValue(-999);
 
-  const isMagnify = profile.dockStyle === 'macos-magnify';
+  const isMagnify = profile.dockStyle === 'macos-magnify' && !prefersReducedMotion;
   const isWindowsStyle = profile.dockStyle === 'windows-center';
 
   const handleClick = (id: DockItemDef['id']) => {

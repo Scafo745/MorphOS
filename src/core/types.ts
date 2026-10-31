@@ -46,6 +46,14 @@ export interface CloudConfig {
   engineMode: 'auto' | 'n8n' | 'gemini' | 'local';
 }
 
+export type ToastVariant = 'info' | 'success' | 'warning' | 'error';
+
+export interface Toast {
+  id: string;
+  message: string;
+  variant: ToastVariant;
+}
+
 export interface SnapZone {
   type: 'left-half' | 'right-half' | 'maximize' | null;
 }
