@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOSStore } from '../core/store';
 import { compilePromptAsync } from '../core/prompt-compiler';
-import { isOsSynthesisIntent } from '../core/ai-chat';
+import { isOsSynthesisIntent, answerQuestionAsync } from '../core/ai-chat';
 import { OS_PRESETS } from '../core/presets';
-import { ArrowRight, ShieldCheck, LayoutGrid, Terminal, Wand2, Mic, MicOff, Cloud } from 'lucide-react';
+import { ArrowRight, ShieldCheck, LayoutGrid, Terminal, Wand2, Mic, MicOff, Cloud, Sparkles } from 'lucide-react';
 
 const PRESETS = [
   { key: 'cupertino-dev',      emoji: '🍎', name: 'Cupertino Pro',            sub: 'macOS glass · fluid dock · standard ACL' },
@@ -25,11 +25,13 @@ const PLACEHOLDERS = [
 ];
 
 export const Spotlight: React.FC = () => {
-  const { isSpotlightOpen, toggleSpotlight, setProfile, cloudConfig, toggleCloudModal, addToast, openApp, setPendingCopilotPrompt } = useOSStore();
+  const { isSpotlightOpen, toggleSpotlight, setProfile, cloudConfig, toggleCloudModal, addToast } = useOSStore();
   const [prompt, setPrompt] = useState('');
   const [busy, setBusy] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [phIdx, setPhIdx] = useState(0);
+  const [answer, setAnswer] = useState<{ text: string; source: 'gemini' | 'local' } | null>(null);
+  const [answering, setAnswering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Cycle placeholders
@@ -52,21 +54,38 @@ export const Spotlight: React.FC = () => {
   }, [toggleSpotlight]);
 
   useEffect(() => {
-    if (isSpotlightOpen) setTimeout(() => inputRef.current?.focus(), 60);
+    if (isSpotlightOpen) {
+      setTimeout(() => inputRef.current?.focus(), 60);
+    } else {
+      // Clear any inline answer so it does not linger on reopen.
+      setAnswer(null);
+      setAnswering(false);
+    }
   }, [isSpotlightOpen]);
 
   const synthesize = async (text?: string) => {
     const q = (text ?? prompt).trim();
     if (!q) return;
 
-    // General question: do not recompile the theme. Route it to Morph Copilot,
-    // which is the single canonical surface that renders the real AI answer.
+    // General question: do not recompile the theme. Answer it inline, right
+    // here in the Spotlight panel where the user typed, keeping Spotlight open.
     if (!isOsSynthesisIntent(q)) {
-      openApp('copilot');
-      setPendingCopilotPrompt(q);
-      addToast('Asked Morph Copilot', 'info');
-      toggleSpotlight(false);
-      setPrompt('');
+      setAnswer(null);
+      setAnswering(true);
+      setBusy(true);
+      try {
+        const { answer: text, source } = await answerQuestionAsync(q, cloudConfig);
+        setAnswer({ text, source });
+        addToast(
+          source === 'gemini' ? 'Answered via Gemini' : 'Answered offline (local assistant)',
+          source === 'gemini' ? 'success' : 'info'
+        );
+      } catch {
+        addToast('Could not answer right now, please try again', 'error');
+      } finally {
+        setBusy(false);
+        setAnswering(false);
+      }
       return;
     }
 
@@ -83,7 +102,7 @@ export const Spotlight: React.FC = () => {
       if (source === 'n8n') {
         addToast('Synthesized via n8n Cloud Webhook', 'success');
       } else if (source === 'gemini') {
-        addToast('Synthesized via Gemini 1.5 Flash', 'success');
+        addToast('Synthesized via Gemini', 'success');
       } else if (source === 'local' && expectedCloud) {
         addToast('Cloud engine unreachable — fell back to local 0ms compiler', 'warning');
       } else {
@@ -185,7 +204,10 @@ export const Spotlight: React.FC = () => {
                 <input
                   ref={inputRef}
                   value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
+                  onChange={(e) => {
+                    setPrompt(e.target.value);
+                    if (answer) setAnswer(null);
+                  }}
                   onKeyDown={(e) => e.key === 'Enter' && synthesize()}
                   aria-label="Describe your operating system"
                   className="flex-1 bg-transparent text-[15px] text-geist-ink placeholder-geist-mute rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0"
@@ -236,7 +258,51 @@ export const Spotlight: React.FC = () => {
                 </motion.button>
               </div>
 
+              {/* ── Inline answer (general questions) ── */}
+              {(answering || answer) && (
+                <div className="p-3 border-b" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
+                  {answering ? (
+                    <div className="flex items-center gap-2 px-1 py-2 text-[13px]" style={{ color: 'var(--text-body, #454545)' }}>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 0.8, ease: 'linear', repeat: Infinity }}
+                      >
+                        <Wand2 className="w-4 h-4" style={{ color: 'var(--accent)' }} />
+                      </motion.div>
+                      <span>Thinking...</span>
+                    </div>
+                  ) : answer ? (
+                    <div
+                      className="rounded-md"
+                      style={{
+                        background: 'var(--canvas-elevated, #ffffff)',
+                        border: '1px solid var(--hairline, #ebebeb)',
+                      }}
+                    >
+                      <div
+                        className="flex items-center gap-1.5 px-3 py-2 border-b"
+                        style={{ borderColor: 'var(--hairline, #ebebeb)' }}
+                      >
+                        <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
+                        <span className="text-[10px] font-semibold tracking-[0.14em] uppercase text-geist-mute">
+                          {answer.source === 'gemini'
+                            ? 'Answered via Gemini'
+                            : 'Answered offline (local assistant)'}
+                        </span>
+                      </div>
+                      <div
+                        className="px-3 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[240px]"
+                        style={{ color: 'var(--text-body, #454545)' }}
+                      >
+                        {answer.text}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+
               {/* ── Preset grid ── */}
+              {!(answering || answer) && (
               <div className="p-3">
                 <div className="flex items-center justify-between px-1 mb-2">
                   <p className="text-[10px] font-semibold tracking-[0.14em] uppercase text-geist-mute">
@@ -277,6 +343,7 @@ export const Spotlight: React.FC = () => {
                   })}
                 </div>
               </div>
+              )}
 
               {/* ── Footer ── */}
               <div
