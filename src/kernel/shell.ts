@@ -76,6 +76,7 @@ Syscall terminated with SIGABRT (exit code 134).`,
   Packages:
     npm/pip install <pkg>      Install a node package into the VFS
     apt/pkg install <pkg>      Install a system package (e.g. firefox, tor, git)
+    pkg list            List installed packages
     browser [init]             Start the installed browser runtime
 
   Processes & IPC:
@@ -276,6 +277,47 @@ PCI-DSS 4.0: Level 1 Enforced | LSM Cryptographic Tokenization: ACTIVE`,
     };
   }
 
+  // ── 13.55 PACKAGE LIST (pkg list / npm list / npm ls / apt list --installed) ──
+  const isPkgList =
+    (cmd === 'pkg' && (args[0] === 'list' || args[0] === 'ls')) ||
+    (cmd === 'npm' && (args[0] === 'list' || args[0] === 'ls')) ||
+    ((cmd === 'apt' || cmd === 'apt-get') && args[0] === 'list');
+  if (isPkgList) {
+    const nodePkgs = filesystem.filter(
+      (f) => f.type === 'file' && f.path.startsWith('/usr/lib/morphos/node_modules/')
+    );
+    const systemPkgs = filesystem.filter(
+      (f) =>
+        f.type === 'file' &&
+        f.path.startsWith('/usr/bin/') &&
+        f.path.slice('/usr/bin/'.length).indexOf('/') === -1
+    );
+
+    if (nodePkgs.length === 0 && systemPkgs.length === 0) {
+      return {
+        output: 'No packages installed yet. Install one with: apt install <pkg> or npm install <pkg>',
+      };
+    }
+
+    const listLines: string[] = ['Installed packages:'];
+    if (systemPkgs.length > 0) {
+      listLines.push('  System (/usr/bin):');
+      for (const f of systemPkgs) {
+        const summary = (f.content || '').split('\n').find((l) => l.trim().startsWith('#'));
+        const detail = summary ? summary.replace(/^#\s*/, '').trim() : f.name;
+        listLines.push(`    ${f.name} - ${detail}`);
+      }
+    }
+    if (nodePkgs.length > 0) {
+      listLines.push('  Node (/usr/lib/morphos/node_modules):');
+      for (const f of nodePkgs) {
+        const detail = (f.content || '').trim() || f.name;
+        listLines.push(`    ${f.name} - ${detail}`);
+      }
+    }
+    return { output: listLines.join('\n') };
+  }
+
   // ── 13.6 PACKAGE INSTALL (npm/yarn/pip/apt/pkg/systemctl — simulated) ──
   // Built-in catalog of known "system packages" so installs feel real.
   const SYSTEM_PACKAGES: Record<string, { version: string; description: string; browser?: boolean; alias?: string }> = {
@@ -328,6 +370,8 @@ PCI-DSS 4.0: Level 1 Enforced | LSM Cryptographic Tokenization: ACTIVE`,
             `/usr/bin/${catalogKey}`,
             `#!/usr/bin/env morphos\n# ${catalogKey} ${version} - ${entry.description}\n`
           );
+          lines.push(`Installed to /usr/bin/${catalogKey}`);
+          lines.push('Verify with: pkg list  (or ls /usr/bin)');
         } else {
           // Node-style install of a known package.
           store.writeFile(
@@ -339,6 +383,8 @@ PCI-DSS 4.0: Level 1 Enforced | LSM Cryptographic Tokenization: ACTIVE`,
           lines.push(`✓ Verified integrity (sha512) and SELinux policy (${selinux.mode})`);
           lines.push(`✓ Linked 1 package into /usr/lib/morphos/node_modules`);
           lines.push(`added 1 package in 0.${String(Math.floor(Math.random() * 900) + 100)}s`);
+          lines.push(`Installed to /usr/lib/morphos/node_modules/${catalogKey}`);
+          lines.push('Verify with: pkg list  (or ls /usr/lib/morphos/node_modules)');
         }
         store.addAuditLog(rawCmd, 'ALLOWED', `Installed package ${catalogKey}`, 'INFO');
       } else {
@@ -355,6 +401,8 @@ PCI-DSS 4.0: Level 1 Enforced | LSM Cryptographic Tokenization: ACTIVE`,
         lines.push(`✓ Verified integrity (sha512) and SELinux policy (${selinux.mode})`);
         lines.push(`✓ Linked 1 package into /usr/lib/morphos/node_modules`);
         lines.push(`added 1 package in 0.${rand}s`);
+        lines.push(`Installed to /usr/lib/morphos/node_modules/${rawPkg}`);
+        lines.push('Verify with: pkg list  (or ls /usr/lib/morphos/node_modules)');
       }
     }
     return { output: lines.join('\n') };

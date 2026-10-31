@@ -151,7 +151,7 @@ export const Copilot: React.FC = () => {
         const agentMsg: Message = {
           id: `msg-${Date.now()}`,
           sender: 'agent',
-          text: `I ran the installation on your behalf against the microkernel terminal. Here is the output of \`npm install ${pkg}\`. The package was linked into the POSIX VFS at \`/usr/lib/morphos/node_modules\` and recorded in the PCI-DSS audit log.`,
+          text: `I ran the installation on your behalf against the microkernel terminal. Here is the output of \`npm install ${pkg}\`. The package was linked into the POSIX VFS at \`/usr/lib/morphos/node_modules\` and recorded in the PCI-DSS audit log. You can confirm it with \`pkg list\` or \`ls /usr/lib/morphos/node_modules\` in the Terminal.`,
           toolCall: {
             tool: `terminal.exec(npm install ${pkg})`,
             input: `npm install ${pkg}`,

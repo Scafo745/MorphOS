@@ -7,6 +7,13 @@ export const INITIAL_FILESYSTEM: FileItem[] = [
   { id: '3', name: 'home', path: '/home', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
   { id: '4', name: 'var', path: '/var', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'CONFIDENTIAL', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
 
+  // usr tree (where simulated package installs land, so they are browsable)
+  { id: 'usr-dir', name: 'usr', path: '/usr', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+  { id: 'usr-bin-dir', name: 'bin', path: '/usr/bin', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+  { id: 'usr-lib-dir', name: 'lib', path: '/usr/lib', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+  { id: 'usr-lib-morphos-dir', name: 'morphos', path: '/usr/lib/morphos', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+  { id: 'usr-lib-morphos-node-modules-dir', name: 'node_modules', path: '/usr/lib/morphos/node_modules', type: 'directory', permissions: 'drwxr-xr-x', owner: 'root', classification: 'PUBLIC', updatedAt: '2026-10-31 09:00', size: '4.0 KB' },
+
   // etc files (system config, sensitive)
   {
     id: '5',
