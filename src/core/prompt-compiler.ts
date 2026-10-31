@@ -10,17 +10,37 @@ export function synthesizeTokensFromPrompt(prompt: string): { tokens: CustomToke
   // ── 0. VERCEL / GEIST BASE (near-white developer-platform minimalism) ──
   // Placed first so the stark light base is not swallowed by the broad
   // gothic `dark` match or other keyword branches below.
-  if (
+  //
+  // `geist`/`vercel`/`developer platform` are STRONG, unambiguous matches and
+  // always win. The softer keywords (`minimal`/`clean`/`monochrome`/bare
+  // `light`) only win when the prompt is NOT dark-leaning — otherwise a prompt
+  // like "clean dark terminal" or "minimal gothic" should fall through to the
+  // competing mood branch rather than resolve to the light base.
+  const geistStrong =
     p.includes('geist') ||
     p.includes('vercel') ||
-    p.includes('minimal') ||
-    p.includes('minimalist') ||
-    p.includes('monochrome') ||
     p.includes('developer platform') ||
-    p.includes('developer-platform') ||
-    p.includes('clean') ||
-    (p.includes('light') && !p.includes('lightning'))
-  ) {
+    p.includes('developer-platform');
+  const darkLeaning =
+    p.includes('dark') ||
+    p.includes('night') ||
+    p.includes('black') ||
+    p.includes('neon') ||
+    p.includes('gothic') ||
+    p.includes('cyber') ||
+    p.includes('hacker') ||
+    p.includes('matrix') ||
+    p.includes('synthwave') ||
+    p.includes('vaporwave') ||
+    p.includes('obsidian');
+  const geistSoft =
+    !darkLeaning &&
+    (p.includes('minimal') ||
+      p.includes('minimalist') ||
+      p.includes('monochrome') ||
+      p.includes('clean') ||
+      (p.includes('light') && !p.includes('lightning')));
+  if (geistStrong || geistSoft) {
     return {
       theme: 'geist',
       name: 'Vercel Geist',
@@ -245,6 +265,21 @@ export function synthesizeTokensFromPrompt(prompt: string): { tokens: CustomToke
         dockRadius: '20px',
         iconStyle: 'minimal-outline',
         iconShape: 'rounded',
+        // Geist ladder (dark) — theme 'custom' has no .theme-* block, so the
+        // dark structural tokens must ride on customTokens.
+        canvas: 'rgba(6, 20, 36, 0.90)',
+        canvasElevated: 'rgba(10, 28, 48, 0.92)',
+        ink: '#eaf6ff',
+        textBody: '#bcdcf2',
+        textMute: '#80a4bd',
+        textFaint: '#5d7f98',
+        hairline: 'rgba(56,189,248,0.32)',
+        hairlineSoft: 'rgba(56,189,248,0.14)',
+        link: '#38bdf8',
+        statusSuccess: '#4ade80',
+        statusWarn: '#fbbf24',
+        statusError: '#ff6b6b',
+        statusReroute: '#c084fc',
       },
     };
   }

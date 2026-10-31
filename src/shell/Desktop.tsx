@@ -53,6 +53,12 @@ export const Desktop: React.FC = () => {
         '--canvas': profile.customTokens?.canvas,
         '--canvas-elevated': profile.customTokens?.canvasElevated,
         '--link': profile.customTokens?.link,
+        /* Semantic status palette — published for dark `custom` presets that
+           have no .theme-* block; undefined for others falls back to CSS. */
+        '--status-success': profile.customTokens?.statusSuccess,
+        '--status-warn': profile.customTokens?.statusWarn,
+        '--status-error': profile.customTokens?.statusError,
+        '--status-reroute': profile.customTokens?.statusReroute,
       } as React.CSSProperties}
     >
       {/* ── Ambient orbs ─────────────────────────────── */}

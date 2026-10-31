@@ -144,7 +144,7 @@ export const Hyperswitch: React.FC = () => {
         <div className="flex items-center space-x-3">
           <div
             className="flex items-center space-x-1.5 px-2.5 py-1 rounded-[6px] border font-mono text-[11px]"
-            style={{ borderColor: 'var(--hairline, #ebebeb)', color: '#15803d' }}
+            style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--status-success, #15803d)' }}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>{tps.toLocaleString()} TPS</span>
@@ -165,14 +165,14 @@ export const Hyperswitch: React.FC = () => {
         <div className="p-2.5 rounded-[12px] border" style={cardStyle}>
           <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Volume Today</div>
           <div className="text-base font-bold mt-0.5" style={{ color: 'var(--ink, #171717)' }}>₹142.89 Cr</div>
-          <div className="text-[10px] flex items-center gap-0.5 mt-0.5" style={{ color: '#15803d' }}>
+          <div className="text-[10px] flex items-center gap-0.5 mt-0.5" style={{ color: 'var(--status-success, #15803d)' }}>
             <TrendingUp className="w-3 h-3" /> +14.2% vs yesterday
           </div>
         </div>
 
         <div className="p-2.5 rounded-[12px] border" style={cardStyle}>
           <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Success Rate (SR)</div>
-          <div className="text-base font-bold mt-0.5" style={{ color: sbiDegraded ? '#b4760a' : '#15803d' }}>
+          <div className="text-base font-bold mt-0.5" style={{ color: sbiDegraded ? 'var(--status-warn, #b4760a)' : 'var(--status-success, #15803d)' }}>
             {sbiDegraded ? '94.12%' : '99.98%'}
           </div>
           <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Target SLA: &gt; 99.50%</div>
@@ -180,7 +180,7 @@ export const Hyperswitch: React.FC = () => {
 
         <div className="p-2.5 rounded-[12px] border" style={cardStyle}>
           <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-mute, #8f8f8f)' }}>P99 Gateway Latency</div>
-          <div className="text-base font-bold mt-0.5" style={{ color: sbiDegraded ? '#b4760a' : 'var(--link, #0070f3)' }}>
+          <div className="text-base font-bold mt-0.5" style={{ color: sbiDegraded ? 'var(--status-warn, #b4760a)' : 'var(--link, #0070f3)' }}>
             {sbiDegraded ? '184ms' : '16ms'}
           </div>
           <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Hyperswitch Native Engine</div>
@@ -188,10 +188,10 @@ export const Hyperswitch: React.FC = () => {
 
         <div className="p-2.5 rounded-[12px] border" style={cardStyle}>
           <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Routing Topology</div>
-          <div className="text-xs font-bold mt-1 truncate" style={{ color: '#7928ca' }}>
+          <div className="text-xs font-bold mt-1 truncate" style={{ color: 'var(--status-reroute, #7928ca)' }}>
             {smartRouted ? 'Adaptive ML (HDFC+ICICI)' : 'Direct Multi-Bank Weighted'}
           </div>
-          <div className="text-[10px] mt-0.5" style={{ color: '#15803d' }}>Active Auto-Failover</div>
+          <div className="text-[10px] mt-0.5" style={{ color: 'var(--status-success, #15803d)' }}>Active Auto-Failover</div>
         </div>
       </div>
 
@@ -207,14 +207,14 @@ export const Hyperswitch: React.FC = () => {
             <button
               onClick={handleSimulateOutage}
               className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105"
-              style={{ borderColor: 'rgba(238,0,0,0.3)', color: '#ee0000', background: 'rgba(238,0,0,0.06)' }}
+              style={{ borderColor: 'rgba(238,0,0,0.3)', color: 'var(--status-error, #ee0000)', background: 'rgba(238,0,0,0.06)' }}
             >
               Simulate SBI Degradation
             </button>
             <button
               onClick={handleSmartFailover}
               className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 flex items-center gap-1"
-              style={{ borderColor: 'rgba(21,128,61,0.3)', color: '#15803d', background: 'rgba(21,128,61,0.08)' }}
+              style={{ borderColor: 'rgba(21,128,61,0.3)', color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.08)' }}
             >
               <RefreshCw className="w-3 h-3" />
               <span>Hyperswitch Smart Failover</span>
@@ -222,7 +222,7 @@ export const Hyperswitch: React.FC = () => {
             <button
               onClick={handleDropTableTest}
               className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105"
-              style={{ borderColor: 'rgba(245,166,35,0.35)', color: '#b4760a', background: 'rgba(245,166,35,0.1)' }}
+              style={{ borderColor: 'rgba(245,166,35,0.35)', color: 'var(--status-warn, #b4760a)', background: 'rgba(245,166,35,0.1)' }}
               title="Test Accidental Data Loss Guard on Payments DB"
             >
               Test Accidental DB Wipe
@@ -236,11 +236,11 @@ export const Hyperswitch: React.FC = () => {
           <div className="p-2 rounded-[6px] border" style={cardStyle}>
             <div className="flex items-center justify-between text-[11px] font-bold" style={{ color: 'var(--ink, #171717)' }}>
               <span>HDFC UPI</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[6px] font-mono" style={{ color: '#15803d', background: 'rgba(21,128,61,0.1)' }}>99.6%</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-[6px] font-mono" style={{ color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.1)' }}>99.6%</span>
             </div>
             <div className="text-[10px] mt-1" style={{ color: 'var(--text-mute, #8f8f8f)' }}>P95: 12ms · Load: 42%</div>
             <div className="w-full h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: 'var(--hairline, #ebebeb)' }}>
-              <div className="h-full w-[99%]" style={{ background: '#22c55e' }} />
+              <div className="h-full w-[99%]" style={{ background: 'var(--status-success-bar, #22c55e)' }} />
             </div>
           </div>
 
@@ -248,11 +248,11 @@ export const Hyperswitch: React.FC = () => {
           <div className="p-2 rounded-[6px] border" style={cardStyle}>
             <div className="flex items-center justify-between text-[11px] font-bold" style={{ color: 'var(--ink, #171717)' }}>
               <span>ICICI Direct</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[6px] font-mono" style={{ color: '#15803d', background: 'rgba(21,128,61,0.1)' }}>99.2%</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-[6px] font-mono" style={{ color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.1)' }}>99.2%</span>
             </div>
             <div className="text-[10px] mt-1" style={{ color: 'var(--text-mute, #8f8f8f)' }}>P95: 14ms · Load: 31%</div>
             <div className="w-full h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: 'var(--hairline, #ebebeb)' }}>
-              <div className="h-full w-[99%]" style={{ background: '#22c55e' }} />
+              <div className="h-full w-[99%]" style={{ background: 'var(--status-success-bar, #22c55e)' }} />
             </div>
           </div>
 
@@ -265,7 +265,7 @@ export const Hyperswitch: React.FC = () => {
               <span>SBI Switch</span>
               <span
                 className={`text-[10px] px-1.5 py-0.5 rounded-[6px] font-mono ${sbiDegraded ? 'animate-pulse' : ''}`}
-                style={sbiDegraded ? { color: '#ee0000', background: 'rgba(238,0,0,0.12)' } : { color: '#15803d', background: 'rgba(21,128,61,0.1)' }}
+                style={sbiDegraded ? { color: 'var(--status-error, #ee0000)', background: 'rgba(238,0,0,0.12)' } : { color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.1)' }}
               >
                 {sbiDegraded ? '41.2% ERR' : '98.8%'}
               </span>
@@ -274,7 +274,7 @@ export const Hyperswitch: React.FC = () => {
               {sbiDegraded ? 'Latency: 450ms (TIMEOUT)' : 'P95: 28ms · Load: 15%'}
             </div>
             <div className="w-full h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: 'var(--hairline, #ebebeb)' }}>
-              <div className="h-full" style={sbiDegraded ? { background: '#ee0000', width: '41%' } : { background: '#22c55e', width: '98%' }} />
+              <div className="h-full" style={sbiDegraded ? { background: 'var(--status-error, #ee0000)', width: '41%' } : { background: 'var(--status-success-bar, #22c55e)', width: '98%' }} />
             </div>
           </div>
 
@@ -282,11 +282,11 @@ export const Hyperswitch: React.FC = () => {
           <div className="p-2 rounded-[6px] border" style={cardStyle}>
             <div className="flex items-center justify-between text-[11px] font-bold" style={{ color: 'var(--ink, #171717)' }}>
               <span>Axis Turbo</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded-[6px] font-mono" style={{ color: '#15803d', background: 'rgba(21,128,61,0.1)' }}>99.8%</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-[6px] font-mono" style={{ color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.1)' }}>99.8%</span>
             </div>
             <div className="text-[10px] mt-1" style={{ color: 'var(--text-mute, #8f8f8f)' }}>P95: 8ms · Load: 12%</div>
             <div className="w-full h-1 rounded-full mt-1.5 overflow-hidden" style={{ background: 'var(--hairline, #ebebeb)' }}>
-              <div className="h-full w-[99%]" style={{ background: '#22c55e' }} />
+              <div className="h-full w-[99%]" style={{ background: 'var(--status-success-bar, #22c55e)' }} />
             </div>
           </div>
         </div>
@@ -334,7 +334,7 @@ export const Hyperswitch: React.FC = () => {
                     <td className="py-2 px-3 font-bold" style={{ color: 'var(--link, #0070f3)' }}>{txn.id}</td>
                     <td className="py-2 px-3 text-[10px]" style={{ color: 'var(--text-mute, #8f8f8f)' }}>{txn.time}</td>
                     <td className="py-2 px-3 font-sans font-medium" style={{ color: 'var(--ink, #171717)' }}>{txn.merchant}</td>
-                    <td className="py-2 px-3 font-semibold" style={{ color: '#15803d' }}>₹{txn.amount.toLocaleString()}</td>
+                    <td className="py-2 px-3 font-semibold" style={{ color: 'var(--status-success, #15803d)' }}>₹{txn.amount.toLocaleString()}</td>
                     <td className="py-2 px-3" style={{ color: 'var(--text-body, #4d4d4d)' }}>{txn.method}</td>
                     <td className="py-2 px-3">
                       <span className="px-1.5 py-0.5 rounded-[6px] text-[10px] border" style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--link, #0070f3)' }}>
@@ -344,15 +344,15 @@ export const Hyperswitch: React.FC = () => {
                     <td className="py-2 px-3" style={{ color: 'var(--text-mute, #8f8f8f)' }}>{txn.latencyMs}ms</td>
                     <td className="py-2 px-3">
                       {txn.status === 'SUCCESS' ? (
-                        <span className="inline-flex items-center gap-1 text-[10px]" style={{ color: '#15803d' }}>
+                        <span className="inline-flex items-center gap-1 text-[10px]" style={{ color: 'var(--status-success, #15803d)' }}>
                           <CheckCircle2 className="w-3 h-3" /> SUCCESS
                         </span>
                       ) : txn.status === 'ROUTED' ? (
-                        <span className="inline-flex items-center gap-1 text-[10px]" style={{ color: '#7928ca' }}>
+                        <span className="inline-flex items-center gap-1 text-[10px]" style={{ color: 'var(--status-reroute, #7928ca)' }}>
                           <ArrowRightLeft className="w-3 h-3" /> REROUTED
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px]" style={{ color: '#ee0000' }}>
+                        <span className="inline-flex items-center gap-1 text-[10px]" style={{ color: 'var(--status-error, #ee0000)' }}>
                           <XCircle className="w-3 h-3" /> FAILED
                         </span>
                       )}
@@ -393,7 +393,7 @@ export const Hyperswitch: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b" style={{ borderColor: 'var(--hairline-soft, #f2f2f2)' }}>
                 <span style={{ color: 'var(--text-mute, #8f8f8f)' }}>Amount Settled:</span>
-                <span className="font-bold" style={{ color: '#15803d' }}>₹{selectedTxn.amount.toLocaleString()}.00</span>
+                <span className="font-bold" style={{ color: 'var(--status-success, #15803d)' }}>₹{selectedTxn.amount.toLocaleString()}.00</span>
               </div>
               <div className="flex justify-between py-1 border-b" style={{ borderColor: 'var(--hairline-soft, #f2f2f2)' }}>
                 <span style={{ color: 'var(--text-mute, #8f8f8f)' }}>Payment Instrument:</span>
@@ -402,13 +402,13 @@ export const Hyperswitch: React.FC = () => {
               {selectedTxn.vpa && (
                 <div className="flex justify-between py-1 border-b" style={{ borderColor: 'var(--hairline-soft, #f2f2f2)' }}>
                   <span style={{ color: 'var(--text-mute, #8f8f8f)' }}>VPA Identifier:</span>
-                  <span style={{ color: '#7928ca' }}>{selectedTxn.vpa}</span>
+                  <span style={{ color: 'var(--status-reroute, #7928ca)' }}>{selectedTxn.vpa}</span>
                 </div>
               )}
               {selectedTxn.maskedCard && (
                 <div className="flex justify-between py-1 border-b" style={{ borderColor: 'var(--hairline-soft, #f2f2f2)' }}>
                   <span style={{ color: 'var(--text-mute, #8f8f8f)' }}>PCI-DSS Token:</span>
-                  <span className="font-bold" style={{ color: '#b4760a' }}>{selectedTxn.maskedCard}</span>
+                  <span className="font-bold" style={{ color: 'var(--status-warn, #b4760a)' }}>{selectedTxn.maskedCard}</span>
                 </div>
               )}
               <div className="flex justify-between py-1 border-b" style={{ borderColor: 'var(--hairline-soft, #f2f2f2)' }}>
@@ -417,7 +417,7 @@ export const Hyperswitch: React.FC = () => {
               </div>
               <div className="flex justify-between py-1 border-b" style={{ borderColor: 'var(--hairline-soft, #f2f2f2)' }}>
                 <span style={{ color: 'var(--text-mute, #8f8f8f)' }}>LSM Access Control:</span>
-                <span style={{ color: '#15803d' }}>ENFORCED (Audit Logged)</span>
+                <span style={{ color: 'var(--status-success, #15803d)' }}>ENFORCED (Audit Logged)</span>
               </div>
             </div>
 

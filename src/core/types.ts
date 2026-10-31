@@ -37,6 +37,15 @@ export interface CustomTokens {
   hairlineSoft?: string;    // softer hairline (#f2f2f2)
   link?: string;            // link blue (#0070f3)
   heroGradient?: string;    // confined hero mesh gradient CSS
+
+  // ── Semantic status palette (optional override) ──
+  // Dark `theme: 'custom'` presets have no .theme-* block, so they carry
+  // brighter status colors here for Desktop.tsx to publish; light/geist and
+  // the .theme-* dark blocks resolve these from CSS instead.
+  statusSuccess?: string;   // success / healthy (#15803d light, bright on dark)
+  statusWarn?: string;      // warning / degraded (#b4760a light)
+  statusError?: string;     // error / failure (#ee0000 light)
+  statusReroute?: string;   // reroute / routed (#7928ca light)
 }
 
 export interface OSProfile {
