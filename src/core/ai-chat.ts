@@ -102,6 +102,41 @@ function localAnswer(question: string): string {
 }
 
 /**
+ * Fallback used when a Gemini key IS configured but the cloud call failed,
+ * timed out, or returned a non-OK response. First tries localAnswer's useful
+ * canned replies (greetings, what-is-MorphOS, Juspay, Hyperswitch, etc) so the
+ * user still gets a real answer when one matches, then explains that the AI
+ * service could not be reached and it is answering offline. Never tells the
+ * user to configure a key they already configured.
+ */
+function offlineAnswer(question: string): string {
+  const q = question.toLowerCase().trim();
+  const canned = localAnswer(question);
+  const configureHint =
+    /^(hi|hello|hey|yo|howdy|hiya|greetings)\b/.test(q) ||
+    q === 'hi' ||
+    q === 'hello' ||
+    q === 'hey' ||
+    q.includes('what is morphos') ||
+    q.includes('what can you do') ||
+    q === 'help' ||
+    q.includes('what can i do') ||
+    q.includes('what is juspay') ||
+    q.includes('who is juspay') ||
+    q.includes('what is hyperswitch') ||
+    q.includes('who is hyperswitch') ||
+    q.includes('who are you') ||
+    q.includes('your name') ||
+    q.includes('what are you');
+
+  if (configureHint) {
+    return canned;
+  }
+
+  return "I could not reach the AI service just now (it may be a network issue or a timeout), so I am answering offline. I can still reconfigure the OS, audit payments, inspect processes, or test the security guards right away, and you can ask your question again in a moment.";
+}
+
+/**
  * General-purpose conversational answerer. Mirrors the Gemini call discipline
  * in compilePromptAsync (same endpoint, 4000ms AbortController timeout,
  * try/catch fallback) but asks for a plain-text answer instead of JSON, so the
@@ -120,7 +155,7 @@ export async function answerQuestionAsync(
         'You are Morph Copilot, a helpful general-purpose assistant that lives inside MorphOS, a browser-based prompt-synthesized operating system built for the Juspay hackathon. Answer general questions naturally and accurately like any good assistant. You are also aware you can reconfigure the OS, audit payments, and inspect processes, but for general questions just answer them. Keep answers reasonably short, a few sentences at most, and use plain conversational text.';
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.geminiApiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${config.geminiApiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -145,6 +180,11 @@ export async function answerQuestionAsync(
     } catch {
       console.warn('Gemini QA call failed or timed out, using local fallback.');
     }
+
+    // A key was configured but the cloud call failed, timed out, or returned a
+    // non-OK/empty response. Be honest about why we fell back instead of asking
+    // the user to configure a key they already have.
+    return { answer: offlineAnswer(question), source: 'local' };
   }
 
   return { answer: localAnswer(question), source: 'local' };
