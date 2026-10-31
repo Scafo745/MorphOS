@@ -51,6 +51,39 @@ export function isRetryableGeminiStatus(status: number): boolean {
 }
 
 /**
+ * Outcome of the most recent Gemini attempt. This is purely observable
+ * diagnostics so the UI can explain WHY a request fell back to the local
+ * engine instead of silently showing a vague offline message. It never holds
+ * or logs the API key, only the HTTP status and a short human reason.
+ */
+export interface GeminiDiagnostic {
+  ok: boolean;
+  status: number | null;
+  reason: string;
+}
+
+let lastGeminiDiagnostic: GeminiDiagnostic | null = null;
+
+/**
+ * Read why the most recent Gemini call succeeded or failed. Returns null when
+ * no call has been attempted yet this session. Reason strings are stable and
+ * UI-friendly: 'no-key', 'http-400 invalid or revoked key', 'http-429 rate
+ * limited', 'http-403 forbidden', 'network error/timeout', 'ok', etc.
+ */
+export function getLastGeminiDiagnostic(): GeminiDiagnostic | null {
+  return lastGeminiDiagnostic;
+}
+
+/** Human-readable reason for a non-OK HTTP status from the Gemini endpoint. */
+function reasonForStatus(status: number): string {
+  if (status === 400) return 'http-400 invalid or revoked key';
+  if (status === 403) return 'http-403 forbidden';
+  if (status === 429) return 'http-429 rate limited';
+  if (status === 404) return 'http-404 model not found';
+  return `http-${status} request failed`;
+}
+
+/**
  * Shared Gemini caller. Walks GEMINI_MODELS in priority order and returns the
  * first candidate's raw response text (candidates[0].content.parts[0].text),
  * or null when every candidate is exhausted / the deadline is hit / all throw.
@@ -73,6 +106,18 @@ export async function callGeminiCandidates(
   buildBody: () => Record<string, unknown>
 ): Promise<string | null> {
   const deadline = Date.now() + GEMINI_TOTAL_DEADLINE_MS;
+
+  // Detect the no-key case before the loop so the UI can distinguish "no key
+  // configured" from "key present but rejected / unreachable".
+  if (!apiKey) {
+    lastGeminiDiagnostic = { ok: false, status: null, reason: 'no-key' };
+    return null;
+  }
+
+  // Track the most recent failure across all attempts so, if every candidate
+  // is exhausted, the exported diagnostic reflects the real last reason.
+  let lastStatus: number | null = null;
+  let lastReason = 'network error/timeout';
 
   for (const model of GEMINI_MODELS) {
     // At most 2 attempts per model (initial + one quick retry on 503/429).
@@ -104,11 +149,18 @@ export async function callGeminiCandidates(
           const json = await res.json();
           const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
           if (typeof text === 'string' && text.trim()) {
+            lastGeminiDiagnostic = { ok: true, status: res.status, reason: 'ok' };
             return text;
           }
           // 200 but empty/unusable: this model will not do better, move on.
+          lastStatus = res.status;
+          lastReason = 'empty response';
           break;
         }
+
+        // Record this non-ok status as the latest failure reason.
+        lastStatus = res.status;
+        lastReason = reasonForStatus(res.status);
 
         // Transient overload / rate limit: one quick retry on the same model
         // (only if the first attempt and the deadline still allows it).
@@ -125,11 +177,15 @@ export async function callGeminiCandidates(
         break;
       } catch {
         // Network error / abort / timeout: move on to the next candidate.
+        lastStatus = null;
+        lastReason = 'network error/timeout';
         break;
       }
     }
   }
 
+  // Every candidate exhausted: surface the most recent failure reason.
+  lastGeminiDiagnostic = { ok: false, status: lastStatus, reason: lastReason };
   return null;
 }
 
