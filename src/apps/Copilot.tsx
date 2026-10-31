@@ -124,6 +124,52 @@ export const Copilot: React.FC = () => {
         return;
       }
 
+      // 2.6 Tool Scenario: Actually open the in-OS Browser app window.
+      // "start the browser" / "open browser" / "launch browser" must really
+      // open the window, auto-installing a runtime first if none exists.
+      // We exclude "install" so the package-install branch below still wins
+      // for prompts like "install the browser package".
+      const launchVerbs = ['start', 'open', 'launch', 'run'];
+      const wantsBrowserLaunch =
+        !qLower.includes('install') &&
+        qLower.includes('browser') &&
+        (launchVerbs.some((v) => qLower.includes(v)) ||
+          qLower.includes('browser init'));
+      if (wantsBrowserLaunch) {
+        const { filesystem } = useOSStore.getState();
+        const browserBins = ['/usr/bin/firefox', '/usr/bin/chromium', '/usr/bin/browser'];
+        const hasRuntime = filesystem.some(
+          (f) => browserBins.includes(f.path) && f.type === 'file'
+        );
+
+        let installOutput = '';
+        if (!hasRuntime) {
+          const installRes = executeShell('apt install firefox');
+          installOutput = installRes.output;
+        }
+
+        // Actually open the window (also spawns the browser process).
+        openApp('browser');
+
+        const agentMsg: Message = {
+          id: `msg-${Date.now()}`,
+          sender: 'agent',
+          text: hasRuntime
+            ? `Launching the Browser app now. The window should be open on your desktop.`
+            : `No browser runtime was installed, so I installed Firefox first, then launched it. The Browser window should be open on your desktop.`,
+          toolCall: {
+            tool: 'window.open(browser)',
+            input: 'start browser',
+            output: installOutput || 'Browser window opened',
+            isError: false,
+          },
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages((prev) => [...prev, agentMsg]);
+        setIsThinking(false);
+        return;
+      }
+
       // 2.75 Tool Scenario: Install a package via the terminal
       if (qLower.includes('install') || qLower.includes('add package') || qLower.includes('npm i ')) {
         const fillers = new Set(['install', 'npm', 'pip', 'pip3', 'yarn', 'apt', 'apt-get', 'i', 'add', 'the', 'package', 'packages', 'this', 'a', 'an', 'module', 'can', 'you', 'please', 'me', 'for', 'to']);
