@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useOSStore } from '../core/store';
+import { GEMINI_MODELS } from '../core/ai-chat';
 import { Cloud, CheckCircle2, AlertCircle, X, ExternalLink, Zap, Shield } from 'lucide-react';
 
 export const CloudModal: React.FC = () => {
@@ -10,6 +11,8 @@ export const CloudModal: React.FC = () => {
   const [mode, setMode] = useState(cloudConfig.engineMode);
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
   const [testMessage, setTestMessage] = useState('');
+  const [geminiTestStatus, setGeminiTestStatus] = useState<'idle' | 'testing' | 'success' | 'failed'>('idle');
+  const [geminiTestMessage, setGeminiTestMessage] = useState('');
 
   if (!isCloudModalOpen) return null;
 
@@ -47,6 +50,74 @@ export const CloudModal: React.FC = () => {
     } catch (err: any) {
       setTestStatus('failed');
       setTestMessage(err.message || 'Network error connecting to webhook URL.');
+    }
+  };
+
+  const handleTestGemini = async () => {
+    const key = geminiKey.trim();
+    if (!key) {
+      setGeminiTestStatus('failed');
+      setGeminiTestMessage('Please enter a Gemini API key first.');
+      return;
+    }
+
+    const model = GEMINI_MODELS[0];
+    setGeminiTestStatus('testing');
+    setGeminiTestMessage('');
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: 'ping' }] }] }),
+          signal: controller.signal,
+        }
+      );
+
+      if (res.ok) {
+        setGeminiTestStatus('success');
+        setGeminiTestMessage(`Gemini API key is valid. Connected to ${model}.`);
+        return;
+      }
+
+      let message: string;
+      switch (res.status) {
+        case 400:
+          message =
+            'HTTP 400: the API key looks invalid or malformed. Generate a fresh key in Google AI Studio.';
+          break;
+        case 403:
+          message =
+            'HTTP 403: this key is not authorized for the Generative Language API. Enable it in Google AI Studio / Google Cloud.';
+          break;
+        case 429:
+          message = 'HTTP 429: rate limited or quota exceeded. Wait a moment and try again.';
+          break;
+        case 404:
+          message =
+            'HTTP 404: model not available for this key. The app will try other models automatically.';
+          break;
+        default:
+          message = `HTTP ${res.status}: Gemini request failed.`;
+      }
+
+      const body = await res.json().catch(() => null);
+      const apiMessage = body?.error?.message;
+      if (typeof apiMessage === 'string' && apiMessage.trim()) {
+        message = `${message} ${apiMessage.trim()}`;
+      }
+
+      setGeminiTestStatus('failed');
+      setGeminiTestMessage(message);
+    } catch {
+      setGeminiTestStatus('failed');
+      setGeminiTestMessage('Network error or timeout reaching the Gemini API. Check your connection.');
+    } finally {
+      clearTimeout(timeout);
     }
   };
 
@@ -143,13 +214,44 @@ export const CloudModal: React.FC = () => {
                 </label>
                 <span className="text-[10px] text-geist-mute font-mono">FREE TIER</span>
               </div>
-              <input
-                type="password"
-                value={geminiKey}
-                onChange={(e) => setGeminiKey(e.target.value)}
-                placeholder="AIzaSy..."
-                className="w-full px-3 py-2 rounded-lg bg-geist-canvas border border-geist-hairline text-geist-ink placeholder-geist-faint focus:border-geist-link focus:outline-none font-mono text-xs"
-              />
+              <div className="flex space-x-2">
+                <input
+                  type="password"
+                  value={geminiKey}
+                  onChange={(e) => setGeminiKey(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="flex-1 px-3 py-2 rounded-lg bg-geist-canvas border border-geist-hairline text-geist-ink placeholder-geist-faint focus:border-geist-link focus:outline-none font-mono text-xs"
+                />
+                <button
+                  onClick={handleTestGemini}
+                  disabled={geminiTestStatus === 'testing'}
+                  className="px-3 py-2 rounded-lg bg-geist-canvas hover:bg-geist-hairlineSoft border border-geist-hairline text-geist-ink font-medium text-xs transition-colors whitespace-nowrap"
+                >
+                  {geminiTestStatus === 'testing' ? 'Testing...' : 'Test'}
+                </button>
+              </div>
+              <p className="text-[10px] text-geist-mute mt-1">
+                Needed for AI answers in Copilot, Spotlight, and the Browser.
+              </p>
+
+              {geminiTestStatus !== 'idle' && (
+                <div
+                  className={`mt-2 p-2.5 rounded-lg flex items-start space-x-2 border text-[11px] ${
+                    geminiTestStatus === 'success'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      : geminiTestStatus === 'testing'
+                      ? 'bg-sky-500/10 border-sky-500/30 text-sky-300'
+                      : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                  }`}
+                >
+                  {geminiTestStatus === 'success' ? (
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  )}
+                  <span>{geminiTestMessage}</span>
+                </div>
+              )}
             </div>
 
             {/* Engine Mode */}
