@@ -9,15 +9,19 @@ import { CloudModal } from './CloudModal';
 import { Window } from '../wm/Window';
 import { SnapGuides } from '../wm/SnapGuides';
 import { SnapZone } from '../core/types';
+import { Toasts } from './Toasts';
 import { Terminal, Folder, Sparkles, Settings, Shield, Bot, Cloud, Zap } from 'lucide-react';
 import { getIconTheme } from '../core/icon-theme';
+import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
 
 export const Desktop: React.FC = () => {
   const { profile, windows, openApp, toggleSpotlight, toggleCloudModal } = useOSStore();
   const [snapZone, setSnapZone] = useState<SnapZone['type']>(null);
   const [ctx, setCtx] = useState<{ x: number; y: number } | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const isCyber = profile.theme === 'cyber';
+  const orbTransition = prefersReducedMotion ? '' : 'transition-all duration-700';
 
   return (
     <div
@@ -44,11 +48,11 @@ export const Desktop: React.FC = () => {
       {/* ── Ambient orbs ─────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
-          className="absolute inset-0 transition-all duration-700"
+          className={`absolute inset-0 ${orbTransition}`}
           style={{ background: profile.customTokens?.bgOrb1 || 'var(--bg-orb-1)' }}
         />
         <div
-          className="absolute inset-0 transition-all duration-700"
+          className={`absolute inset-0 ${orbTransition}`}
           style={{ background: profile.customTokens?.bgOrb2 || 'var(--bg-orb-2)' }}
         />
       </div>
@@ -167,6 +171,7 @@ export const Desktop: React.FC = () => {
       <Spotlight />
       <SudoModal />
       <CloudModal />
+      <Toasts />
 
       {/* ── Context menu ─────────────────────────────── */}
       <AnimatePresence>
