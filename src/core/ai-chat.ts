@@ -1,28 +1,137 @@
 import { CloudConfig } from './types';
 
 /**
- * Single source of truth for the Gemini model segment used by both the QA
- * answerer here and the theme compiler in prompt-compiler.ts. Keeping it in one
- * place stops the two call sites from drifting apart when Google retires a
- * model.
+ * Prioritized Gemini model candidates, shared by both the QA answerer here and
+ * the theme compiler in prompt-compiler.ts. We try them in order until one
+ * returns HTTP 200 with usable content, so a single retired or overloaded
+ * model no longer forces the whole feature offline.
+ *
+ * Order rationale:
+ *  1. gemini-flash-latest   - stable self-updating alias, most future-proof.
+ *  2. gemini-2.5-flash      - confirmed-working stable model.
+ *  3. gemini-2.0-flash      - older stable fallback.
+ *  4. gemini-2.5-flash-lite - lightweight last resort.
  */
-export const GEMINI_MODEL = 'gemini-3.8-flash';
+export const GEMINI_MODELS = [
+  'gemini-flash-latest',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.5-flash-lite',
+] as const;
+
+/**
+ * Per-attempt network timeout (milliseconds). Each candidate attempt owns its
+ * own AbortController wired to this timeout.
+ */
+export const GEMINI_ATTEMPT_TIMEOUT_MS = 4000;
+
+/**
+ * Backoff before the single quick retry we allow a model on a transient
+ * (503/429) status. We allow at most ONE retry per model so the candidate walk
+ * cannot balloon: with 4 models this keeps the attempt budget small while the
+ * overall deadline below is the hard ceiling.
+ */
+export const GEMINI_RETRY_BACKOFF_MS = 600;
+
+/**
+ * Overall wall-clock budget for the whole candidate walk (milliseconds). A bad
+ * network could otherwise cost 4 models x 2 attempts x 4s = ~32s; this deadline
+ * guarantees we stop trying new candidates and fall back to the offline / local
+ * engine within ~13s, keeping the chat UI responsive.
+ */
+export const GEMINI_TOTAL_DEADLINE_MS = 13000;
 
 /**
  * Transient server statuses worth a short retry: 503 (model overloaded /
- * UNAVAILABLE) and 429 (rate limited). Anything else (400/403/404 etc) is not
- * retryable and should fall straight through to the offline fallback.
+ * UNAVAILABLE) and 429 (rate limited). Anything else (400/403/404 etc) is a
+ * hard error for that model, so we skip straight to the next candidate.
  */
 export function isRetryableGeminiStatus(status: number): boolean {
   return status === 503 || status === 429;
 }
 
 /**
- * Bounded backoff schedule for the extra retry attempts (milliseconds). Two
- * entries means up to 2 additional attempts after the first, so worst case is
- * 3 attempts total with ~0.5s then ~1s of backoff between them.
+ * Shared Gemini caller. Walks GEMINI_MODELS in priority order and returns the
+ * first candidate's raw response text (candidates[0].content.parts[0].text),
+ * or null when every candidate is exhausted / the deadline is hit / all throw.
+ *
+ * Discipline per the orchestrator brief:
+ *  - Each attempt owns its own AbortController + GEMINI_ATTEMPT_TIMEOUT_MS.
+ *  - HTTP 200 with usable text -> return it (caller tags source 'gemini').
+ *  - Transient 503/429 -> ONE quick bounded retry on the SAME model, then move
+ *    on to the next candidate.
+ *  - Hard status (400/403/404 etc) -> no retry, move on immediately.
+ *  - Network/catch -> move on to the next candidate.
+ *  - Honors GEMINI_TOTAL_DEADLINE_MS so the whole walk stays under ~13s.
+ *
+ * The caller supplies the per-request body (QA sends plain text, the compiler
+ * adds generationConfig.responseMimeType 'application/json') via buildBody, so
+ * each call site keeps its own request shape and response parsing.
  */
-export const GEMINI_RETRY_BACKOFF_MS = [500, 1000] as const;
+export async function callGeminiCandidates(
+  apiKey: string,
+  buildBody: () => Record<string, unknown>
+): Promise<string | null> {
+  const deadline = Date.now() + GEMINI_TOTAL_DEADLINE_MS;
+
+  for (const model of GEMINI_MODELS) {
+    // At most 2 attempts per model (initial + one quick retry on 503/429).
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (Date.now() >= deadline) {
+        return null;
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), GEMINI_ATTEMPT_TIMEOUT_MS);
+
+        let res: Response;
+        try {
+          res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(buildBody()),
+              signal: controller.signal,
+            }
+          );
+        } finally {
+          clearTimeout(timeoutId);
+        }
+
+        if (res.ok) {
+          const json = await res.json();
+          const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (typeof text === 'string' && text.trim()) {
+            return text;
+          }
+          // 200 but empty/unusable: this model will not do better, move on.
+          break;
+        }
+
+        // Transient overload / rate limit: one quick retry on the same model
+        // (only if the first attempt and the deadline still allows it).
+        if (
+          isRetryableGeminiStatus(res.status) &&
+          attempt === 0 &&
+          Date.now() + GEMINI_RETRY_BACKOFF_MS < deadline
+        ) {
+          await new Promise((r) => setTimeout(r, GEMINI_RETRY_BACKOFF_MS));
+          continue;
+        }
+
+        // Hard status, or retry already spent: move on to the next candidate.
+        break;
+      } catch {
+        // Network error / abort / timeout: move on to the next candidate.
+        break;
+      }
+    }
+  }
+
+  return null;
+}
 
 /**
  * Centralized keyword set that classifies a prompt as an OS reconfiguration /
@@ -161,10 +270,11 @@ function offlineAnswer(question: string): string {
 }
 
 /**
- * General-purpose conversational answerer. Mirrors the Gemini call discipline
- * in compilePromptAsync (same endpoint, 4000ms AbortController timeout,
- * try/catch fallback) but asks for a plain-text answer instead of JSON, so the
- * OS gains normal chatbot replies alongside its synthesis powers.
+ * General-purpose conversational answerer. Shares the candidate-model walk in
+ * callGeminiCandidates with compilePromptAsync (same prioritized model list,
+ * per-attempt AbortController timeout, bounded retries, overall deadline) but
+ * asks for a plain-text answer instead of JSON, so the OS gains normal chatbot
+ * replies alongside its synthesis powers.
  */
 export async function answerQuestionAsync(
   question: string,
@@ -174,56 +284,24 @@ export async function answerQuestionAsync(
     const systemPrompt =
       'You are Morph Copilot, a helpful general-purpose assistant that lives inside MorphOS, a browser-based prompt-synthesized operating system built for the Juspay hackathon. Answer general questions naturally and accurately like any good assistant. You are also aware you can reconfigure the OS, audit payments, and inspect processes, but for general questions just answer them. Keep answers reasonably short, a few sentences at most, and use plain conversational text.';
 
-    // Up to GEMINI_RETRY_BACKOFF_MS.length additional attempts after the first,
-    // but only for transient 503/429 responses. Each attempt owns its own
-    // AbortController + 4000ms timeout so total time stays bounded.
-    for (let attempt = 0; attempt <= GEMINI_RETRY_BACKOFF_MS.length; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${config.geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: "${question}"` }] }],
-            }),
-            signal: controller.signal,
-          }
-        );
-        clearTimeout(timeoutId);
-
-        if (res.ok) {
-          const json = await res.json();
-          const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (typeof text === 'string') {
-            const answer = text.trim();
-            if (answer) {
-              return { answer, source: 'gemini' };
-            }
-          }
-          break;
+    try {
+      // Plain-text QA body: no responseMimeType so Gemini replies conversationally.
+      const text = await callGeminiCandidates(config.geminiApiKey, () => ({
+        contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: "${question}"` }] }],
+      }));
+      if (text) {
+        const answer = text.trim();
+        if (answer) {
+          return { answer, source: 'gemini' };
         }
-
-        // Transient overload / rate limit: wait a short backoff and retry.
-        if (isRetryableGeminiStatus(res.status) && attempt < GEMINI_RETRY_BACKOFF_MS.length) {
-          await new Promise((r) => setTimeout(r, GEMINI_RETRY_BACKOFF_MS[attempt]));
-          continue;
-        }
-
-        // Non-retryable status, or retries exhausted: fall through to offline.
-        break;
-      } catch {
-        console.warn('Gemini QA call failed or timed out, using local fallback.');
-        break;
       }
+    } catch {
+      console.warn('Gemini QA call failed or timed out, using local fallback.');
     }
 
-    // A key was configured but the cloud call failed, timed out, or returned a
-    // non-OK/empty response. Be honest about why we fell back instead of asking
-    // the user to configure a key they already have.
+    // A key was configured but every candidate model failed, timed out, or
+    // returned a non-OK/empty response. Be honest about why we fell back
+    // instead of asking the user to configure a key they already have.
     return { answer: offlineAnswer(question), source: 'local' };
   }
 

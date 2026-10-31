@@ -1,6 +1,6 @@
 import { OSProfile, ThemeMode, DockStyle, WindowControlsStyle, SnapMode, SecurityLevel, CloudConfig, CustomTokens } from './types';
 import { OS_PRESETS } from './presets';
-import { GEMINI_MODEL, GEMINI_RETRY_BACKOFF_MS, isRetryableGeminiStatus } from './ai-chat';
+import { callGeminiCandidates } from './ai-chat';
 
 /**
  * Synthesizes dynamic CSS & design tokens from arbitrary natural language prompt
@@ -386,68 +386,40 @@ export async function compilePromptAsync(
     }
   }
 
-  // 2. Try Gemini API if configured
+  // 2. Try Gemini API if configured. Walks the shared prioritized candidate
+  // list (callGeminiCandidates) until one model returns usable JSON, then falls
+  // through to the local engine if every candidate is exhausted.
   if (config?.geminiApiKey && config.engineMode !== 'local') {
     const systemPrompt = `You are the MorphOS compiler. Output valid JSON with keys: name (string), tagline (string), theme ("geist"|"macos"|"windows"|"cyber"|"enterprise"|"gothic"|"custom"), dockStyle ("macos-magnify"|"windows-center"|"cyber-minimal"), controlsStyle ("traffic-lights"|"windows-squares"|"cyber-minimal"), snapMode ("free"|"windows-snap"|"tiling"), securityLevel ("standard"|"strict-sudo"|"zero-trust"|"pci-dss-compliance"), userRole ("developer"|"root"|"intern"|"fintech_auditor"), aiSummary (string).`;
 
-    // Up to GEMINI_RETRY_BACKOFF_MS.length additional attempts after the first,
-    // but only for transient 503/429 responses. Each attempt owns its own
-    // AbortController + 4000ms timeout so total time stays bounded.
-    for (let attempt = 0; attempt <= GEMINI_RETRY_BACKOFF_MS.length; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
+    try {
+      // JSON theme-synthesis body: adds generationConfig.responseMimeType so
+      // Gemini returns parseable JSON.
+      const text = await callGeminiCandidates(config.geminiApiKey, () => ({
+        contents: [{ parts: [{ text: `${systemPrompt}\n\nUser request: "${prompt}"` }] }],
+        generationConfig: { responseMimeType: 'application/json' },
+      }));
 
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${config.geminiApiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `${systemPrompt}\n\nUser request: "${prompt}"` }] }],
-              generationConfig: { responseMimeType: 'application/json' },
-            }),
-            signal: controller.signal,
-          }
-        );
-        clearTimeout(timeoutId);
-
-        if (res.ok) {
-          const json = await res.json();
-          const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            const parsed = JSON.parse(text);
-            return {
-              profile: {
-                name: parsed.name || localSynth.name,
-                tagline: parsed.tagline || localSynth.tagline,
-                theme: parsed.theme || localSynth.theme,
-                dockStyle: parsed.dockStyle || localSynth.dockStyle,
-                controlsStyle: parsed.controlsStyle || localSynth.controlsStyle,
-                snapMode: parsed.snapMode || localSynth.snapMode,
-                securityLevel: parsed.securityLevel || localSynth.securityLevel,
-                userRole: parsed.userRole || localSynth.userRole,
-                customTokens: localSynth.customTokens,
-                aiSummary: parsed.aiSummary || `Gemini Flash compiled: ${prompt}`,
-              },
-              source: 'gemini',
-            };
-          }
-          break;
-        }
-
-        // Transient overload / rate limit: wait a short backoff and retry.
-        if (isRetryableGeminiStatus(res.status) && attempt < GEMINI_RETRY_BACKOFF_MS.length) {
-          await new Promise((r) => setTimeout(r, GEMINI_RETRY_BACKOFF_MS[attempt]));
-          continue;
-        }
-
-        // Non-retryable status, or retries exhausted: fall through to fallback.
-        break;
-      } catch {
-        console.warn('Gemini API call failed or timed out, using fallback.');
-        break;
+      if (text) {
+        const parsed = JSON.parse(text);
+        return {
+          profile: {
+            name: parsed.name || localSynth.name,
+            tagline: parsed.tagline || localSynth.tagline,
+            theme: parsed.theme || localSynth.theme,
+            dockStyle: parsed.dockStyle || localSynth.dockStyle,
+            controlsStyle: parsed.controlsStyle || localSynth.controlsStyle,
+            snapMode: parsed.snapMode || localSynth.snapMode,
+            securityLevel: parsed.securityLevel || localSynth.securityLevel,
+            userRole: parsed.userRole || localSynth.userRole,
+            customTokens: localSynth.customTokens,
+            aiSummary: parsed.aiSummary || `Gemini Flash compiled: ${prompt}`,
+          },
+          source: 'gemini',
+        };
       }
+    } catch {
+      console.warn('Gemini API call failed or timed out, using fallback.');
     }
   }
 
