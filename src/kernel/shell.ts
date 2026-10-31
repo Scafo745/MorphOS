@@ -373,6 +373,7 @@ PCI-DSS 4.0: Level 1 Enforced | LSM Cryptographic Tokenization: ACTIVE`,
       };
     }
     const pid = Math.floor(Math.random() * 9000) + 1000;
+    store.openApp('browser');
     store.addAuditLog(rawCmd, 'ALLOWED', `Started browser runtime from ${installed.path}`, 'INFO');
     return {
       output: `[MorphOS] Starting browser runtime...

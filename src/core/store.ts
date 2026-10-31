@@ -226,6 +226,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
       copilot: 'Morph Copilot — Autonomous Agent',
       notes: 'Scratchpad Notes',
       hyperswitch: 'Juspay Hyperswitch™ — Payments Orchestrator',
+      browser: 'MorphOS Browser',
     };
 
     const nextZ = maxZIndex + 5;
@@ -238,7 +239,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
       isMaximized: false,
       zIndex: nextZ,
       position: { x: 80 + (windows.length * 25), y: 60 + (windows.length * 25) },
-      size: appId === 'hyperswitch' ? { width: 760, height: 520 } : appId === 'terminal' ? { width: 680, height: 420 } : appId === 'security' ? { width: 680, height: 480 } : { width: 640, height: 440 },
+      size: appId === 'hyperswitch' ? { width: 760, height: 520 } : appId === 'terminal' ? { width: 680, height: 420 } : appId === 'security' ? { width: 680, height: 480 } : appId === 'browser' ? { width: 820, height: 560 } : { width: 640, height: 440 },
     };
 
     // Spawn a process in the process table

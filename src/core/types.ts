@@ -61,7 +61,7 @@ export interface OSProfile {
   customTokens: CustomTokens;
 }
 
-export type AppId = 'terminal' | 'filemanager' | 'settings' | 'security' | 'copilot' | 'notes' | 'hyperswitch';
+export type AppId = 'terminal' | 'filemanager' | 'settings' | 'security' | 'copilot' | 'notes' | 'hyperswitch' | 'browser';
 
 export interface CloudConfig {
   n8nWebhookUrl: string;

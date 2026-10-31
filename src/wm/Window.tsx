@@ -9,7 +9,8 @@ import { Settings } from '../apps/Settings';
 import { SecurityGuard } from '../apps/SecurityGuard';
 import { Copilot } from '../apps/Copilot';
 import { Hyperswitch } from '../apps/Hyperswitch';
-import { Terminal as TermIcon, Folder, Settings as SettingsIcon, Shield, FileText, Bot, Zap } from 'lucide-react';
+import { Browser } from '../apps/Browser';
+import { Terminal as TermIcon, Folder, Settings as SettingsIcon, Shield, FileText, Bot, Zap, Globe } from 'lucide-react';
 import { getIconTheme } from '../core/icon-theme';
 
 const APP_ICONS: Record<string, (color?: string) => React.ReactNode> = {
@@ -20,6 +21,7 @@ const APP_ICONS: Record<string, (color?: string) => React.ReactNode> = {
   copilot:     (c) => <Bot className="w-3.5 h-3.5" style={{ color: c || '#c084fc' }} />,
   notes:       (c) => <FileText className="w-3.5 h-3.5" style={{ color: c || '#fda4af' }} />,
   hyperswitch: (c) => <Zap className="w-3.5 h-3.5" style={{ color: c || '#38bdf8' }} />,
+  browser:     (c) => <Globe className="w-3.5 h-3.5" style={{ color: c || '#2dd4bf' }} />,
 };
 
 interface WindowProps {
@@ -46,6 +48,7 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
       case 'security':    return <SecurityGuard />;
       case 'copilot':     return <Copilot />;
       case 'hyperswitch': return <Hyperswitch />;
+      case 'browser':     return <Browser />;
       default:
         return (
           <div className="h-full flex items-center justify-center">
