@@ -52,27 +52,33 @@ export const CloudModal: React.FC = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/25 backdrop-blur-md">
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0 }}
-          className="w-full max-w-lg rounded-2xl bg-slate-900 border border-white/15 p-6 shadow-2xl backdrop-blur-2xl text-slate-200 text-xs font-sans"
+          className="w-full max-w-lg rounded-2xl p-6 text-xs font-sans"
+          style={{
+            background: 'var(--spotlight-bg, #ffffff)',
+            border: '1px solid var(--hairline, #ebebeb)',
+            boxShadow: 'var(--window-shadow-active, 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10))',
+            color: 'var(--text-body, #4d4d4d)',
+          }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-white/10">
+          <div className="flex items-center justify-between pb-4 border-b" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
             <div className="flex items-center space-x-3">
-              <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+              <div className="p-2.5 rounded-xl bg-geist-link/10 border border-geist-link/20 text-geist-link">
                 <Cloud className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Cloud Gateway & n8n Integration</h3>
-                <p className="text-[11px] text-slate-400">Configure cloud orchestration and AI inference pipelines</p>
+                <h3 className="text-sm font-bold text-geist-ink">Cloud Gateway & n8n Integration</h3>
+                <p className="text-[11px] text-geist-mute">Configure cloud orchestration and AI inference pipelines</p>
               </div>
             </div>
             <button
               onClick={() => toggleCloudModal(false)}
-              className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+              className="p-1 rounded-lg hover:bg-geist-hairlineSoft text-geist-mute hover:text-geist-ink transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -82,11 +88,11 @@ export const CloudModal: React.FC = () => {
             {/* n8n Webhook input */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-white flex items-center space-x-1.5">
-                  <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <label className="text-xs font-semibold text-geist-ink flex items-center space-x-1.5">
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
                   <span>n8n Cloud Webhook URL</span>
                 </label>
-                <span className="text-[10px] text-emerald-400 font-mono">1-MONTH PRO CREDIT</span>
+                <span className="text-[10px] text-emerald-500 font-mono">1-MONTH PRO CREDIT</span>
               </div>
               <div className="flex space-x-2">
                 <input
@@ -94,17 +100,17 @@ export const CloudModal: React.FC = () => {
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.target.value)}
                   placeholder="https://your-instance.app.n8n.cloud/webhook/morph-prompt"
-                  className="flex-1 px-3 py-2 rounded-lg bg-black/50 border border-white/10 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono text-xs"
+                  className="flex-1 px-3 py-2 rounded-lg bg-geist-canvas border border-geist-hairline text-geist-ink placeholder-geist-faint focus:border-geist-link focus:outline-none font-mono text-xs"
                 />
                 <button
                   onClick={handleTestWebhook}
                   disabled={testStatus === 'testing'}
-                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition-colors whitespace-nowrap"
+                  className="px-3 py-2 rounded-lg bg-geist-canvas hover:bg-geist-hairlineSoft border border-geist-hairline text-geist-ink font-medium text-xs transition-colors whitespace-nowrap"
                 >
                   {testStatus === 'testing' ? 'Testing...' : 'Test'}
                 </button>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1">
+              <p className="text-[10px] text-geist-mute mt-1">
                 Triggered automatically when a user prompts MorphOS to synthesize or recompile runtime parameters.
               </p>
 
@@ -131,24 +137,24 @@ export const CloudModal: React.FC = () => {
             {/* Gemini API Key input */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-white flex items-center space-x-1.5">
-                  <Shield className="w-3.5 h-3.5 text-sky-400" />
+                <label className="text-xs font-semibold text-geist-ink flex items-center space-x-1.5">
+                  <Shield className="w-3.5 h-3.5 text-geist-link" />
                   <span>Google AI Studio / Gemini API Key (Optional)</span>
                 </label>
-                <span className="text-[10px] text-slate-400 font-mono">FREE TIER</span>
+                <span className="text-[10px] text-geist-mute font-mono">FREE TIER</span>
               </div>
               <input
                 type="password"
                 value={geminiKey}
                 onChange={(e) => setGeminiKey(e.target.value)}
                 placeholder="AIzaSy..."
-                className="w-full px-3 py-2 rounded-lg bg-black/50 border border-white/10 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none font-mono text-xs"
+                className="w-full px-3 py-2 rounded-lg bg-geist-canvas border border-geist-hairline text-geist-ink placeholder-geist-faint focus:border-geist-link focus:outline-none font-mono text-xs"
               />
             </div>
 
             {/* Engine Mode */}
             <div>
-              <label className="text-xs font-semibold text-white block mb-1.5">
+              <label className="text-xs font-semibold text-geist-ink block mb-1.5">
                 Compiler Execution Engine
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -163,12 +169,12 @@ export const CloudModal: React.FC = () => {
                     onClick={() => setMode(opt.id as any)}
                     className={`p-2.5 rounded-xl border text-left transition-colors ${
                       mode === opt.id
-                        ? 'bg-indigo-600/30 border-indigo-500 text-white shadow-md'
-                        : 'bg-white/5 hover:bg-white/10 border-white/10 text-slate-300'
+                        ? 'bg-geist-link/10 border-geist-link text-geist-ink shadow-sm'
+                        : 'bg-geist-canvas hover:bg-geist-hairlineSoft border-geist-hairline text-geist-body'
                     }`}
                   >
                     <div className="font-semibold text-xs">{opt.title}</div>
-                    <div className="text-[10px] text-slate-400">{opt.desc}</div>
+                    <div className="text-[10px] text-geist-mute">{opt.desc}</div>
                   </button>
                 ))}
               </div>
@@ -176,20 +182,20 @@ export const CloudModal: React.FC = () => {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-white/10">
-            <span className="text-[11px] text-slate-400 flex items-center space-x-1">
+          <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
+            <span className="text-[11px] text-geist-mute flex items-center space-x-1">
               <span>Settings stored in local browser state</span>
             </span>
             <div className="flex space-x-2">
               <button
                 onClick={() => toggleCloudModal(false)}
-                className="px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-slate-300 font-medium text-xs transition-colors"
+                className="px-3.5 py-1.5 rounded-lg bg-geist-canvas hover:bg-geist-hairlineSoft border border-geist-hairline text-geist-body font-medium text-xs transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md transition-colors"
+                className="px-4 py-1.5 rounded-pill bg-geist-ink hover:opacity-90 text-white font-semibold text-xs shadow-geist transition-opacity"
               >
                 Save & Apply
               </button>

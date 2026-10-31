@@ -203,28 +203,43 @@ export const Copilot: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-slate-950/95 text-slate-200 text-xs font-sans overflow-hidden select-none">
+    <div
+      className="h-full flex flex-col text-xs font-sans overflow-hidden select-none"
+      style={{ background: 'var(--canvas, #fafafa)', color: 'var(--text-body, #4d4d4d)' }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/40">
+      <div
+        className="flex items-center justify-between px-4 py-3 border-b"
+        style={{ borderColor: 'var(--hairline, #ebebeb)', background: 'var(--canvas-elevated, #ffffff)' }}
+      >
         <div className="flex items-center space-x-2.5">
-          <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+          <div
+            className="p-2 rounded-[12px] border"
+            style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--accent, #171717)' }}
+          >
             <Bot className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-sm font-bold text-white tracking-wide">Morph Copilot</h2>
-              <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-mono text-[9px] uppercase font-bold tracking-wider">
+              <h2 className="text-sm font-bold tracking-tight" style={{ color: 'var(--ink, #171717)' }}>Morph Copilot</h2>
+              <span
+                className="px-2 py-0.5 rounded-[6px] border font-mono text-[9px] uppercase font-bold tracking-wider"
+                style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-mute, #8f8f8f)' }}
+              >
                 AUTONOMOUS SYSTEM AGENT
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 font-mono">
+            <p className="text-[11px] font-mono" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
               Engine: {cloudConfig.n8nWebhookUrl ? 'n8n Cloud Webhook' : 'Local Heuristic Engine'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[10px]">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <div
+          className="flex items-center space-x-1.5 px-2.5 py-1 rounded-[6px] border font-mono text-[10px]"
+          style={{ borderColor: 'var(--hairline, #ebebeb)', color: '#15803d' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           <span>MICROKERNEL LINKED</span>
         </div>
       </div>
@@ -237,30 +252,37 @@ export const Copilot: React.FC = () => {
             className={`flex items-start space-x-3 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {m.sender === 'agent' && (
-              <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300 flex-shrink-0 mt-0.5">
+              <div
+                className="w-8 h-8 rounded-[12px] border flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ borderColor: 'var(--hairline, #ebebeb)', background: 'var(--canvas-elevated, #ffffff)', color: 'var(--accent, #171717)' }}
+              >
                 <Bot className="w-4 h-4" />
               </div>
             )}
 
             <div
-              className={`max-w-[85%] rounded-2xl p-3.5 space-y-2 shadow-lg leading-relaxed ${
+              className="max-w-[85%] rounded-[12px] p-3.5 space-y-2 leading-relaxed border"
+              style={
                 m.sender === 'user'
-                  ? 'bg-indigo-600 text-white rounded-tr-none'
-                  : 'bg-slate-900 border border-white/10 text-slate-200 rounded-tl-none'
-              }`}
+                  ? { background: 'var(--accent, #171717)', color: '#ffffff', borderColor: 'var(--accent, #171717)', borderTopRightRadius: 0 }
+                  : { background: 'var(--canvas-elevated, #ffffff)', borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)', borderTopLeftRadius: 0 }
+              }
             >
               <div className="whitespace-pre-wrap">{m.text}</div>
 
               {/* Tool Execution Callout */}
               {m.toolCall && (
-                <div className="mt-2.5 rounded-xl bg-black/60 border border-white/10 p-2.5 font-mono text-[11px] space-y-1.5">
-                  <div className="flex items-center justify-between text-slate-400 text-[10px]">
-                    <span className="flex items-center space-x-1 text-sky-400 font-semibold">
+                <div
+                  className="mt-2.5 rounded-[6px] border p-2.5 font-mono text-[11px] space-y-1.5"
+                  style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)' }}
+                >
+                  <div className="flex items-center justify-between text-[10px]">
+                    <span className="flex items-center space-x-1 font-semibold" style={{ color: 'var(--link, #0070f3)' }}>
                       <Terminal className="w-3 h-3" />
                       <span>{m.toolCall.tool}</span>
                     </span>
                     {m.toolCall.isError && (
-                      <span className="flex items-center space-x-1 text-rose-400 font-bold">
+                      <span className="flex items-center space-x-1 font-bold" style={{ color: '#ee0000' }}>
                         <ShieldAlert className="w-3 h-3" />
                         <span>INTERCEPTED</span>
                       </span>
@@ -268,9 +290,12 @@ export const Copilot: React.FC = () => {
                   </div>
                   {m.toolCall.output && (
                     <pre
-                      className={`p-2 rounded bg-slate-950 whitespace-pre-wrap max-h-36 overflow-y-auto text-[10px] leading-relaxed ${
-                        m.toolCall.isError ? 'text-rose-400' : 'text-emerald-400'
-                      }`}
+                      className="p-2 rounded-[6px] border whitespace-pre-wrap max-h-36 overflow-y-auto text-[10px] leading-relaxed"
+                      style={{
+                        background: 'var(--canvas-elevated, #ffffff)',
+                        borderColor: 'var(--hairline, #ebebeb)',
+                        color: m.toolCall.isError ? '#ee0000' : '#15803d',
+                      }}
                     >
                       {m.toolCall.output}
                     </pre>
@@ -279,16 +304,18 @@ export const Copilot: React.FC = () => {
               )}
 
               <div
-                className={`text-[9px] font-mono text-right ${
-                  m.sender === 'user' ? 'text-indigo-200' : 'text-slate-500'
-                }`}
+                className="text-[9px] font-mono text-right"
+                style={{ color: m.sender === 'user' ? 'rgba(255,255,255,0.7)' : 'var(--text-faint, #a1a1a1)' }}
               >
                 {m.timestamp}
               </div>
             </div>
 
             {m.sender === 'user' && (
-              <div className="w-8 h-8 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 flex-shrink-0 mt-0.5">
+              <div
+                className="w-8 h-8 rounded-[12px] border flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ borderColor: 'var(--hairline, #ebebeb)', background: 'var(--canvas-elevated, #ffffff)', color: 'var(--ink, #171717)' }}
+              >
                 <User className="w-4 h-4" />
               </div>
             )}
@@ -296,8 +323,8 @@ export const Copilot: React.FC = () => {
         ))}
 
         {isThinking && (
-          <div className="flex items-center space-x-2 text-slate-400 text-xs font-mono pl-11">
-            <Sparkles className="w-4 h-4 text-purple-400 animate-spin" />
+          <div className="flex items-center space-x-2 text-xs font-mono pl-11" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
+            <Sparkles className="w-4 h-4 animate-spin" style={{ color: 'var(--accent, #171717)' }} />
             <span>Agent executing tool call against microkernel...</span>
           </div>
         )}
@@ -305,8 +332,11 @@ export const Copilot: React.FC = () => {
       </div>
 
       {/* Suggested Quick Action Chips */}
-      <div className="px-4 py-2 border-t border-white/5 bg-black/30 flex items-center space-x-2 overflow-x-auto no-scrollbar">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 flex-shrink-0">
+      <div
+        className="px-4 py-2 border-t flex items-center space-x-2 overflow-x-auto no-scrollbar"
+        style={{ borderColor: 'var(--hairline, #ebebeb)', background: 'var(--canvas-elevated, #ffffff)' }}
+      >
+        <span className="text-[10px] font-semibold uppercase tracking-wider flex-shrink-0" style={{ color: 'var(--text-faint, #a1a1a1)' }}>
           Suggestions:
         </span>
         {[
@@ -318,7 +348,8 @@ export const Copilot: React.FC = () => {
           <button
             key={s}
             onClick={() => handleSend(s)}
-            className="px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white whitespace-nowrap text-[11px] transition-colors flex-shrink-0"
+            className="px-2.5 py-1 rounded-[6px] border whitespace-nowrap text-[11px] transition-colors flex-shrink-0 hover:bg-geist-hairlineSoft"
+            style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)' }}
           >
             {s}
           </button>
@@ -326,19 +357,24 @@ export const Copilot: React.FC = () => {
       </div>
 
       {/* Input Field */}
-      <div className="p-3 border-t border-white/10 bg-black/50 flex items-center space-x-2">
+      <div
+        className="p-3 border-t flex items-center space-x-2"
+        style={{ borderColor: 'var(--hairline, #ebebeb)', background: 'var(--canvas-elevated, #ffffff)' }}
+      >
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Ask Morph Copilot to reconfigure the OS, execute commands, or audit security..."
-          className="flex-1 px-3.5 py-2 rounded-xl bg-black/60 border border-white/10 text-white placeholder-slate-500 text-xs focus:border-purple-500 focus:outline-none"
+          className="flex-1 px-3.5 py-2 rounded-[6px] border text-xs placeholder-geist-mute focus:outline-none"
+          style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)', color: 'var(--ink, #171717)' }}
         />
         <button
           onClick={() => handleSend()}
           disabled={!input.trim() || isThinking}
-          className="p-2 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white transition-colors shadow-md"
+          className="p-2 rounded-[6px] disabled:opacity-40 transition-colors"
+          style={{ background: 'var(--accent, #171717)', color: '#ffffff' }}
         >
           <Send className="w-4 h-4" />
         </button>

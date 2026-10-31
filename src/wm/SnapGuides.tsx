@@ -17,7 +17,8 @@ export const SnapGuides: React.FC<SnapGuidesProps> = ({ activeZone }) => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="w-1/2 h-full rounded-2xl bg-sky-500/15 border-2 border-sky-400/50 backdrop-blur-xs shadow-2xl"
+            className="w-1/2 h-full rounded-2xl backdrop-blur-xs"
+            style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)', boxShadow: '0 0 24px var(--accent-glow)' }}
           />
         )}
 
@@ -26,7 +27,8 @@ export const SnapGuides: React.FC<SnapGuidesProps> = ({ activeZone }) => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="w-1/2 h-full ml-auto rounded-2xl bg-sky-500/15 border-2 border-sky-400/50 backdrop-blur-xs shadow-2xl"
+            className="w-1/2 h-full ml-auto rounded-2xl backdrop-blur-xs"
+            style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)', boxShadow: '0 0 24px var(--accent-glow)' }}
           />
         )}
 
@@ -35,7 +37,8 @@ export const SnapGuides: React.FC<SnapGuidesProps> = ({ activeZone }) => {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="w-full h-full rounded-2xl bg-sky-500/15 border-2 border-sky-400/50 backdrop-blur-xs shadow-2xl"
+            className="w-full h-full rounded-2xl backdrop-blur-xs"
+            style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent)', boxShadow: '0 0 24px var(--accent-glow)' }}
           />
         )}
       </div>

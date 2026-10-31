@@ -77,7 +77,7 @@ const getSavedCloudConfig = (): CloudConfig => {
 };
 
 export const useOSStore = create<OSStore>((set, get) => ({
-  profile: OS_PRESETS['cupertino-dev'],
+  profile: OS_PRESETS['geist-base'],
   isBooting: true,
   isSpotlightOpen: false,
   isCloudModalOpen: false,

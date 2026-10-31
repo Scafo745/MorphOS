@@ -27,6 +27,7 @@ export function getIconTheme(
         case 'minimal-outline': return '10px';
         case 'golden-luxury': return '12px';
         case 'pastel-cute': return '9999px';
+        case 'geist-minimal': return '6px';
         default: return '22%';
       }
     }
@@ -38,12 +39,28 @@ export function getIconTheme(
       case 'minimal-outline': return '10px';
       case 'golden-luxury': return '12px';
       case 'pastel-cute': return '9999px';
+      case 'geist-minimal': return '6px';
       case 'glass-gradient':
       default: return '22%';
     }
   };
 
   const borderRadius = getBorderRadius();
+
+  // ── 0. GEIST MINIMAL (Vercel base) ──
+  // Light canvas-elevated chrome, 1px hairline border, ink glyph,
+  // near-zero glow, whisper-soft shadow, low sheen.
+  if (iconStyle === 'geist-minimal') {
+    return {
+      bg: '#ffffff',
+      border: '1px solid #ebebeb',
+      glow: 'rgba(23,23,23,0.04)',
+      iconColor: '#171717',
+      borderRadius,
+      boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05)',
+      sheenOpacity: 0.04,
+    };
+  }
 
   // ── 1. GOTHIC OBSIDIAN DARK ──
   if (iconStyle === 'gothic-dark') {

@@ -24,6 +24,52 @@ export const WindowControls: React.FC<WindowControlsProps> = ({ windowId }) => {
     maximizeWindow(windowId);
   };
 
+  // Geist base: 6px-square button-ghost-sm chrome (ink glyphs, hairline border, whisper hover)
+  if (profile.theme === 'geist') {
+    const btnBase =
+      'w-6 h-6 flex items-center justify-center rounded-[6px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60';
+    return (
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={handleMinimize}
+          title="Minimize"
+          className={btnBase}
+          style={{
+            background: 'var(--canvas-elevated, #ffffff)',
+            border: '1px solid var(--hairline, #ebebeb)',
+            color: 'var(--ink, #171717)',
+          }}
+        >
+          <Minus className="w-3 h-3" />
+        </button>
+        <button
+          onClick={handleMaximize}
+          title="Maximize"
+          className={btnBase}
+          style={{
+            background: 'var(--canvas-elevated, #ffffff)',
+            border: '1px solid var(--hairline, #ebebeb)',
+            color: 'var(--ink, #171717)',
+          }}
+        >
+          <Square className="w-2.5 h-2.5" />
+        </button>
+        <button
+          onClick={handleClose}
+          title="Close"
+          className={btnBase}
+          style={{
+            background: 'var(--canvas-elevated, #ffffff)',
+            border: '1px solid var(--hairline, #ebebeb)',
+            color: 'var(--ink, #171717)',
+          }}
+        >
+          <X className="w-3 h-3" />
+        </button>
+      </div>
+    );
+  }
+
   if (profile.controlsStyle === 'traffic-lights') {
     const isGothic = profile.theme === 'gothic' || profile.customTokens?.iconStyle === 'gothic-dark';
 

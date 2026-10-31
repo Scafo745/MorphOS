@@ -11,48 +11,164 @@
   }
 }
 
-/* ─── Design Tokens (default = macOS glass) ─────────────── */
+/* ─── Design Tokens (default = Vercel / Geist base) ─────── */
+/* Geist is the structural BASE: near-white #fafafa canvas, single
+   ink #171717, grey text ladder, 1px #ebebeb hairline elevation,
+   whisper-soft shadows. Dynamic mood themes (macos/windows/cyber/
+   enterprise/gothic/custom) layer ON TOP via .theme-* + customTokens. */
 :root {
-  /* wallpaper */
-  --bg-desktop: radial-gradient(ellipse 120% 80% at 60% -10%,
-      #1a1040 0%, #0c0c1a 45%, #030308 100%);
-  --bg-orb-1: radial-gradient(circle at 25% 35%, rgba(99,102,241,0.18) 0%, transparent 60%);
-  --bg-orb-2: radial-gradient(circle at 75% 65%, rgba(14,165,233,0.12) 0%, transparent 55%);
+  /* ── Geist colour ladder ─────────────────────────────── */
+  --ink: #171717;
+  --text-body: #4d4d4d;
+  --text-mute: #8f8f8f;
+  --text-faint: #a1a1a1;
+  --hairline: #ebebeb;
+  --hairline-soft: #f2f2f2;
+  --canvas: #fafafa;
+  --canvas-elevated: #ffffff;
+  --link: #0070f3;
+  --link-deep: #0761d1;
 
-  /* window chrome */
-  --window-bg: rgba(12, 12, 22, 0.72);
-  --window-border: rgba(255, 255, 255, 0.09);
-  --window-blur: 32px;
-  --window-radius: 14px;
-  --window-header-bg: rgba(255, 255, 255, 0.04);
-  --window-header-border: rgba(255, 255, 255, 0.07);
-  --window-shadow: 0 32px 80px -12px rgba(0,0,0,0.7), 0 0 0 0.5px rgba(255,255,255,0.08);
-  --window-shadow-active: 0 40px 100px -12px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.13);
+  /* ── Semantic status palette (success / warn / error / reroute) ──
+     Light-canvas values by default; each dark theme overrides them with
+     brighter variants so status stays legible on dark window fills. */
+  --status-success: #15803d;
+  --status-success-bar: #22c55e;
+  --status-warn: #b4760a;
+  --status-error: #ee0000;
+  --status-reroute: #7928ca;
+
+  /* ── Hero mesh gradients (the only colour the base allows) ─ */
+  --hero-develop: linear-gradient(90deg, #007cf0 0%, #00dfd8 100%);
+  --hero-preview: linear-gradient(90deg, #7928ca 0%, #ff0080 100%);
+  --hero-ship: linear-gradient(90deg, #ff4d4d 0%, #f9cb28 100%);
+
+  /* ── Radius scale (0/6/12/16/100/9999) ───────────────── */
+  --radius-sm: 6px;    /* nav / app chrome square buttons */
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill-category: 64px;
+  --radius-pill: 100px; /* marketing / primary CTA pills */
+  --radius-full: 9999px;
+
+  /* ── 4-based spacing scale ───────────────────────────── */
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+  --space-section: 128px;
+
+  /* wallpaper — near-white canvas with a confined mesh-gradient hero backdrop */
+  --bg-desktop: radial-gradient(ellipse 120% 80% at 60% -10%,
+      #ffffff 0%, #fafafa 45%, #f6f6f6 100%);
+  --bg-orb-1: radial-gradient(circle at 20% 15%, rgba(0,124,240,0.08) 0%, transparent 55%);
+  --bg-orb-2: radial-gradient(circle at 85% 20%, rgba(121,40,202,0.06) 0%, transparent 55%);
+
+  /* window chrome — light, hairline-bordered, whisper shadows */
+  --window-bg: #ffffff;
+  --window-border: #ebebeb;
+  --window-blur: 0px;
+  --window-radius: 12px;
+  --window-header-bg: rgba(250, 250, 250, 0.9);
+  --window-header-border: #ebebeb;
+  --window-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  --window-shadow-active: 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10);
 
   /* dock */
-  --dock-bg: rgba(255, 255, 255, 0.07);
-  --dock-border: rgba(255, 255, 255, 0.12);
-  --dock-blur: 40px;
-  --dock-radius: 22px;
-  --dock-shadow: 0 -1px 0 0 rgba(255,255,255,0.08) inset, 0 20px 60px rgba(0,0,0,0.6);
+  --dock-bg: #ffffff;
+  --dock-border: #ebebeb;
+  --dock-blur: 0px;
+  --dock-radius: 12px;
+  --dock-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08);
 
   /* menu bar */
-  --menubar-bg: rgba(8, 8, 16, 0.55);
-  --menubar-border: rgba(255, 255, 255, 0.06);
+  --menubar-bg: rgba(250, 250, 250, 0.8);
+  --menubar-border: #ebebeb;
 
   /* spotlight */
-  --spotlight-bg: rgba(10, 10, 20, 0.88);
-  --spotlight-border: rgba(255, 255, 255, 0.1);
+  --spotlight-bg: #ffffff;
+  --spotlight-border: #ebebeb;
 
-  /* accent */
-  --accent: #818cf8;
-  --accent-dim: rgba(129,140,248,0.15);
-  --accent-glow: rgba(129,140,248,0.3);
-  --accent-text: #c7d2fe;
+  /* accent — ink primary with the Geist link blue */
+  --accent: #171717;
+  --accent-dim: rgba(23,23,23,0.06);
+  --accent-glow: rgba(23,23,23,0.08);
+  --accent-text: #171717;
+}
+
+/* ─── Vercel / Geist base (light structural default) ─────── */
+.theme-geist {
+  --ink: #171717;
+  --text-body: #4d4d4d;
+  --text-mute: #8f8f8f;
+  --text-faint: #a1a1a1;
+  --hairline: #ebebeb;
+  --hairline-soft: #f2f2f2;
+  --canvas: #fafafa;
+  --canvas-elevated: #ffffff;
+  --link: #0070f3;
+  --link-deep: #0761d1;
+
+  --bg-desktop: radial-gradient(ellipse 120% 80% at 60% -10%,
+      #ffffff 0%, #fafafa 45%, #f6f6f6 100%);
+  --bg-orb-1: radial-gradient(circle at 20% 15%, rgba(0,124,240,0.08) 0%, transparent 55%);
+  --bg-orb-2: radial-gradient(circle at 85% 20%, rgba(121,40,202,0.06) 0%, transparent 55%);
+
+  --window-bg: #ffffff;
+  --window-border: #ebebeb;
+  --window-blur: 0px;
+  --window-radius: 12px;
+  --window-header-bg: rgba(250, 250, 250, 0.9);
+  --window-header-border: #ebebeb;
+  --window-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06);
+  --window-shadow-active: 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10);
+
+  --dock-bg: #ffffff;
+  --dock-border: #ebebeb;
+  --dock-blur: 0px;
+  --dock-radius: 12px;
+  --dock-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08);
+
+  --menubar-bg: rgba(250, 250, 250, 0.8);
+  --menubar-border: #ebebeb;
+
+  --spotlight-bg: #ffffff;
+  --spotlight-border: #ebebeb;
+
+  --accent: #171717;
+  --accent-dim: rgba(23,23,23,0.06);
+  --accent-glow: rgba(23,23,23,0.08);
+  --accent-text: #171717;
 }
 
 /* ─── macOS Cupertino ──────────────────────────────────────── */
 .theme-macos {
+  --scrollbar-thumb: rgba(255,255,255,0.12);
+  --scrollbar-thumb-hover: rgba(255,255,255,0.22);
+  /* Geist ladder — dark-appropriate so chrome/apps read dark-on-dark */
+  --ink: #f5f6ff;
+  --text-body: #c7cae0;
+  --text-mute: #8e92ad;
+  --text-faint: #6b6f8a;
+  --hairline: rgba(255,255,255,0.10);
+  --hairline-soft: rgba(255,255,255,0.06);
+  --canvas: rgba(10, 10, 20, 0.70);
+  --canvas-elevated: rgba(22, 22, 40, 0.82);
+  --link: #a5b4fc;
+  --link-deep: #818cf8;
+  --menubar-bg: rgba(10, 10, 20, 0.70);
+  --menubar-border: rgba(255,255,255,0.10);
+  --spotlight-bg: rgba(14, 14, 28, 0.92);
+  --spotlight-border: rgba(255,255,255,0.10);
+  --status-success: #4ade80;
+  --status-warn: #fbbf24;
+  --status-error: #ff6b6b;
+  --status-reroute: #c084fc;
   --bg-desktop: radial-gradient(ellipse 130% 100% at 70% -20%,
       #1e1040 0%, #0d0a1e 50%, #050508 100%);
   --bg-orb-1: radial-gradient(circle at 20% 30%, rgba(129,140,248,0.22) 0%, transparent 60%);
@@ -73,6 +189,27 @@
 
 /* ─── Windows Fluent ───────────────────────────────────────── */
 .theme-windows {
+  --scrollbar-thumb: rgba(255,255,255,0.12);
+  --scrollbar-thumb-hover: rgba(255,255,255,0.22);
+  /* Geist ladder — dark-appropriate */
+  --ink: #eaf4ff;
+  --text-body: #bcd3ea;
+  --text-mute: #86a0ba;
+  --text-faint: #647d96;
+  --hairline: rgba(255,255,255,0.09);
+  --hairline-soft: rgba(255,255,255,0.05);
+  --canvas: rgba(7, 20, 40, 0.82);
+  --canvas-elevated: rgba(13, 28, 50, 0.88);
+  --link: #38bdf8;
+  --link-deep: #0ea5e9;
+  --menubar-bg: rgba(7, 20, 40, 0.75);
+  --menubar-border: rgba(255,255,255,0.09);
+  --spotlight-bg: rgba(10, 24, 44, 0.94);
+  --spotlight-border: rgba(255,255,255,0.09);
+  --status-success: #4ade80;
+  --status-warn: #fbbf24;
+  --status-error: #ff6b6b;
+  --status-reroute: #c084fc;
   --bg-desktop: linear-gradient(145deg, #071428 0%, #0a1f3a 40%, #060e1c 100%);
   --bg-orb-1: radial-gradient(circle at 30% 40%, rgba(0,120,212,0.18) 0%, transparent 55%);
   --bg-orb-2: radial-gradient(circle at 70% 60%, rgba(0,180,255,0.10) 0%, transparent 50%);
@@ -92,6 +229,27 @@
 
 /* ─── Cyber Arch ───────────────────────────────────────────── */
 .theme-cyber {
+  --scrollbar-thumb: rgba(0,255,180,0.25);
+  --scrollbar-thumb-hover: rgba(0,255,180,0.4);
+  /* Geist ladder — neon-on-black */
+  --ink: #d6fff1;
+  --text-body: #8affd9;
+  --text-mute: #4fae93;
+  --text-faint: #357a66;
+  --hairline: rgba(0,255,180,0.22);
+  --hairline-soft: rgba(0,255,180,0.10);
+  --canvas: rgba(3, 10, 16, 0.92);
+  --canvas-elevated: rgba(5, 16, 22, 0.95);
+  --link: #00ffb4;
+  --link-deep: #00d49a;
+  --menubar-bg: rgba(2, 8, 12, 0.85);
+  --menubar-border: rgba(0,255,180,0.22);
+  --spotlight-bg: rgba(3, 10, 16, 0.96);
+  --spotlight-border: rgba(0,255,180,0.30);
+  --status-success: #4ade80;
+  --status-warn: #fbbf24;
+  --status-error: #ff6b6b;
+  --status-reroute: #c084fc;
   --bg-desktop: radial-gradient(ellipse 100% 100% at 50% 50%, #030a0f 0%, #010305 100%);
   --bg-orb-1: radial-gradient(circle at 20% 80%, rgba(0,255,180,0.08) 0%, transparent 50%);
   --bg-orb-2: radial-gradient(circle at 80% 20%, rgba(0,200,255,0.06) 0%, transparent 50%);
@@ -113,6 +271,27 @@
 
 /* ─── Enterprise ───────────────────────────────────────────── */
 .theme-enterprise {
+  --scrollbar-thumb: rgba(255,255,255,0.12);
+  --scrollbar-thumb-hover: rgba(255,255,255,0.22);
+  /* Geist ladder — dark-appropriate */
+  --ink: #e6f4ff;
+  --text-body: #b6d5ea;
+  --text-mute: #7fa0ba;
+  --text-faint: #5c7a93;
+  --hairline: rgba(14,165,233,0.18);
+  --hairline-soft: rgba(14,165,233,0.09);
+  --canvas: rgba(5, 14, 25, 0.85);
+  --canvas-elevated: rgba(8, 20, 34, 0.90);
+  --link: #0ea5e9;
+  --link-deep: #0284c7;
+  --menubar-bg: rgba(5, 14, 25, 0.80);
+  --menubar-border: rgba(14,165,233,0.18);
+  --spotlight-bg: rgba(6, 18, 32, 0.94);
+  --spotlight-border: rgba(14,165,233,0.22);
+  --status-success: #4ade80;
+  --status-warn: #fbbf24;
+  --status-error: #ff6b6b;
+  --status-reroute: #c084fc;
   --bg-desktop: radial-gradient(ellipse 110% 70% at 50% 10%,
       #061525 0%, #040e1c 40%, #020810 100%);
   --bg-orb-1: radial-gradient(circle at 25% 30%, rgba(14,165,233,0.14) 0%, transparent 55%);
@@ -133,6 +312,27 @@
 
 /* ─── Gothic Obsidian Dark ─────────────────────────────────── */
 .theme-gothic {
+  --scrollbar-thumb: rgba(244,63,94,0.3);
+  --scrollbar-thumb-hover: rgba(244,63,94,0.45);
+  /* Geist ladder — obsidian with crimson-tinted light text */
+  --ink: #ffe7ec;
+  --text-body: #e0b9c4;
+  --text-mute: #a87f8c;
+  --text-faint: #7d5b66;
+  --hairline: rgba(244,63,94,0.26);
+  --hairline-soft: rgba(244,63,94,0.12);
+  --canvas: rgba(12, 3, 8, 0.92);
+  --canvas-elevated: rgba(20, 5, 12, 0.94);
+  --link: #fb7185;
+  --link-deep: #f43f5e;
+  --menubar-bg: rgba(12, 3, 8, 0.82);
+  --menubar-border: rgba(244,63,94,0.26);
+  --spotlight-bg: rgba(14, 3, 9, 0.95);
+  --spotlight-border: rgba(244,63,94,0.32);
+  --status-success: #4ade80;
+  --status-warn: #fbbf24;
+  --status-error: #ff6b6b;
+  --status-reroute: #c084fc;
   --bg-desktop: radial-gradient(ellipse 120% 90% at 50% -10%, #1c040e 0%, #090206 50%, #010002 100%);
   --bg-orb-1: radial-gradient(circle at 30% 30%, rgba(225,29,72,0.2) 0%, transparent 60%);
   --bg-orb-2: radial-gradient(circle at 70% 70%, rgba(147,51,234,0.16) 0%, transparent 55%);
@@ -164,7 +364,7 @@
 
 .surface-window.is-active {
   box-shadow: var(--window-shadow-active);
-  border-color: rgba(255,255,255,0.14);
+  border-color: var(--window-border);
 }
 
 .surface-dock {
@@ -177,9 +377,9 @@
 }
 
 .surface-glass {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
+  background: var(--canvas-elevated, rgba(255,255,255,0.04));
+  border: 1px solid var(--hairline, rgba(255,255,255,0.08));
+  border-radius: var(--radius-md, 10px);
 }
 
 /* ─── Noise texture overlay ────────────────────────────────── */
@@ -197,11 +397,11 @@
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.12);
+  background: var(--scrollbar-thumb, rgba(0,0,0,0.18));
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.22);
+  background: var(--scrollbar-thumb-hover, rgba(0,0,0,0.30));
 }
 
 /* ─── Text Selection ───────────────────────────────────────── */

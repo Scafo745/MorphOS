@@ -41,19 +41,19 @@ export const SudoModal: React.FC = () => {
           transition={{ type: 'spring', damping: 28, stiffness: 380 }}
           className="w-full max-w-sm rounded-2xl overflow-hidden"
           style={{
-            background: isCyber ? 'rgba(2,10,16,0.97)' : 'rgba(8,8,22,0.94)',
+            background: isCyber ? 'rgba(2,10,16,0.97)' : 'var(--spotlight-bg, #ffffff)',
             backdropFilter: 'blur(48px) saturate(200%)',
             WebkitBackdropFilter: 'blur(48px) saturate(200%)',
-            border: isCyber ? '1px solid rgba(0,255,180,0.3)' : '1px solid rgba(245,158,11,0.25)',
+            border: isCyber ? '1px solid rgba(0,255,180,0.3)' : '1px solid var(--hairline, #ebebeb)',
             boxShadow: isCyber
               ? '0 0 60px rgba(0,255,180,0.08), 0 32px 80px rgba(0,0,0,0.8)'
-              : '0 32px 80px rgba(0,0,0,0.8), 0 0 0 0.5px rgba(245,158,11,0.15)',
+              : 'var(--window-shadow-active, 0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10))',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center gap-3 px-5 pt-5 pb-4"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ borderBottom: isCyber ? '1px solid rgba(255,255,255,0.06)' : '1px solid var(--hairline, #ebebeb)' }}
           >
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -65,8 +65,8 @@ export const SudoModal: React.FC = () => {
               <ShieldAlert className="w-5 h-5" style={{ color: isCyber ? 'var(--accent)' : '#f59e0b' }} />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-white">Privilege Escalation</h3>
-              <p className="text-[10px] font-mono mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
+              <h3 className="text-sm font-semibold" style={{ color: isCyber ? '#fff' : 'var(--ink, #171717)' }}>Privilege Escalation</h3>
+              <p className="text-[10px] font-mono mt-0.5" style={{ color: isCyber ? 'rgba(255,255,255,0.3)' : 'var(--text-mute, #8f8f8f)' }}>
                 policy: {profile.securityLevel}
               </p>
             </div>
@@ -77,9 +77,9 @@ export const SudoModal: React.FC = () => {
             <div
               className="px-3 py-2.5 rounded-lg mb-4 font-mono text-[11px] leading-relaxed"
               style={{
-                background: 'rgba(0,0,0,0.4)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                color: 'rgba(255,255,255,0.5)',
+                background: isCyber ? 'rgba(0,0,0,0.4)' : 'var(--canvas, #fafafa)',
+                border: isCyber ? '1px solid rgba(255,255,255,0.06)' : '1px solid var(--hairline, #ebebeb)',
+                color: isCyber ? 'rgba(255,255,255,0.5)' : 'var(--text-body, #4d4d4d)',
               }}
             >
               {sudoPromptMessage || 'Administrative authorization required.'}
@@ -90,7 +90,7 @@ export const SudoModal: React.FC = () => {
               <div className="relative">
                 <KeyRound
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5"
-                  style={{ color: 'rgba(255,255,255,0.25)' }}
+                  style={{ color: isCyber ? 'rgba(255,255,255,0.25)' : 'var(--text-faint, #a1a1a1)' }}
                 />
                 <input
                   type="password"
@@ -98,10 +98,12 @@ export const SudoModal: React.FC = () => {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Enter sudo password"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm text-white placeholder-white/20 focus:outline-none font-mono transition-all"
+                  className={`w-full pl-9 pr-3 py-2.5 rounded-xl text-sm focus:outline-none font-mono transition-all ${isCyber ? 'text-white placeholder-white/20' : 'text-geist-ink placeholder-geist-mute'}`}
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${password ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`,
+                    background: isCyber ? 'rgba(255,255,255,0.04)' : 'var(--canvas, #fafafa)',
+                    border: isCyber
+                      ? `1px solid ${password ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)'}`
+                      : `1px solid ${password ? 'var(--text-faint, #a1a1a1)' : 'var(--hairline, #ebebeb)'}`,
                   }}
                 />
               </div>
@@ -110,8 +112,11 @@ export const SudoModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => { resolveSudoChallenge(false); setPassword(''); }}
-                  className="flex-1 py-2.5 rounded-xl text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-colors ${isCyber ? 'text-white/50 hover:text-white/80' : 'text-geist-body hover:text-geist-ink'}`}
+                  style={{
+                    background: isCyber ? 'rgba(255,255,255,0.04)' : 'var(--canvas, #fafafa)',
+                    border: isCyber ? '1px solid rgba(255,255,255,0.08)' : '1px solid var(--hairline, #ebebeb)',
+                  }}
                 >
                   Deny Access
                 </button>

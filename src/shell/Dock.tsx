@@ -86,13 +86,14 @@ const DockIcon: React.FC<{
       {/* Tooltip */}
       <motion.div
         initial={false}
-        className="absolute -top-9 px-2.5 py-1 rounded-lg text-[11px] font-medium text-white pointer-events-none
+        className="absolute -top-9 px-2.5 py-1 rounded-lg text-[11px] font-medium pointer-events-none
                    opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap z-10"
         style={{
-          background: 'rgba(5,5,15,0.92)',
+          background: 'var(--spotlight-bg, #ffffff)',
+          color: 'var(--ink, #171717)',
           backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.12)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+          border: '1px solid var(--hairline, #ebebeb)',
+          boxShadow: 'var(--window-shadow, 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08))',
         }}
       >
         {item.label}
@@ -195,14 +196,14 @@ export const Dock: React.FC = () => {
           WebkitBackdropFilter: `blur(${profile.customTokens?.windowBlur || 'var(--dock-blur)'}) saturate(180%)`,
           border: `1px solid ${profile.customTokens?.dockBorder || 'var(--dock-border)'}`,
           borderRadius: profile.customTokens?.dockRadius || (isWindowsStyle ? '8px' : '22px'),
-          boxShadow: `0 20px 60px rgba(0,0,0,0.6), 0 0 25px ${profile.customTokens?.accentGlow || 'rgba(0,0,0,0.4)'}`,
+          boxShadow: `var(--dock-shadow, 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08)), 0 0 25px ${profile.customTokens?.accentGlow || 'transparent'}`,
         }}
       >
         {/* Separator before spotlight */}
         {allItems.map((item, i) => (
           <React.Fragment key={item.id}>
             {i === allItems.length - 1 && (
-              <div className="self-stretch w-px my-1.5 bg-white/10 mx-0.5" />
+              <div className="self-stretch w-px my-1.5 mx-0.5" style={{ background: 'var(--hairline, #ebebeb)' }} />
             )}
             <DockIcon
               item={item}
