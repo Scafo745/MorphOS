@@ -8,10 +8,22 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['Geist', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono: ['"Geist Mono"', '"JetBrains Mono"', 'ui-monospace', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
       },
       colors: {
+        geist: {
+          ink: '#171717',
+          body: '#4d4d4d',
+          mute: '#8f8f8f',
+          faint: '#a1a1a1',
+          hairline: '#ebebeb',
+          hairlineSoft: '#f2f2f2',
+          canvas: '#fafafa',
+          canvasElevated: '#ffffff',
+          link: '#0070f3',
+          linkDeep: '#0761d1',
+        },
         glass: {
           light: 'rgba(255, 255, 255, 0.15)',
           medium: 'rgba(255, 255, 255, 0.25)',
@@ -32,11 +44,22 @@ export default {
         xl: '24px',
         '2xl': '40px',
       },
+      borderRadius: {
+        sm: '6px',
+        md: '12px',
+        lg: '16px',
+        pill: '100px',
+      },
+      spacing: {
+        section: '128px',
+      },
       boxShadow: {
         'glass-sm': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
         'glass-lg': '0 20px 50px 0 rgba(0, 0, 0, 0.5)',
         'cyber-glow': '0 0 20px rgba(0, 255, 204, 0.35)',
         'win-acrylic': '0 12px 36px 0 rgba(0, 0, 0, 0.45)',
+        'geist': '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06)',
+        'geist-md': '0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.10)',
       },
       animation: {
         'dock-bounce': 'bounce 0.5s ease-in-out',

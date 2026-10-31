@@ -7,6 +7,33 @@ import { OS_PRESETS } from './presets';
 export function synthesizeTokensFromPrompt(prompt: string): { tokens: CustomTokens; theme: ThemeMode; name: string; tagline: string; dockStyle: DockStyle; controlsStyle: WindowControlsStyle; snapMode: SnapMode; securityLevel: SecurityLevel; userRole: OSProfile['userRole'] } {
   const p = prompt.toLowerCase().trim();
 
+  // ── 0. VERCEL / GEIST BASE (near-white developer-platform minimalism) ──
+  // Placed first so the stark light base is not swallowed by the broad
+  // gothic `dark` match or other keyword branches below.
+  if (
+    p.includes('geist') ||
+    p.includes('vercel') ||
+    p.includes('minimal') ||
+    p.includes('minimalist') ||
+    p.includes('monochrome') ||
+    p.includes('developer platform') ||
+    p.includes('developer-platform') ||
+    p.includes('clean') ||
+    (p.includes('light') && !p.includes('lightning'))
+  ) {
+    return {
+      theme: 'geist',
+      name: 'Vercel Geist',
+      tagline: 'Stark black-on-near-white developer-platform aesthetic with hairline elevation',
+      dockStyle: 'macos-magnify',
+      controlsStyle: 'traffic-lights',
+      snapMode: 'free',
+      securityLevel: 'standard',
+      userRole: 'developer',
+      tokens: { ...OS_PRESETS['geist-base'].customTokens },
+    };
+  }
+
   // ── 1. GOTHIC / OBSIDIAN / BLOOD / HORROR ──
   if (
     p.includes('gothic') ||
@@ -222,17 +249,19 @@ export function synthesizeTokensFromPrompt(prompt: string): { tokens: CustomToke
     };
   }
 
-  // ── 9. DEFAULT CUPERTINO GLASS ──
+  // ── 9. DEFAULT = VERCEL / GEIST BASE ──
+  // Unknown prompts default to the Geist structural base; mood/accent
+  // customizations layer on top of it.
   return {
-    theme: 'macos',
-    name: 'Cupertino Pro',
-    tagline: 'Ultra-fluid macOS Sonoma glass aesthetics',
+    theme: 'geist',
+    name: 'Vercel Geist',
+    tagline: 'Stark black-on-near-white developer-platform aesthetic with hairline elevation',
     dockStyle: 'macos-magnify',
     controlsStyle: 'traffic-lights',
     snapMode: 'free',
     securityLevel: 'standard',
     userRole: 'developer',
-    tokens: { ...OS_PRESETS['cupertino-dev'].customTokens },
+    tokens: { ...OS_PRESETS['geist-base'].customTokens },
   };
 }
 
@@ -327,7 +356,7 @@ export async function compilePromptAsync(
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-      const systemPrompt = `You are the MorphOS compiler. Output valid JSON with keys: name (string), tagline (string), theme ("macos"|"windows"|"cyber"|"enterprise"|"gothic"|"custom"), dockStyle ("macos-magnify"|"windows-center"|"cyber-minimal"), controlsStyle ("traffic-lights"|"windows-squares"|"cyber-minimal"), snapMode ("free"|"windows-snap"|"tiling"), securityLevel ("standard"|"strict-sudo"|"zero-trust"|"pci-dss-compliance"), userRole ("developer"|"root"|"intern"|"fintech_auditor"), aiSummary (string).`;
+      const systemPrompt = `You are the MorphOS compiler. Output valid JSON with keys: name (string), tagline (string), theme ("geist"|"macos"|"windows"|"cyber"|"enterprise"|"gothic"|"custom"), dockStyle ("macos-magnify"|"windows-center"|"cyber-minimal"), controlsStyle ("traffic-lights"|"windows-squares"|"cyber-minimal"), snapMode ("free"|"windows-snap"|"tiling"), securityLevel ("standard"|"strict-sudo"|"zero-trust"|"pci-dss-compliance"), userRole ("developer"|"root"|"intern"|"fintech_auditor"), aiSummary (string).`;
 
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.geminiApiKey}`,
