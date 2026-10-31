@@ -124,6 +124,47 @@ export const Copilot: React.FC = () => {
         return;
       }
 
+      // 2.75 Tool Scenario: Install a package via the terminal
+      if (qLower.includes('install') || qLower.includes('add package') || qLower.includes('npm i ')) {
+        const fillers = new Set(['install', 'npm', 'pip', 'pip3', 'yarn', 'apt', 'apt-get', 'i', 'add', 'the', 'package', 'packages', 'this', 'a', 'an', 'module', 'can', 'you', 'please', 'me', 'for', 'to']);
+        const pkg = query
+          .toLowerCase()
+          .replace(/[^a-z0-9@/\-_.\s]/g, ' ')
+          .split(/\s+/)
+          .filter((t) => t && !fillers.has(t))
+          .join(' ')
+          .trim();
+
+        if (!pkg) {
+          const agentMsg: Message = {
+            id: `msg-${Date.now()}`,
+            sender: 'agent',
+            text: `I can install a package into the MorphOS VFS for you. Which package should I install? For example: "install axios".`,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages((prev) => [...prev, agentMsg]);
+          setIsThinking(false);
+          return;
+        }
+
+        const shellRes = executeShell(`npm install ${pkg}`);
+        const agentMsg: Message = {
+          id: `msg-${Date.now()}`,
+          sender: 'agent',
+          text: `I ran the installation on your behalf against the microkernel terminal. Here is the output of \`npm install ${pkg}\`. The package was linked into the POSIX VFS at \`/usr/lib/morphos/node_modules\` and recorded in the PCI-DSS audit log.`,
+          toolCall: {
+            tool: `terminal.exec(npm install ${pkg})`,
+            input: `npm install ${pkg}`,
+            output: shellRes.output,
+            isError: shellRes.isError,
+          },
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages((prev) => [...prev, agentMsg]);
+        setIsThinking(false);
+        return;
+      }
+
       // 3. Tool Scenario: Reconfigure / Morph OS
       const isReconfigure =
         qLower.includes('reconfigure') ||
@@ -389,6 +430,7 @@ export const Copilot: React.FC = () => {
           'Audit payment transaction logs',
           'Try to delete the root filesystem',
           'Reconfigure to Windows snap multitasking',
+          'Install the axios package',
           'Show background microkernel daemons',
         ].map((s) => (
           <button

@@ -73,6 +73,9 @@ Syscall terminated with SIGABRT (exit code 134).`,
     hyperswitch [status|reroute] Juspay financial switch telemetry & smart router
     whoami               Display current user role and security profile
 
+  Packages:
+    npm/pip/apt install <pkg>  Install a package into the VFS
+
   Processes & IPC:
     ps [-aux]            List active processes with PIDs and memory usage
     top                  Live microkernel scheduler telemetry
@@ -269,6 +272,34 @@ Bank Rails:
   [SBI Direct] SR: 98.8% | Latency: 28ms | HEALTHY
 PCI-DSS 4.0: Level 1 Enforced | LSM Cryptographic Tokenization: ACTIVE`,
     };
+  }
+
+  // ── 13.6 PACKAGE INSTALL (npm/yarn/pip/apt — simulated) ──
+  const pkgManagers = ['npm', 'yarn', 'pip', 'pip3', 'apt', 'apt-get'];
+  const isPkgManager = pkgManagers.includes(cmd);
+  const installVerbs = ['install', 'i', 'add'];
+  if (cmd === 'install' || (isPkgManager && installVerbs.includes(args[0]))) {
+    const pkgArgs = (cmd === 'install' ? args : args.slice(1)).filter((a) => !a.startsWith('-'));
+    if (pkgArgs.length === 0) {
+      return { output: `usage: ${isPkgManager ? cmd : 'npm'} install <package>`, isError: true };
+    }
+
+    const lines: string[] = [];
+    for (const pkg of pkgArgs) {
+      const version = `${(pkg.length % 9) + 1}.${(pkg.length % 7) + 2}.${pkg.length % 10}`;
+      const rand = String(Math.floor(Math.random() * 900) + 100);
+      store.writeFile(
+        `/usr/lib/morphos/node_modules/${pkg}`,
+        `${pkg}@${version} (installed by MorphOS pkg manager)`
+      );
+      store.addAuditLog(rawCmd, 'ALLOWED', `Installed package ${pkg}`, 'INFO');
+      lines.push(`[MorphOS PKG] Resolving ${pkg} from registry...`);
+      lines.push(`✓ Fetched ${pkg}@${version}`);
+      lines.push(`✓ Verified integrity (sha512) and SELinux policy (${selinux.mode})`);
+      lines.push(`✓ Linked 1 package into /usr/lib/morphos/node_modules`);
+      lines.push(`added 1 package in 0.${rand}s`);
+    }
+    return { output: lines.join('\n') };
   }
 
   // ── 14. LS ──
