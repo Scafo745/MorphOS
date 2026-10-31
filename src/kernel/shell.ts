@@ -74,7 +74,9 @@ Syscall terminated with SIGABRT (exit code 134).`,
     whoami               Display current user role and security profile
 
   Packages:
-    npm/pip/apt install <pkg>  Install a package into the VFS
+    npm/pip install <pkg>      Install a node package into the VFS
+    apt/pkg install <pkg>      Install a system package (e.g. firefox, tor, git)
+    browser [init]             Start the installed browser runtime
 
   Processes & IPC:
     ps [-aux]            List active processes with PIDs and memory usage
@@ -274,32 +276,110 @@ PCI-DSS 4.0: Level 1 Enforced | LSM Cryptographic Tokenization: ACTIVE`,
     };
   }
 
-  // ── 13.6 PACKAGE INSTALL (npm/yarn/pip/apt — simulated) ──
-  const pkgManagers = ['npm', 'yarn', 'pip', 'pip3', 'apt', 'apt-get'];
+  // ── 13.6 PACKAGE INSTALL (npm/yarn/pip/apt/pkg/systemctl — simulated) ──
+  // Built-in catalog of known "system packages" so installs feel real.
+  const SYSTEM_PACKAGES: Record<string, { version: string; description: string; browser?: boolean; alias?: string }> = {
+    firefox: { version: '121.0', description: 'Mozilla Firefox web browser', browser: true },
+    chromium: { version: '120.0.6099', description: 'Chromium open source browser', browser: true },
+    chrome: { version: '120.0.6099', description: 'Chromium open source browser', browser: true, alias: 'chromium' },
+    browser: { version: '1.0.0', description: 'MorphOS basic browser runtime', browser: true },
+    tor: { version: '0.4.8.10', description: 'Tor anonymity network client' },
+    git: { version: '2.43.0', description: 'Distributed version control system' },
+    curl: { version: '8.5.0', description: 'Command line URL transfer tool' },
+    wget: { version: '1.21.4', description: 'Network file retriever' },
+    nodejs: { version: '20.11.0', description: 'Node.js JavaScript runtime' },
+    node: { version: '20.11.0', description: 'Node.js JavaScript runtime', alias: 'nodejs' },
+    python3: { version: '3.12.1', description: 'Python 3 interpreter' },
+    vim: { version: '9.1', description: 'Vi IMproved text editor' },
+    htop: { version: '3.3.0', description: 'Interactive process viewer' },
+  };
+
+  const nodeManagers = ['npm', 'yarn', 'pip', 'pip3'];
+  const systemManagers = ['apt', 'apt-get', 'pkg'];
+  const pkgManagers = [...nodeManagers, ...systemManagers];
   const isPkgManager = pkgManagers.includes(cmd);
   const installVerbs = ['install', 'i', 'add'];
-  if (cmd === 'install' || (isPkgManager && installVerbs.includes(args[0]))) {
+  // Lenient: `systemctl install <pkg>` is not valid systemctl, but we treat it as an install.
+  const isSystemctlInstall = cmd === 'systemctl' && args[0] === 'install';
+  if (cmd === 'install' || isSystemctlInstall || (isPkgManager && installVerbs.includes(args[0]))) {
     const pkgArgs = (cmd === 'install' ? args : args.slice(1)).filter((a) => !a.startsWith('-'));
     if (pkgArgs.length === 0) {
-      return { output: `usage: ${isPkgManager ? cmd : 'npm'} install <package>`, isError: true };
+      return { output: `usage: ${isPkgManager ? cmd : 'apt'} install <package>`, isError: true };
     }
 
+    // System-package style output for apt/apt-get/pkg/systemctl, npm-style for node managers.
+    const useSystemStyle = systemManagers.includes(cmd) || isSystemctlInstall;
     const lines: string[] = [];
-    for (const pkg of pkgArgs) {
-      const version = `${(pkg.length % 9) + 1}.${(pkg.length % 7) + 2}.${pkg.length % 10}`;
-      const rand = String(Math.floor(Math.random() * 900) + 100);
-      store.writeFile(
-        `/usr/lib/morphos/node_modules/${pkg}`,
-        `${pkg}@${version} (installed by MorphOS pkg manager)`
-      );
-      store.addAuditLog(rawCmd, 'ALLOWED', `Installed package ${pkg}`, 'INFO');
-      lines.push(`[MorphOS PKG] Resolving ${pkg} from registry...`);
-      lines.push(`✓ Fetched ${pkg}@${version}`);
-      lines.push(`✓ Verified integrity (sha512) and SELinux policy (${selinux.mode})`);
-      lines.push(`✓ Linked 1 package into /usr/lib/morphos/node_modules`);
-      lines.push(`added 1 package in 0.${rand}s`);
+    for (const rawPkg of pkgArgs) {
+      const catalogKey = SYSTEM_PACKAGES[rawPkg]?.alias || rawPkg;
+      const entry = SYSTEM_PACKAGES[catalogKey];
+
+      if (entry) {
+        const version = entry.version;
+        if (useSystemStyle) {
+          lines.push('Reading package lists... Done');
+          lines.push('Building dependency tree... Done');
+          lines.push(`The following NEW package will be installed:\n  ${catalogKey}`);
+          lines.push(`Fetching ${catalogKey} ${version} (${entry.description})...`);
+          lines.push(`Unpacking ${catalogKey} (${version})...`);
+          lines.push(`Setting up ${catalogKey} (${version})...`);
+          if (entry.browser) lines.push('Browser runtime registered');
+          store.writeFile(
+            `/usr/bin/${catalogKey}`,
+            `#!/usr/bin/env morphos\n# ${catalogKey} ${version} - ${entry.description}\n`
+          );
+        } else {
+          // Node-style install of a known package.
+          store.writeFile(
+            `/usr/lib/morphos/node_modules/${catalogKey}`,
+            `${catalogKey}@${version} (${entry.description})`
+          );
+          lines.push(`[MorphOS PKG] Resolving ${catalogKey} from registry...`);
+          lines.push(`✓ Fetched ${catalogKey}@${version}`);
+          lines.push(`✓ Verified integrity (sha512) and SELinux policy (${selinux.mode})`);
+          lines.push(`✓ Linked 1 package into /usr/lib/morphos/node_modules`);
+          lines.push(`added 1 package in 0.${String(Math.floor(Math.random() * 900) + 100)}s`);
+        }
+        store.addAuditLog(rawCmd, 'ALLOWED', `Installed package ${catalogKey}`, 'INFO');
+      } else {
+        // Unknown package: keep the generic npm-style behavior so nothing regresses.
+        const version = `${(rawPkg.length % 9) + 1}.${(rawPkg.length % 7) + 2}.${rawPkg.length % 10}`;
+        const rand = String(Math.floor(Math.random() * 900) + 100);
+        store.writeFile(
+          `/usr/lib/morphos/node_modules/${rawPkg}`,
+          `${rawPkg}@${version} (installed by MorphOS pkg manager)`
+        );
+        store.addAuditLog(rawCmd, 'ALLOWED', `Installed package ${rawPkg}`, 'INFO');
+        lines.push(`[MorphOS PKG] Resolving ${rawPkg} from registry...`);
+        lines.push(`✓ Fetched ${rawPkg}@${version}`);
+        lines.push(`✓ Verified integrity (sha512) and SELinux policy (${selinux.mode})`);
+        lines.push(`✓ Linked 1 package into /usr/lib/morphos/node_modules`);
+        lines.push(`added 1 package in 0.${rand}s`);
+      }
     }
     return { output: lines.join('\n') };
+  }
+
+  // ── 13.7 BROWSER INIT (simulated browser runtime) ──
+  const isBrowserInit =
+    cmd === 'browser' || (cmd === 'start' && args[0] === 'browser');
+  if (isBrowserInit) {
+    const browserBins = ['/usr/bin/firefox', '/usr/bin/chromium', '/usr/bin/browser'];
+    const installed = filesystem.find((f) => browserBins.includes(f.path) && f.type === 'file');
+    if (!installed) {
+      return {
+        output: 'No browser runtime found. Install one with: apt install firefox',
+        isError: true,
+      };
+    }
+    const pid = Math.floor(Math.random() * 9000) + 1000;
+    store.addAuditLog(rawCmd, 'ALLOWED', `Started browser runtime from ${installed.path}`, 'INFO');
+    return {
+      output: `[MorphOS] Starting browser runtime...
+✓ Spawned sandboxed browser process (pid ${pid})
+✓ Loaded GPU compositor + network stack
+✓ Browser ready. Navigate with: open <url>`,
+    };
   }
 
   // ── 14. LS ──
@@ -427,8 +507,13 @@ Execute with 'sudo cat ${target}' to authenticate with biometric elevation.`,
   if (cmd === 'sudo') {
     const subCommand = args.join(' ');
     if (!subCommand) return { output: 'usage: sudo <command>', isError: true };
+    // Elevate and actually run the wrapped command. The inner command goes back
+    // through executeSingleCommand, so the destructive-command guard still applies.
+    const inner = executeSingleCommand(subCommand, pipedInput);
+    const authNote = `[sudo] authorization accepted for ${profile.userRole}`;
     return {
-      output: `[SUDO AUTH CHALLENGE] Invoking biometric/security elevation for: "${subCommand}"...\nPlease authorize in the system prompt.`,
+      output: inner.output ? `${authNote}\n${inner.output}` : authNote,
+      isError: inner.isError,
     };
   }
 
