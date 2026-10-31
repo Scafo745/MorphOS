@@ -82,9 +82,9 @@ const DockIcon: React.FC<{
   });
 
   const sizeRaw = useTransform(distance, [0, 80, 150], [68, 56, 44]);
-  const size = useSpring(sizeRaw, { stiffness: 350, damping: 28, mass: 0.5 });
+  const size = useSpring(sizeRaw, { stiffness: 700, damping: 40, mass: 0.1 });
   const yRaw = useTransform(distance, [0, 80, 150], [-14, -6, 0]);
-  const y = useSpring(yRaw, { stiffness: 350, damping: 28, mass: 0.5 });
+  const y = useSpring(yRaw, { stiffness: 700, damping: 40, mass: 0.1 });
 
   return (
     <div className="relative flex flex-col items-center group">
@@ -115,13 +115,13 @@ const DockIcon: React.FC<{
           borderRadius: iconTheme.borderRadius,
         }}
         whileTap={{ scale: 0.88 }}
-        className="relative flex items-center justify-center overflow-hidden transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0"
+        className="relative flex items-center justify-center overflow-hidden transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-0"
         title={item.label}
         aria-label={item.label}
       >
         {/* App icon background */}
         <div
-          className="absolute inset-0 transition-all duration-300"
+          className="absolute inset-0 transition-colors duration-300"
           style={{
             background: iconTheme.bg,
             border: iconTheme.border,
@@ -194,7 +194,7 @@ export const Dock: React.FC = () => {
         initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', damping: 24, stiffness: 220, delay: 0.1 }}
-        className="pointer-events-auto flex items-end gap-2 px-3 py-2.5 transition-all duration-500"
+        className="pointer-events-auto flex items-end gap-2 px-3 py-2.5 transition-colors duration-300"
         style={{
           background: profile.customTokens?.dockBg || 'var(--dock-bg)',
           backdropFilter: `blur(${profile.customTokens?.windowBlur || 'var(--dock-blur)'}) saturate(180%)`,
