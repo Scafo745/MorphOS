@@ -1,6 +1,30 @@
 import { CloudConfig } from './types';
 
 /**
+ * Single source of truth for the Gemini model segment used by both the QA
+ * answerer here and the theme compiler in prompt-compiler.ts. Keeping it in one
+ * place stops the two call sites from drifting apart when Google retires a
+ * model.
+ */
+export const GEMINI_MODEL = 'gemini-3.8-flash';
+
+/**
+ * Transient server statuses worth a short retry: 503 (model overloaded /
+ * UNAVAILABLE) and 429 (rate limited). Anything else (400/403/404 etc) is not
+ * retryable and should fall straight through to the offline fallback.
+ */
+export function isRetryableGeminiStatus(status: number): boolean {
+  return status === 503 || status === 429;
+}
+
+/**
+ * Bounded backoff schedule for the extra retry attempts (milliseconds). Two
+ * entries means up to 2 additional attempts after the first, so worst case is
+ * 3 attempts total with ~0.5s then ~1s of backoff between them.
+ */
+export const GEMINI_RETRY_BACKOFF_MS = [500, 1000] as const;
+
+/**
  * Centralized keyword set that classifies a prompt as an OS reconfiguration /
  * tool intent (theme, color, security, process, payments, Juspay, etc) rather
  * than a general question. This consolidates the keyword branches that drive
@@ -147,38 +171,54 @@ export async function answerQuestionAsync(
   config?: CloudConfig
 ): Promise<{ answer: string; source: 'gemini' | 'local' }> {
   if (config?.geminiApiKey && config.engineMode !== 'local') {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const systemPrompt =
+      'You are Morph Copilot, a helpful general-purpose assistant that lives inside MorphOS, a browser-based prompt-synthesized operating system built for the Juspay hackathon. Answer general questions naturally and accurately like any good assistant. You are also aware you can reconfigure the OS, audit payments, and inspect processes, but for general questions just answer them. Keep answers reasonably short, a few sentences at most, and use plain conversational text.';
 
-      const systemPrompt =
-        'You are Morph Copilot, a helpful general-purpose assistant that lives inside MorphOS, a browser-based prompt-synthesized operating system built for the Juspay hackathon. Answer general questions naturally and accurately like any good assistant. You are also aware you can reconfigure the OS, audit payments, and inspect processes, but for general questions just answer them. Keep answers reasonably short, a few sentences at most, and use plain conversational text.';
+    // Up to GEMINI_RETRY_BACKOFF_MS.length additional attempts after the first,
+    // but only for transient 503/429 responses. Each attempt owns its own
+    // AbortController + 4000ms timeout so total time stays bounded.
+    for (let attempt = 0; attempt <= GEMINI_RETRY_BACKOFF_MS.length; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${config.geminiApiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: "${question}"` }] }],
-          }),
-          signal: controller.signal,
-        }
-      );
-      clearTimeout(timeoutId);
-
-      if (res.ok) {
-        const json = await res.json();
-        const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (typeof text === 'string') {
-          const answer = text.trim();
-          if (answer) {
-            return { answer, source: 'gemini' };
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${config.geminiApiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: "${question}"` }] }],
+            }),
+            signal: controller.signal,
           }
+        );
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const json = await res.json();
+          const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (typeof text === 'string') {
+            const answer = text.trim();
+            if (answer) {
+              return { answer, source: 'gemini' };
+            }
+          }
+          break;
         }
+
+        // Transient overload / rate limit: wait a short backoff and retry.
+        if (isRetryableGeminiStatus(res.status) && attempt < GEMINI_RETRY_BACKOFF_MS.length) {
+          await new Promise((r) => setTimeout(r, GEMINI_RETRY_BACKOFF_MS[attempt]));
+          continue;
+        }
+
+        // Non-retryable status, or retries exhausted: fall through to offline.
+        break;
+      } catch {
+        console.warn('Gemini QA call failed or timed out, using local fallback.');
+        break;
       }
-    } catch {
-      console.warn('Gemini QA call failed or timed out, using local fallback.');
     }
 
     // A key was configured but the cloud call failed, timed out, or returned a
