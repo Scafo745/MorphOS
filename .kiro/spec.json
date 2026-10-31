@@ -1,6 +1,7 @@
 {
   "name": "MorphOS",
   "version": "2.4.0",
+  "liveDeployment": "https://morphos-zic5.onrender.com",
   "description": "Prompt-Synthesized Adaptive Operating System for FinTech, Cloud & Zero-Trust Security",
   "hackathon": {
     "event": "Juspay Ship Happens Hackathon (Bangalore)",
@@ -48,4 +49,3 @@
     ]
   }
 }
-

@@ -1,9 +1,11 @@
 # 🌌 MorphOS — Prompt-Synthesized Adaptive Operating System
 
+> 🌐 **Live Production Deployment**: **[https://morphos-zic5.onrender.com](https://morphos-zic5.onrender.com)**  
 > **Built for the Juspay "Ship Happens" Hackathon (Bangalore, 2026)**  
 > **Primary Track**: Track 01 (Cloud Nine | AWS + Kiro)  
 > **Secondary Track**: Track 03 (Trust Issues | Failproof AI & Zero Accidental Data Loss)
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-morphos--zic5.onrender.com-success?style=for-the-badge&logo=render&logoColor=white)](https://morphos-zic5.onrender.com)
 [![Vite](https://img.shields.io/badge/Vite-8.3-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -96,17 +98,15 @@ flowchart TD
 
 ---
 
-## 🚀 Quickstart (Running Locally)
+## 🚀 Live Demo & Quickstart
 
-### Prerequisites
-- Node.js 18+
-- npm or pnpm
+- 🌐 **Live Website**: **[https://morphos-zic5.onrender.com](https://morphos-zic5.onrender.com)**
 
-### Installation
+### Running Locally
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/morphos.git
-cd morphos
+git clone https://github.com/Scafo745/MorphOS.git
+cd MorphOS
 
 # Install dependencies
 npm install
@@ -116,16 +116,6 @@ npm run dev
 ```
 
 Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/) in your browser.
-
-### Deploying to Render
-MorphOS is pre-configured with a Render Infrastructure Blueprint (`render.yaml`):
-1. In the [Render Dashboard](https://dashboard.render.com), click **New +** > **Static Site** (or **Blueprint**).
-2. Connect your `MorphOS` repository.
-3. Settings:
-   - **Build Command**: `npm install && npm run build`
-   - **Publish Directory**: `dist`
-   - **Rewrite Rule**: `/*` ➔ `/index.html`
-4. Click **Deploy** — your live MorphOS instance will be online in under 60 seconds with global CDN and automatic SSL!
 
 ---
 
