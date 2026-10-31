@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useOSStore } from '../core/store';
 import { OS_PRESETS } from '../core/presets';
-import { ThemeMode, DockStyle, SnapMode, SecurityLevel, CustomTokens } from '../core/types';
+import { DockStyle, SnapMode, SecurityLevel, CustomTokens } from '../core/types';
 import { compilePromptLocal, synthesizeTokensFromPrompt, compilePromptAsync } from '../core/prompt-compiler';
 import { Sliders, Shield, Monitor, Sparkles, Cpu, Wand2, Palette, Box, Check } from 'lucide-react';
 
@@ -86,33 +86,34 @@ export const Settings: React.FC = () => {
     { label: '🧊 Nordic Arctic Ice', prompt: 'nordic arctic ice blue frost glass theme' },
   ];
 
+  const cardStyle: React.CSSProperties = {
+    background: 'var(--canvas-elevated, #ffffff)',
+    borderColor: 'var(--hairline, #ebebeb)',
+  };
+
   return (
-    <div className="h-full flex flex-col bg-slate-950/95 text-slate-200 text-xs font-sans overflow-y-auto p-4 select-none space-y-5">
+    <div
+      className="h-full flex flex-col text-xs font-sans overflow-y-auto p-4 select-none space-y-5"
+      style={{ background: 'var(--canvas, #fafafa)', color: 'var(--text-body, #4d4d4d)' }}
+    >
       {/* ── Top Header ─────────────────────────────────────── */}
-      <div className="flex items-center justify-between pb-3 border-b border-white/10">
+      <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
         <div className="flex items-center space-x-2.5">
           <div
-            className="p-2 rounded-xl"
-            style={{
-              background: profile.customTokens?.accentColor ? `${profile.customTokens.accentColor}25` : 'rgba(99,102,241,0.2)',
-              color: profile.customTokens?.accentColor || '#818cf8',
-            }}
+            className="p-2 rounded-[12px] border"
+            style={{ borderColor: 'var(--hairline, #ebebeb)', color: profile.customTokens?.accentColor || 'var(--accent, #171717)' }}
           >
             <Sliders className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-white tracking-wide">MorphOS System Synthesizer</h2>
-            <p className="text-[11px] text-slate-400">Prompt-Synthesized Adaptive Operating System Architecture</p>
+            <h2 className="text-sm font-bold tracking-tight" style={{ color: 'var(--ink, #171717)' }}>MorphOS System Synthesizer</h2>
+            <p className="text-[11px]" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Prompt-Synthesized Adaptive Operating System Architecture</p>
           </div>
         </div>
 
         <div
-          className="flex items-center space-x-1.5 px-3 py-1 rounded-full font-mono text-[10px] border"
-          style={{
-            borderColor: profile.customTokens?.accentColor ? `${profile.customTokens.accentColor}50` : 'rgba(99,102,241,0.3)',
-            color: profile.customTokens?.accentColor || '#a5b4fc',
-            background: profile.customTokens?.accentColor ? `${profile.customTokens.accentColor}15` : 'rgba(99,102,241,0.1)',
-          }}
+          className="flex items-center space-x-1.5 px-3 py-1 rounded-[6px] font-mono text-[10px] border"
+          style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-mute, #8f8f8f)' }}
         >
           <Cpu className="w-3 h-3" />
           <span>MICROKERNEL ACTIVE</span>
@@ -120,20 +121,13 @@ export const Settings: React.FC = () => {
       </div>
 
       {/* ── 1. Universal AI Prompt Synthesizer Bar ───────────── */}
-      <div
-        className="p-3.5 rounded-2xl border"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          borderColor: profile.customTokens?.windowBorder || 'rgba(255,255,255,0.12)',
-          boxShadow: `0 8px 32px rgba(0,0,0,0.4), 0 0 20px ${profile.customTokens?.accentGlow || 'rgba(0,0,0,0.2)'}`,
-        }}
-      >
+      <div className="p-3.5 rounded-[12px] border" style={{ ...cardStyle, boxShadow: 'var(--window-shadow, 0 1px 2px rgba(0,0,0,0.04))' }}>
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
-            <Wand2 className="w-4 h-4" style={{ color: profile.customTokens?.accentColor || '#818cf8' }} />
+          <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--ink, #171717)' }}>
+            <Wand2 className="w-4 h-4" style={{ color: profile.customTokens?.accentColor || 'var(--accent, #171717)' }} />
             <span>Customize Everything with a Prompt</span>
           </div>
-          <span className="text-[10px] text-slate-400 font-mono">Synthesizes Theme, Icons, Windows & Security</span>
+          <span className="text-[10px] font-mono" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Synthesizes Theme, Icons, Windows & Security</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -143,16 +137,16 @@ export const Settings: React.FC = () => {
             onChange={(e) => setPromptInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSynthesizePrompt()}
             placeholder="Type any prompt: 'make colors dark like gothic theme', 'royal gold luxury', 'matrix cyber'..."
-            className="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/30 transition-colors"
+            className="flex-1 rounded-[6px] border px-3 py-2 text-xs placeholder-geist-mute focus:outline-none transition-colors"
+            style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)', color: 'var(--ink, #171717)' }}
           />
           <button
             onClick={() => handleSynthesizePrompt()}
             disabled={isCompiling}
-            className="px-4 py-2 rounded-xl font-semibold text-xs transition-all flex items-center gap-1.5 shadow-lg shrink-0 disabled:opacity-50"
+            className="px-4 py-2 rounded-[6px] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 disabled:opacity-50"
             style={{
-              background: profile.customTokens?.accentColor || '#6366f1',
-              color: '#000',
-              boxShadow: `0 0 16px ${profile.customTokens?.accentGlow || 'rgba(99,102,241,0.5)'}`,
+              background: profile.customTokens?.accentColor || 'var(--accent, #171717)',
+              color: profile.customTokens?.accentText || '#ffffff',
             }}
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -166,7 +160,8 @@ export const Settings: React.FC = () => {
             <button
               key={qp.label}
               onClick={() => handleSynthesizePrompt(qp.prompt)}
-              className="px-2.5 py-1 rounded-lg text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-slate-300 transition-all hover:scale-105 active:scale-95"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] border transition-all hover:scale-105 active:scale-95 hover:bg-geist-hairlineSoft"
+              style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)' }}
             >
               {qp.label}
             </button>
@@ -176,8 +171,8 @@ export const Settings: React.FC = () => {
 
       {/* ── 2. Preset Target Architectures Grid ──────────────── */}
       <div>
-        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center space-x-1">
-          <Sparkles className="w-3 h-3 text-yellow-400" />
+        <div className="text-[11px] font-semibold uppercase tracking-wider mb-2 flex items-center space-x-1" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
+          <Sparkles className="w-3 h-3" style={{ color: '#f5a623' }} />
           <span>Preset Target Architectures (1-Click Switch)</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -187,22 +182,18 @@ export const Settings: React.FC = () => {
               <button
                 key={key}
                 onClick={() => setProfile(preset)}
-                className={`p-2.5 rounded-xl border text-left transition-all ${
+                className="p-2.5 rounded-[12px] border text-left transition-all"
+                style={
                   isActive
-                    ? 'border-white/40 shadow-xl scale-[1.02]'
-                    : 'bg-white/5 hover:bg-white/10 border-white/10 text-slate-300'
-                }`}
-                style={{
-                  background: isActive ? `${preset.customTokens.accentColor}25` : undefined,
-                  borderColor: isActive ? preset.customTokens.accentColor : undefined,
-                  boxShadow: isActive ? `0 0 20px ${preset.customTokens.accentGlow}` : undefined,
-                }}
+                    ? { background: 'var(--accent-dim, rgba(23,23,23,0.06))', borderColor: preset.customTokens.accentColor || 'var(--ink, #171717)', color: 'var(--ink, #171717)' }
+                    : { ...cardStyle, color: 'var(--text-body, #4d4d4d)' }
+                }
               >
-                <div className="font-semibold text-xs truncate flex items-center justify-between">
+                <div className="font-semibold text-xs truncate flex items-center justify-between" style={{ color: 'var(--ink, #171717)' }}>
                   <span>{preset.name}</span>
-                  {isActive && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                  {isActive && <Check className="w-3.5 h-3.5" style={{ color: '#15803d' }} />}
                 </div>
-                <div className="text-[10px] text-slate-400 truncate mt-0.5">
+                <div className="text-[10px] truncate mt-0.5" style={{ color: 'var(--text-mute, #8f8f8f)' }}>
                   {preset.theme.toUpperCase()} • {preset.customTokens.iconStyle}
                 </div>
               </button>
@@ -214,9 +205,9 @@ export const Settings: React.FC = () => {
       {/* ── 3. Icon Style & Shape Synthesizer ────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Icon Theme Pack */}
-        <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 space-y-2">
-          <div className="font-semibold text-white flex items-center space-x-1.5">
-            <Box className="w-4 h-4 text-purple-400" />
+        <div className="p-3.5 rounded-[12px] border space-y-2" style={cardStyle}>
+          <div className="font-semibold flex items-center space-x-1.5" style={{ color: 'var(--ink, #171717)' }}>
+            <Box className="w-4 h-4" style={{ color: 'var(--accent, #171717)' }} />
             <span>Icon Style & Luminescence</span>
           </div>
           <div className="grid grid-cols-2 gap-1.5 pt-1">
@@ -234,12 +225,12 @@ export const Settings: React.FC = () => {
                 <button
                   key={ic.id}
                   onClick={() => handleIconStyleSwitch(ic.id)}
-                  className={`px-2.5 py-1.5 rounded-lg text-left text-[11px] transition-all border flex items-center justify-between ${
+                  className="px-2.5 py-1.5 rounded-[6px] text-left text-[11px] transition-all border flex items-center justify-between hover:bg-geist-hairlineSoft"
+                  style={
                     active
-                      ? 'bg-white/15 text-white font-semibold'
-                      : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
-                  }`}
-                  style={{ borderColor: active ? ic.color : undefined }}
+                      ? { background: 'var(--accent-dim, rgba(23,23,23,0.06))', color: 'var(--ink, #171717)', fontWeight: 600, borderColor: ic.color }
+                      : { color: 'var(--text-body, #4d4d4d)', borderColor: 'var(--hairline, #ebebeb)' }
+                  }
                 >
                   <span className="truncate">{ic.label}</span>
                   <span className="w-2 h-2 rounded-full" style={{ background: ic.color }} />
@@ -250,9 +241,9 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Icon Geometry Shape */}
-        <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 space-y-2">
-          <div className="font-semibold text-white flex items-center space-x-1.5">
-            <Palette className="w-4 h-4 text-sky-400" />
+        <div className="p-3.5 rounded-[12px] border space-y-2" style={cardStyle}>
+          <div className="font-semibold flex items-center space-x-1.5" style={{ color: 'var(--ink, #171717)' }}>
+            <Palette className="w-4 h-4" style={{ color: 'var(--link, #0070f3)' }} />
             <span>Icon Corner Geometry</span>
           </div>
           <div className="grid grid-cols-2 gap-1.5 pt-1">
@@ -267,11 +258,12 @@ export const Settings: React.FC = () => {
                 <button
                   key={geom.id}
                   onClick={() => handleIconShapeSwitch(geom.id)}
-                  className={`px-2.5 py-1.5 rounded-lg text-left text-[11px] transition-all border ${
+                  className="px-2.5 py-1.5 rounded-[6px] text-left text-[11px] transition-all border hover:bg-geist-hairlineSoft"
+                  style={
                     active
-                      ? 'bg-sky-500/20 border-sky-400 text-sky-200 font-semibold'
-                      : 'bg-white/5 hover:bg-white/10 border-white/5 text-slate-300'
-                  }`}
+                      ? { background: 'var(--accent-dim, rgba(23,23,23,0.06))', borderColor: 'var(--link, #0070f3)', color: 'var(--ink, #171717)', fontWeight: 600 }
+                      : { borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)' }
+                  }
                 >
                   {geom.label}
                 </button>
@@ -284,9 +276,9 @@ export const Settings: React.FC = () => {
       {/* ── 4. Shell Aesthetics & Window Compositor ──────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Layer 1: Visual Theme Switch */}
-        <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 space-y-2">
-          <div className="font-semibold text-white flex items-center space-x-1.5">
-            <Monitor className="w-4 h-4 text-emerald-400" />
+        <div className="p-3.5 rounded-[12px] border space-y-2" style={cardStyle}>
+          <div className="font-semibold flex items-center space-x-1.5" style={{ color: 'var(--ink, #171717)' }}>
+            <Monitor className="w-4 h-4" style={{ color: '#15803d' }} />
             <span>Shell Aesthetic Profiles</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
@@ -305,11 +297,12 @@ export const Settings: React.FC = () => {
                 <button
                   key={t.id}
                   onClick={() => handleThemeSwitch(t.id)}
-                  className={`px-2.5 py-1.5 rounded-lg text-left text-[11px] capitalize transition-all border ${
+                  className="px-2.5 py-1.5 rounded-[6px] text-left text-[11px] capitalize transition-all border hover:bg-geist-hairlineSoft"
+                  style={
                     active
-                      ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-semibold'
-                      : 'bg-white/5 hover:bg-white/10 border-white/5 text-slate-300'
-                  }`}
+                      ? { background: 'var(--accent-dim, rgba(23,23,23,0.06))', borderColor: 'var(--ink, #171717)', color: 'var(--ink, #171717)', fontWeight: 600 }
+                      : { borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)' }
+                  }
                 >
                   {t.label}
                 </button>
@@ -319,9 +312,9 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Layer 2: Window Manager */}
-        <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 space-y-2">
-          <div className="font-semibold text-white flex items-center space-x-1.5">
-            <Sliders className="w-4 h-4 text-indigo-400" />
+        <div className="p-3.5 rounded-[12px] border space-y-2" style={cardStyle}>
+          <div className="font-semibold flex items-center space-x-1.5" style={{ color: 'var(--ink, #171717)' }}>
+            <Sliders className="w-4 h-4" style={{ color: 'var(--link, #0070f3)' }} />
             <span>Window Manager (WM) Compositor</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5 pt-1">
@@ -329,11 +322,12 @@ export const Settings: React.FC = () => {
               <button
                 key={s}
                 onClick={() => handleUpdate({ snapMode: s })}
-                className={`px-2 py-1.5 rounded-lg text-center capitalize transition-colors text-[11px] border ${
+                className="px-2 py-1.5 rounded-[6px] text-center capitalize transition-colors text-[11px] border hover:bg-geist-hairlineSoft"
+                style={
                   profile.snapMode === s
-                    ? 'bg-indigo-500/20 border-indigo-400 text-indigo-300 font-semibold'
-                    : 'bg-white/5 hover:bg-white/10 border-white/5 text-slate-400'
-                }`}
+                    ? { background: 'var(--accent-dim, rgba(23,23,23,0.06))', borderColor: 'var(--link, #0070f3)', color: 'var(--ink, #171717)', fontWeight: 600 }
+                    : { borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-mute, #8f8f8f)' }
+                }
               >
                 {s.replace('-', ' ')}
               </button>
@@ -342,9 +336,9 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Layer 3: Dock / Taskbar Layout */}
-        <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 space-y-2">
-          <div className="font-semibold text-white flex items-center space-x-1.5">
-            <Monitor className="w-4 h-4 text-emerald-400" />
+        <div className="p-3.5 rounded-[12px] border space-y-2" style={cardStyle}>
+          <div className="font-semibold flex items-center space-x-1.5" style={{ color: 'var(--ink, #171717)' }}>
+            <Monitor className="w-4 h-4" style={{ color: '#15803d' }} />
             <span>Dock & Launcher Style</span>
           </div>
           <div className="grid grid-cols-3 gap-1.5 pt-1">
@@ -352,11 +346,12 @@ export const Settings: React.FC = () => {
               <button
                 key={d}
                 onClick={() => handleUpdate({ dockStyle: d })}
-                className={`px-2 py-1.5 rounded-lg text-center capitalize transition-colors text-[11px] border ${
+                className="px-2 py-1.5 rounded-[6px] text-center capitalize transition-colors text-[11px] border hover:bg-geist-hairlineSoft"
+                style={
                   profile.dockStyle === d
-                    ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-semibold'
-                    : 'bg-white/5 hover:bg-white/10 border-white/5 text-slate-400'
-                }`}
+                    ? { background: 'var(--accent-dim, rgba(23,23,23,0.06))', borderColor: '#15803d', color: 'var(--ink, #171717)', fontWeight: 600 }
+                    : { borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-mute, #8f8f8f)' }
+                }
               >
                 {d.replace('-', ' ')}
               </button>
@@ -365,9 +360,9 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Layer 4: Security & Zero-Trust Sandbox */}
-        <div className="p-3.5 rounded-xl bg-black/40 border border-white/10 space-y-2">
-          <div className="font-semibold text-white flex items-center space-x-1.5">
-            <Shield className="w-4 h-4 text-amber-400" />
+        <div className="p-3.5 rounded-[12px] border space-y-2" style={cardStyle}>
+          <div className="font-semibold flex items-center space-x-1.5" style={{ color: 'var(--ink, #171717)' }}>
+            <Shield className="w-4 h-4" style={{ color: '#f5a623' }} />
             <span>Microkernel Security Level</span>
           </div>
           <div className="grid grid-cols-2 gap-1.5 pt-1">
@@ -375,11 +370,12 @@ export const Settings: React.FC = () => {
               <button
                 key={sec}
                 onClick={() => handleUpdate({ securityLevel: sec })}
-                className={`px-2 py-1.5 rounded-lg text-left capitalize transition-colors text-[11px] border ${
+                className="px-2 py-1.5 rounded-[6px] text-left capitalize transition-colors text-[11px] border hover:bg-geist-hairlineSoft"
+                style={
                   profile.securityLevel === sec
-                    ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-semibold'
-                    : 'bg-white/5 hover:bg-white/10 border-white/5 text-slate-400'
-                }`}
+                    ? { background: 'rgba(245,166,35,0.12)', borderColor: '#f5a623', color: '#b4760a', fontWeight: 600 }
+                    : { borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-mute, #8f8f8f)' }
+                }
               >
                 {sec.replace(/-/g, ' ')}
               </button>
@@ -391,14 +387,10 @@ export const Settings: React.FC = () => {
       {/* ── AI Synthesis Telemetry Card ────────────────────── */}
       {profile.aiSummary && (
         <div
-          className="p-3 rounded-xl border font-mono text-[11px]"
-          style={{
-            background: 'rgba(5, 5, 15, 0.8)',
-            borderColor: profile.customTokens?.windowBorder || 'rgba(255,255,255,0.1)',
-            color: profile.customTokens?.accentText || '#e2e8f0',
-          }}
+          className="p-3 rounded-[12px] border font-mono text-[11px]"
+          style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)' }}
         >
-          <span className="font-bold" style={{ color: profile.customTokens?.accentColor || '#38bdf8' }}>
+          <span className="font-bold" style={{ color: profile.customTokens?.accentColor || 'var(--link, #0070f3)' }}>
             [KERNEL RECOMPILER]:{' '}
           </span>
           {profile.aiSummary}

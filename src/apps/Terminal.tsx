@@ -89,13 +89,22 @@ export const Terminal: React.FC = () => {
   const isCyber = profile.theme === 'cyber';
   const promptSymbol = profile.userRole === 'root' ? '#' : '$';
 
+  // Geist code-block surface by default; keep the neon cyber terminal for the cyber theme.
+  const userColor = profile.customTokens?.accentColor || (isCyber ? '#f472b6' : 'var(--link, #0070f3)');
+
   return (
     <div
       className={`h-full flex flex-col font-mono text-xs p-3 overflow-y-auto ${
-        isCyber
-          ? 'bg-black/95 text-emerald-400 selection:bg-emerald-500 selection:text-black'
-          : 'bg-slate-950/90 text-slate-200 selection:bg-indigo-500 selection:text-white'
+        isCyber ? 'bg-black/95 text-emerald-400 selection:bg-emerald-500 selection:text-black' : ''
       }`}
+      style={
+        isCyber
+          ? undefined
+          : {
+              background: 'var(--canvas-elevated, #ffffff)',
+              color: 'var(--text-body, #4d4d4d)',
+            }
+      }
       onClick={() => inputRef.current?.focus()}
     >
       <div className="flex-1 space-y-2">
@@ -103,26 +112,26 @@ export const Terminal: React.FC = () => {
           <div key={idx} className="space-y-0.5">
             {item.command && (
               <div className="flex items-center space-x-1.5 opacity-90">
-                <span
-                  className="font-medium"
-                  style={{ color: profile.customTokens?.accentColor || (isCyber ? '#f472b6' : '#38bdf8') }}
-                >
+                <span className="font-medium" style={{ color: userColor }}>
                   {profile.userRole}@morphos
                 </span>
-                <span className="text-slate-400">:</span>
-                <span className="text-amber-400">{currentPath}</span>
-                <span className="text-slate-300 font-bold">{promptSymbol}</span>
-                <span className="text-white font-semibold">{item.command}</span>
+                <span style={isCyber ? undefined : { color: 'var(--text-faint, #a1a1a1)' }} className={isCyber ? 'text-slate-400' : ''}>:</span>
+                <span style={isCyber ? undefined : { color: 'var(--link-deep, #0761d1)' }} className={isCyber ? 'text-amber-400' : ''}>{currentPath}</span>
+                <span className="font-bold" style={isCyber ? undefined : { color: 'var(--text-mute, #8f8f8f)' }}>{promptSymbol}</span>
+                <span className="font-semibold" style={isCyber ? { color: '#fff' } : { color: 'var(--ink, #171717)' }}>{item.command}</span>
               </div>
             )}
             <pre
               className={`whitespace-pre-wrap font-mono leading-relaxed ${
-                item.isError
-                  ? 'text-rose-400 font-semibold'
-                  : isCyber
-                  ? 'text-emerald-300'
-                  : 'text-slate-300'
+                item.isError ? 'font-semibold' : ''
               }`}
+              style={
+                item.isError
+                  ? { color: isCyber ? '#fb7185' : '#ee0000' }
+                  : isCyber
+                  ? { color: '#6ee7b7' }
+                  : { color: 'var(--text-body, #4d4d4d)' }
+              }
             >
               {item.output}
             </pre>
@@ -131,16 +140,16 @@ export const Terminal: React.FC = () => {
       </div>
 
       {/* Active Input Line */}
-      <div className="flex items-center space-x-1.5 pt-2 border-t border-white/5 mt-2 flex-shrink-0">
-        <span
-          className="font-medium"
-          style={{ color: profile.customTokens?.accentColor || (isCyber ? '#f472b6' : '#38bdf8') }}
-        >
+      <div
+        className="flex items-center space-x-1.5 pt-2 mt-2 flex-shrink-0 border-t"
+        style={{ borderColor: isCyber ? 'rgba(255,255,255,0.08)' : 'var(--hairline, #ebebeb)' }}
+      >
+        <span className="font-medium" style={{ color: userColor }}>
           {profile.userRole}@morphos
         </span>
-        <span className="text-slate-400">:</span>
-        <span className="text-amber-400">{currentPath}</span>
-        <span className="text-slate-300 font-bold">{promptSymbol}</span>
+        <span style={isCyber ? undefined : { color: 'var(--text-faint, #a1a1a1)' }} className={isCyber ? 'text-slate-400' : ''}>:</span>
+        <span style={isCyber ? undefined : { color: 'var(--link-deep, #0761d1)' }} className={isCyber ? 'text-amber-400' : ''}>{currentPath}</span>
+        <span className="font-bold" style={isCyber ? undefined : { color: 'var(--text-mute, #8f8f8f)' }}>{promptSymbol}</span>
         <input
           ref={inputRef}
           type="text"
@@ -148,7 +157,8 @@ export const Terminal: React.FC = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           autoFocus
-          className="flex-1 bg-transparent border-none outline-none font-mono text-white"
+          className="flex-1 bg-transparent border-none outline-none font-mono"
+          style={{ color: isCyber ? '#fff' : 'var(--ink, #171717)' }}
         />
       </div>
       <div ref={bottomRef} />
