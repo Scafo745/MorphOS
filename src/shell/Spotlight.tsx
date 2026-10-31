@@ -4,6 +4,7 @@ import { useOSStore } from '../core/store';
 import { compilePromptAsync } from '../core/prompt-compiler';
 import { isOsSynthesisIntent, answerQuestionAsync } from '../core/ai-chat';
 import { OS_PRESETS } from '../core/presets';
+import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
 import { ArrowRight, ShieldCheck, LayoutGrid, Terminal, Wand2, Mic, MicOff, Cloud, Sparkles } from 'lucide-react';
 
 const PRESETS = [
@@ -33,6 +34,7 @@ export const Spotlight: React.FC = () => {
   const [answer, setAnswer] = useState<{ text: string; source: 'gemini' | 'local' } | null>(null);
   const [answering, setAnswering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   // Cycle placeholders
   useEffect(() => {
@@ -264,8 +266,8 @@ export const Spotlight: React.FC = () => {
                   {answering ? (
                     <div className="flex items-center gap-2 px-1 py-2 text-[13px]" style={{ color: 'var(--text-body, #454545)' }}>
                       <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 0.8, ease: 'linear', repeat: Infinity }}
+                        animate={prefersReducedMotion ? undefined : { rotate: 360 }}
+                        transition={prefersReducedMotion ? undefined : { duration: 0.8, ease: 'linear', repeat: Infinity }}
                       >
                         <Wand2 className="w-4 h-4" style={{ color: 'var(--accent)' }} />
                       </motion.div>
