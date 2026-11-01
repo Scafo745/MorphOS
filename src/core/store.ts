@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { OSProfile, WindowState, AppId, FileItem, AuditLog, SnapZone, ProcessInfo, SELinuxState, CloudConfig, Toast, ToastVariant } from './types';
+import { OSProfile, WindowState, AppId, FileItem, AuditLog, SnapZone, ProcessInfo, SELinuxState, CloudConfig, AiProvider, Toast, ToastVariant } from './types';
 import { OS_PRESETS } from './presets';
 import { INITIAL_FILESYSTEM } from '../kernel/filesystem';
 import { INITIAL_PROCESSES } from '../kernel/process';
@@ -70,15 +70,45 @@ interface OSStore {
   setPendingCopilotPrompt: (prompt: string | null) => void;
 }
 
+const generateProviderId = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `gemini-${Date.now()}`;
+};
+
 const getSavedCloudConfig = (): CloudConfig => {
   try {
     const raw = localStorage.getItem('morphos_cloud_config');
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<CloudConfig>;
+      const providers: AiProvider[] = Array.isArray(parsed.providers) ? parsed.providers : [];
+      const geminiApiKey = parsed.geminiApiKey ?? '';
+
+      // Migrate a legacy single-key config into a gemini provider entry.
+      if (providers.length === 0 && geminiApiKey) {
+        providers.push({
+          id: generateProviderId(),
+          vendor: 'gemini',
+          label: 'Gemini',
+          apiKey: geminiApiKey,
+          enabled: true,
+        });
+      }
+
+      return {
+        n8nWebhookUrl: parsed.n8nWebhookUrl ?? '',
+        geminiApiKey,
+        engineMode: parsed.engineMode ?? 'auto',
+        providers,
+      };
+    }
   } catch {}
   return {
     n8nWebhookUrl: '',
     geminiApiKey: '',
     engineMode: 'auto',
+    providers: [],
   };
 };
 

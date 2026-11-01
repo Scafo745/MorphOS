@@ -63,10 +63,30 @@ export interface OSProfile {
 
 export type AppId = 'terminal' | 'filemanager' | 'settings' | 'security' | 'copilot' | 'notes' | 'hyperswitch' | 'browser';
 
+/**
+ * A single AI provider the engine can call for answers / prompt synthesis.
+ *
+ * - vendor 'gemini' uses the Google Generative Language API. The `model` falls
+ *   back to the GEMINI_MODELS candidate list in ai-chat.ts and `baseUrl` is
+ *   unused.
+ * - vendor 'openai-compatible' issues a POST to `{baseUrl}/chat/completions`
+ *   with Bearer auth using `apiKey`.
+ */
+export interface AiProvider {
+  id: string;
+  vendor: 'gemini' | 'openai-compatible';
+  label?: string;
+  apiKey: string;
+  baseUrl?: string;
+  model?: string;
+  enabled?: boolean;
+}
+
 export interface CloudConfig {
   n8nWebhookUrl: string;
   geminiApiKey: string;
   engineMode: 'auto' | 'n8n' | 'gemini' | 'local';
+  providers: AiProvider[];
 }
 
 export type ToastVariant = 'info' | 'success' | 'warning' | 'error';
