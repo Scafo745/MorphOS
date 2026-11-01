@@ -5,7 +5,7 @@ import { compilePromptAsync } from '../core/prompt-compiler';
 import { isOsSynthesisIntent, answerQuestionAsync } from '../core/ai-chat';
 import { OS_PRESETS } from '../core/presets';
 import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
-import { ArrowRight, ShieldCheck, LayoutGrid, Terminal, Wand2, Mic, MicOff, Cloud, Sparkles } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Terminal, Wand2, Mic, MicOff, Cloud, Sparkles } from 'lucide-react';
 
 const PRESETS = [
   { key: 'cupertino-dev',      emoji: '🍎', name: 'Cupertino Pro',            sub: 'macOS glass · fluid dock · standard ACL' },
@@ -194,7 +194,7 @@ export const Spotlight: React.FC = () => {
             className="fixed top-[15%] left-1/2 -translate-x-1/2 z-[70] w-full max-w-[640px] px-4"
           >
             <div
-              className="rounded-md overflow-hidden"
+              className="rounded-md overflow-hidden flex flex-col max-h-[85vh]"
               style={{
                 background: 'var(--spotlight-bg, #ffffff)',
                 backdropFilter: 'blur(56px) saturate(200%)',
@@ -204,7 +204,7 @@ export const Spotlight: React.FC = () => {
               }}
             >
               {/* ── Input row ── */}
-              <div className="flex items-center gap-2.5 px-4 py-3.5 border-b" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
+              <div className="flex items-center gap-2.5 px-4 py-3.5 border-b flex-shrink-0" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
                 <motion.div
                   animate={{ rotate: busy ? 360 : 0 }}
                   transition={{ duration: 0.8, ease: 'linear', repeat: busy ? Infinity : 0 }}
@@ -269,6 +269,8 @@ export const Spotlight: React.FC = () => {
                 </motion.button>
               </div>
 
+              {/* ── Scrollable middle (answer + preset grid) ── */}
+              <div className="flex-1 min-h-0 overflow-y-auto">
               {/* ── Inline answer (general questions) ── */}
               {(answering || answer) && (
                 <div className="p-3 border-b" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
@@ -357,10 +359,11 @@ export const Spotlight: React.FC = () => {
                 </div>
               </div>
               )}
+              </div>
 
               {/* ── Footer ── */}
               <div
-                className="flex items-center justify-between px-4 py-2 text-[10px] font-mono border-t"
+                className="flex items-center justify-between px-4 py-2 text-[10px] font-mono border-t flex-shrink-0"
                 style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-faint, #a1a1a1)' }}
               >
                 <span>↵ synthesize · 🎙️ voice enabled</span>

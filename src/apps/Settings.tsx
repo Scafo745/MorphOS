@@ -143,7 +143,7 @@ export const Settings: React.FC = () => {
           <button
             onClick={() => handleSynthesizePrompt()}
             disabled={isCompiling}
-            className="px-4 py-2 rounded-[6px] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 disabled:opacity-50"
+            className="px-4 py-2 rounded-[6px] font-semibold text-xs transition-all flex items-center gap-1.5 shrink-0 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
             style={{
               background: profile.customTokens?.accentColor || 'var(--accent, #171717)',
               color: profile.customTokens?.accentText || '#ffffff',
@@ -160,7 +160,7 @@ export const Settings: React.FC = () => {
             <button
               key={qp.label}
               onClick={() => handleSynthesizePrompt(qp.prompt)}
-              className="px-2.5 py-1 rounded-[6px] text-[10px] border transition-all hover:scale-105 active:scale-95 hover:bg-geist-hairlineSoft"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] border transition-all hover:scale-105 active:scale-95 hover:bg-geist-hairlineSoft focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)' }}
             >
               {qp.label}

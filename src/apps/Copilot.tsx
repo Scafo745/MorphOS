@@ -3,7 +3,7 @@ import { useOSStore } from '../core/store';
 import { executeShell } from '../kernel/shell';
 import { compilePromptAsync } from '../core/prompt-compiler';
 import { answerQuestionAsync, isOsSynthesisIntent } from '../core/ai-chat';
-import { Bot, User, Send, Sparkles, Terminal, ShieldAlert, ArrowRight, CornerDownLeft } from 'lucide-react';
+import { Bot, User, Send, Sparkles, Terminal, ShieldAlert } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -484,7 +484,7 @@ export const Copilot: React.FC = () => {
           <button
             key={s}
             onClick={() => handleSend(s)}
-            className="px-2.5 py-1 rounded-[6px] border whitespace-nowrap text-[11px] transition-colors flex-shrink-0 hover:bg-geist-hairlineSoft"
+            className="px-2.5 py-1 rounded-[6px] border whitespace-nowrap text-[11px] transition-colors flex-shrink-0 hover:bg-geist-hairlineSoft focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
             style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--text-body, #4d4d4d)' }}
           >
             {s}
@@ -509,8 +509,10 @@ export const Copilot: React.FC = () => {
         <button
           onClick={() => handleSend()}
           disabled={!input.trim() || isThinking}
-          className="p-2 rounded-[6px] disabled:opacity-40 transition-colors"
+          className="p-2 rounded-[6px] disabled:opacity-40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
           style={{ background: 'var(--accent, #171717)', color: '#ffffff' }}
+          title="Send message"
+          aria-label="Send message"
         >
           <Send className="w-4 h-4" />
         </button>

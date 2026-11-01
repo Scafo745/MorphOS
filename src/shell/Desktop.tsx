@@ -150,7 +150,9 @@ export const Desktop: React.FC = () => {
           >
             {/* Pulsing status dot */}
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style={{ background: 'var(--accent)' }} />
+              {!prefersReducedMotion && (
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-50" style={{ background: 'var(--accent)' }} />
+              )}
               <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: 'var(--accent)' }} />
             </span>
             <div>
@@ -211,15 +213,15 @@ export const Desktop: React.FC = () => {
           >
             {[
               { label: 'Synthesize OS...', icon: <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />, action: () => toggleSpotlight(true) },
-              { label: 'Morph Copilot',    icon: <Bot className="w-3.5 h-3.5 text-purple-400" />, action: () => openApp('copilot') },
+              { label: 'Morph Copilot',    icon: <Bot className="w-3.5 h-3.5" style={{ color: 'var(--text-mute, #8f8f8f)' }} />, action: () => openApp('copilot') },
               null,
-              { label: 'Open Terminal',    icon: <Terminal className="w-3.5 h-3.5 text-emerald-400" />, action: () => openApp('terminal') },
-              { label: 'Open Files',       icon: <Folder className="w-3.5 h-3.5 text-sky-400" />,     action: () => openApp('filemanager') },
-              { label: 'Open Browser',     icon: <Globe className="w-3.5 h-3.5 text-teal-400" />,     action: () => openApp('browser') },
-              { label: 'OS Synthesizer',   icon: <Settings className="w-3.5 h-3.5 text-violet-400" />, action: () => openApp('settings') },
-              { label: 'Audit & Guard',    icon: <Shield className="w-3.5 h-3.5 text-amber-400" />,    action: () => openApp('security') },
+              { label: 'Open Terminal',    icon: <Terminal className="w-3.5 h-3.5" style={{ color: 'var(--text-mute, #8f8f8f)' }} />, action: () => openApp('terminal') },
+              { label: 'Open Files',       icon: <Folder className="w-3.5 h-3.5" style={{ color: 'var(--text-mute, #8f8f8f)' }} />,     action: () => openApp('filemanager') },
+              { label: 'Open Browser',     icon: <Globe className="w-3.5 h-3.5" style={{ color: 'var(--text-mute, #8f8f8f)' }} />,     action: () => openApp('browser') },
+              { label: 'OS Synthesizer',   icon: <Settings className="w-3.5 h-3.5" style={{ color: 'var(--text-mute, #8f8f8f)' }} />, action: () => openApp('settings') },
+              { label: 'Audit & Guard',    icon: <Shield className="w-3.5 h-3.5" style={{ color: 'var(--text-mute, #8f8f8f)' }} />,    action: () => openApp('security') },
               null,
-              { label: 'Cloud & n8n Gateway', icon: <Cloud className="w-3.5 h-3.5 text-sky-400" />, action: () => toggleCloudModal(true) },
+              { label: 'Cloud & n8n Gateway', icon: <Cloud className="w-3.5 h-3.5" style={{ color: 'var(--text-mute, #8f8f8f)' }} />, action: () => toggleCloudModal(true) },
             ].map((item, i) =>
               item === null ? (
                 <div key={`sep-${i}`} className="mx-2 my-1 h-px" style={{ background: 'var(--hairline, #ebebeb)' }} />
@@ -227,7 +229,7 @@ export const Desktop: React.FC = () => {
                 <button
                   key={item.label}
                   onClick={() => { item.action(); setCtx(null); }}
-                  className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left hover:bg-geist-hairlineSoft"
+                  className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs transition-colors text-left hover:bg-geist-hairlineSoft focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
                   style={{ color: 'var(--text-body, var(--ink))' }}
                 >
                   {item.icon}

@@ -262,9 +262,9 @@ export const CloudModal: React.FC = () => {
   };
 
   const statusTone = (status: ProviderTestStatus) => {
-    if (status === 'valid') return 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300';
-    if (status === 'testing') return 'bg-sky-500/10 border-sky-500/30 text-sky-300';
-    return 'bg-rose-500/10 border-rose-500/30 text-rose-300';
+    if (status === 'valid') return 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700';
+    if (status === 'testing') return 'bg-sky-500/10 border-sky-500/30 text-sky-700';
+    return 'bg-rose-500/10 border-rose-500/30 text-rose-700';
   };
 
   return (
@@ -297,7 +297,9 @@ export const CloudModal: React.FC = () => {
             </div>
             <button
               onClick={() => toggleCloudModal(false)}
-              className="p-1 rounded-lg hover:bg-geist-hairlineSoft text-geist-mute hover:text-geist-ink transition-colors"
+              className="p-1 rounded-lg hover:bg-geist-hairlineSoft text-geist-mute hover:text-geist-ink transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
+              title="Close"
+              aria-label="Close cloud gateway"
             >
               <X className="w-4 h-4" />
             </button>
@@ -337,10 +339,10 @@ export const CloudModal: React.FC = () => {
                 <div
                   className={`mt-2 p-2.5 rounded-lg flex items-start space-x-2 border text-[11px] ${
                     testStatus === 'success'
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700'
                       : testStatus === 'testing'
-                      ? 'bg-sky-500/10 border-sky-500/30 text-sky-300'
-                      : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      ? 'bg-sky-500/10 border-sky-500/30 text-sky-700'
+                      : 'bg-rose-500/10 border-rose-500/30 text-rose-700'
                   }`}
                 >
                   {testStatus === 'success' ? (

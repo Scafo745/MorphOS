@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOSStore } from '../core/store';
-import { ShieldCheck, ShieldAlert, Lock, AlertTriangle, RefreshCw, Activity, Terminal } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Lock, AlertTriangle, Activity, Terminal } from 'lucide-react';
 
 export const SecurityGuard: React.FC = () => {
   const { profile, selinux, setSELinuxMode, auditLogs, setProfile } = useOSStore();

@@ -1,4 +1,4 @@
-import { FileItem, AuditLog } from '../core/types';
+import { FileItem } from '../core/types';
 
 export const INITIAL_FILESYSTEM: FileItem[] = [
   // Root directories

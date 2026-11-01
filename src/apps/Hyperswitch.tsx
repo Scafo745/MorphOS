@@ -5,17 +5,13 @@ import {
   Activity,
   CreditCard,
   ShieldCheck,
-  AlertTriangle,
   ArrowRightLeft,
   Server,
   Zap,
   TrendingUp,
   RefreshCw,
-  Lock,
   CheckCircle2,
-  XCircle,
-  Eye,
-  Sliders
+  XCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -41,7 +37,7 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 ];
 
 export const Hyperswitch: React.FC = () => {
-  const { profile, addAuditLog, triggerSudoChallenge } = useOSStore();
+  const { addAuditLog, triggerSudoChallenge } = useOSStore();
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [tps, setTps] = useState(1842);
   const [sbiDegraded, setSbiDegraded] = useState(false);
@@ -161,7 +157,7 @@ export const Hyperswitch: React.FC = () => {
       </div>
 
       {/* ── METRICS OVERVIEW CARDS ───────────────────────────── */}
-      <div className="grid grid-cols-4 gap-2.5 p-3 border-b" style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)' }}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 border-b" style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)' }}>
         <div className="p-2.5 rounded-[12px] border" style={cardStyle}>
           <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Volume Today</div>
           <div className="text-base font-bold mt-0.5" style={{ color: 'var(--ink, #171717)' }}>₹142.89 Cr</div>
@@ -206,14 +202,14 @@ export const Hyperswitch: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSimulateOutage}
-              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ borderColor: 'rgba(238,0,0,0.3)', color: 'var(--status-error, #ee0000)', background: 'rgba(238,0,0,0.06)' }}
             >
               Simulate SBI Degradation
             </button>
             <button
               onClick={handleSmartFailover}
-              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 flex items-center gap-1"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ borderColor: 'rgba(21,128,61,0.3)', color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.08)' }}
             >
               <RefreshCw className="w-3 h-3" />
@@ -221,7 +217,7 @@ export const Hyperswitch: React.FC = () => {
             </button>
             <button
               onClick={handleDropTableTest}
-              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ borderColor: 'rgba(245,166,35,0.35)', color: 'var(--status-warn, #b4760a)', background: 'rgba(245,166,35,0.1)' }}
               title="Test Accidental Data Loss Guard on Payments DB"
             >
@@ -231,7 +227,7 @@ export const Hyperswitch: React.FC = () => {
         </div>
 
         {/* 4 Gateway Cards */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {/* HDFC */}
           <div className="p-2 rounded-[6px] border" style={cardStyle}>
             <div className="flex items-center justify-between text-[11px] font-bold" style={{ color: 'var(--ink, #171717)' }}>
@@ -369,7 +365,7 @@ export const Hyperswitch: React.FC = () => {
       {selectedTxn && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div
-            className="w-full max-w-md rounded-[16px] border p-4 space-y-3"
+            className="w-full max-w-md rounded-[16px] border p-4 space-y-3 max-h-[85vh] overflow-y-auto"
             style={{ background: 'var(--canvas-elevated, #ffffff)', borderColor: 'var(--hairline, #ebebeb)', boxShadow: 'var(--window-shadow-active, 0 12px 32px rgba(0,0,0,0.1))' }}
           >
             <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
@@ -379,8 +375,10 @@ export const Hyperswitch: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedTxn(null)}
-                className="px-2 py-0.5 rounded-[6px] hover:bg-geist-hairlineSoft"
+                className="px-2 py-0.5 rounded-[6px] hover:bg-geist-hairlineSoft focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
                 style={{ color: 'var(--text-mute, #8f8f8f)' }}
+                title="Close audit record"
+                aria-label="Close audit record"
               >
                 ✕
               </button>
@@ -430,7 +428,7 @@ export const Hyperswitch: React.FC = () => {
 
             <button
               onClick={() => setSelectedTxn(null)}
-              className="w-full py-1.5 rounded-[6px] font-semibold transition-colors"
+              className="w-full py-1.5 rounded-[6px] font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ background: 'var(--accent, #171717)', color: '#ffffff' }}
             >
               Close Audit Record

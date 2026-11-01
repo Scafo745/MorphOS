@@ -192,14 +192,14 @@ export const Dock: React.FC = () => {
   const allItems = [...ITEMS, SPOTLIGHT_ITEM];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex justify-center items-end pb-2.5 z-40 pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 flex justify-center items-end pb-2.5 z-40 pointer-events-none px-2">
       <motion.nav
         onMouseMove={e => mouseX.set(e.clientX)}
         onMouseLeave={() => mouseX.set(-999)}
         initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', damping: 24, stiffness: 220, delay: 0.1 }}
-        className="pointer-events-auto flex items-end gap-2 px-3 py-2.5 transition-colors duration-300"
+        className="dock-scroll pointer-events-auto flex items-end gap-1 sm:gap-2 px-2 sm:px-3 py-2.5 max-w-full overflow-x-auto transition-colors duration-300"
         style={{
           background: profile.customTokens?.dockBg || 'var(--dock-bg)',
           backdropFilter: `blur(${profile.customTokens?.windowBlur || 'var(--dock-blur)'}) saturate(180%)`,
