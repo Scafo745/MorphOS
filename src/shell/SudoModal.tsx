@@ -39,7 +39,7 @@ export const SudoModal: React.FC = () => {
             : { scale: 1, opacity: 1, y: 0, x: 0 }}
           exit={{ scale: 0.92, opacity: 0, y: 10 }}
           transition={{ type: 'spring', damping: 28, stiffness: 380 }}
-          className="w-full max-w-sm rounded-2xl overflow-hidden"
+          className="w-full max-w-sm rounded-2xl overflow-x-hidden max-h-[90vh] overflow-y-auto"
           style={{
             background: isCyber ? 'rgba(2,10,16,0.97)' : 'var(--spotlight-bg, #ffffff)',
             backdropFilter: 'blur(48px) saturate(200%)',

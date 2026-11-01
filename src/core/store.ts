@@ -260,6 +260,45 @@ export const useOSStore = create<OSStore>((set, get) => ({
     };
 
     const nextZ = maxZIndex + 5;
+
+    // Desired per-app size (upper bound). Clamp to the visible desktop so a
+    // large default never spawns a window partly off-screen or bigger than the
+    // viewport on small displays / projectors. Floors match the Rnd minimums
+    // in Window.tsx (minWidth 340 / minHeight 220).
+    const desiredSize =
+      appId === 'hyperswitch'
+        ? { width: 760, height: 520 }
+        : appId === 'terminal'
+        ? { width: 680, height: 420 }
+        : appId === 'security'
+        ? { width: 680, height: 480 }
+        : appId === 'browser'
+        ? { width: 820, height: 560 }
+        : { width: 640, height: 440 };
+
+    const MIN_W = 340;
+    const MIN_H = 220;
+    const TOP_BAR = 34; // menu bar height (matches snapWindow topBarH)
+    const DOCK = 80; // reserved dock strip (matches snapWindow dockH)
+    const MARGIN = 16; // keep windows off the viewport edges
+
+    const viewportW = typeof window !== 'undefined' ? window.innerWidth : 1280;
+    const viewportH = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+    const availW = Math.max(MIN_W, viewportW - MARGIN * 2);
+    const availH = Math.max(MIN_H, viewportH - TOP_BAR - DOCK - MARGIN);
+
+    const width = Math.max(MIN_W, Math.min(desiredSize.width, availW));
+    const height = Math.max(MIN_H, Math.min(desiredSize.height, availH));
+
+    // Cascade spawn offset, then clamp the origin so the whole window stays on
+    // screen (never past the right/bottom edges, never above the menu bar).
+    const cascade = windows.length * 25;
+    const maxX = Math.max(MARGIN, viewportW - width - MARGIN);
+    const maxY = Math.max(TOP_BAR, viewportH - DOCK - height);
+    const x = Math.min(80 + cascade, maxX);
+    const y = Math.min(60 + cascade, maxY);
+
     const newWindow: WindowState = {
       id: `win-${Date.now()}`,
       appId,
@@ -268,8 +307,8 @@ export const useOSStore = create<OSStore>((set, get) => ({
       isMinimized: false,
       isMaximized: false,
       zIndex: nextZ,
-      position: { x: 80 + (windows.length * 25), y: 60 + (windows.length * 25) },
-      size: appId === 'hyperswitch' ? { width: 760, height: 520 } : appId === 'terminal' ? { width: 680, height: 420 } : appId === 'security' ? { width: 680, height: 480 } : appId === 'browser' ? { width: 820, height: 560 } : { width: 640, height: 440 },
+      position: { x, y },
+      size: { width, height },
     };
 
     // Spawn a process in the process table

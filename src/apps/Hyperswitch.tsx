@@ -157,7 +157,7 @@ export const Hyperswitch: React.FC = () => {
       </div>
 
       {/* ── METRICS OVERVIEW CARDS ───────────────────────────── */}
-      <div className="grid grid-cols-4 gap-2.5 p-3 border-b" style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)' }}>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 border-b" style={{ background: 'var(--canvas, #fafafa)', borderColor: 'var(--hairline, #ebebeb)' }}>
         <div className="p-2.5 rounded-[12px] border" style={cardStyle}>
           <div className="text-[10px] font-medium uppercase tracking-wider" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Volume Today</div>
           <div className="text-base font-bold mt-0.5" style={{ color: 'var(--ink, #171717)' }}>₹142.89 Cr</div>
@@ -227,7 +227,7 @@ export const Hyperswitch: React.FC = () => {
         </div>
 
         {/* 4 Gateway Cards */}
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {/* HDFC */}
           <div className="p-2 rounded-[6px] border" style={cardStyle}>
             <div className="flex items-center justify-between text-[11px] font-bold" style={{ color: 'var(--ink, #171717)' }}>
@@ -365,7 +365,7 @@ export const Hyperswitch: React.FC = () => {
       {selectedTxn && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
           <div
-            className="w-full max-w-md rounded-[16px] border p-4 space-y-3"
+            className="w-full max-w-md rounded-[16px] border p-4 space-y-3 max-h-[85vh] overflow-y-auto"
             style={{ background: 'var(--canvas-elevated, #ffffff)', borderColor: 'var(--hairline, #ebebeb)', boxShadow: 'var(--window-shadow-active, 0 12px 32px rgba(0,0,0,0.1))' }}
           >
             <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>

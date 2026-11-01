@@ -404,6 +404,16 @@
   background: var(--scrollbar-thumb-hover, rgba(0,0,0,0.30));
 }
 
+/* ─── Dock horizontal overflow (hidden scrollbar fallback) ───
+   On narrow widths the dock can hold more icons than fit; allow a
+   horizontal scroll fallback without showing a scrollbar so the
+   composited magnify still reads as a clean floating dock. */
+.dock-scroll {
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* legacy Edge */
+}
+.dock-scroll::-webkit-scrollbar { width: 0; height: 0; }
+
 /* ─── Text Selection ───────────────────────────────────────── */
 ::selection {
   background: var(--accent-dim);
