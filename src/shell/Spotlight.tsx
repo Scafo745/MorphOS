@@ -31,7 +31,7 @@ export const Spotlight: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [phIdx, setPhIdx] = useState(0);
-  const [answer, setAnswer] = useState<{ text: string; source: 'gemini' | 'local' } | null>(null);
+  const [answer, setAnswer] = useState<{ text: string; source: 'gemini' | 'openai-compatible' | 'local' } | null>(null);
   const [answering, setAnswering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();

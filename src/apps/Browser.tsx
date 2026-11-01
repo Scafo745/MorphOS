@@ -228,7 +228,7 @@ const SearchResults: React.FC<{
   const [search, setSearch] = useState(query);
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
-  const [source, setSource] = useState<'gemini' | 'local'>('local');
+  const [source, setSource] = useState<'gemini' | 'openai-compatible' | 'local'>('local');
   const [failed, setFailed] = useState(false);
   const [geminiNote, setGeminiNote] = useState<string | null>(null);
   const reqId = useRef(0);

@@ -1,6 +1,6 @@
 import { OSProfile, ThemeMode, DockStyle, WindowControlsStyle, SnapMode, SecurityLevel, CloudConfig, CustomTokens } from './types';
 import { OS_PRESETS } from './presets';
-import { callGeminiCandidates } from './ai-chat';
+import { runProvidersForText } from './ai-chat';
 
 /**
  * Synthesizes dynamic CSS & design tokens from arbitrary natural language prompt
@@ -344,7 +344,7 @@ export const compilePromptToProfile = compilePromptLocal;
 export async function compilePromptAsync(
   prompt: string,
   config?: CloudConfig
-): Promise<{ profile: OSProfile; source: 'n8n' | 'gemini' | 'local' }> {
+): Promise<{ profile: OSProfile; source: 'n8n' | 'gemini' | 'openai-compatible' | 'local' }> {
   const localSynth = compilePromptLocal(prompt);
 
   // 1. Try n8n Webhook if configured
@@ -386,22 +386,38 @@ export async function compilePromptAsync(
     }
   }
 
-  // 2. Try Gemini API if configured. Walks the shared prioritized candidate
-  // list (callGeminiCandidates) until one model returns usable JSON, then falls
-  // through to the local engine if every candidate is exhausted.
-  if (config?.geminiApiKey && config.engineMode !== 'local') {
+  // 2. Try the configured AI providers in order with automatic failover. The
+  // gemini vendor walks the shared prioritized candidate list; openai-compatible
+  // vendors use the chat-completions adapter. Falls through to the local engine
+  // if every provider is exhausted.
+  const hasUsableProvider =
+    !!config &&
+    (config.providers || []).some(
+      (p) => p.enabled !== false && typeof p.apiKey === 'string' && p.apiKey.trim() !== ''
+    );
+
+  if (config && config.engineMode !== 'local' && hasUsableProvider) {
     const systemPrompt = `You are the MorphOS compiler. Output valid JSON with keys: name (string), tagline (string), theme ("geist"|"macos"|"windows"|"cyber"|"enterprise"|"gothic"|"custom"), dockStyle ("macos-magnify"|"windows-center"|"cyber-minimal"), controlsStyle ("traffic-lights"|"windows-squares"|"cyber-minimal"), snapMode ("free"|"windows-snap"|"tiling"), securityLevel ("standard"|"strict-sudo"|"zero-trust"|"pci-dss-compliance"), userRole ("developer"|"root"|"intern"|"fintech_auditor"), aiSummary (string).`;
 
     try {
-      // JSON theme-synthesis body: adds generationConfig.responseMimeType so
-      // Gemini returns parseable JSON.
-      const text = await callGeminiCandidates(config.geminiApiKey, () => ({
-        contents: [{ parts: [{ text: `${systemPrompt}\n\nUser request: "${prompt}"` }] }],
-        generationConfig: { responseMimeType: 'application/json' },
-      }));
+      const result = await runProvidersForText(config, {
+        // JSON theme-synthesis body: adds generationConfig.responseMimeType so
+        // Gemini returns parseable JSON.
+        geminiBody: () => ({
+          contents: [{ parts: [{ text: `${systemPrompt}\n\nUser request: "${prompt}"` }] }],
+          generationConfig: { responseMimeType: 'application/json' },
+        }),
+        openAiMessages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `User request: "${prompt}"` },
+        ],
+        json: true,
+      });
 
-      if (text) {
-        const parsed = JSON.parse(text);
+      if (result) {
+        const parsed = JSON.parse(result.text);
+        const source = result.vendor === 'gemini' ? 'gemini' : 'openai-compatible';
+        const engineName = result.vendor === 'gemini' ? 'Gemini Flash' : (result.label || 'AI provider');
         return {
           profile: {
             name: parsed.name || localSynth.name,
@@ -413,13 +429,13 @@ export async function compilePromptAsync(
             securityLevel: parsed.securityLevel || localSynth.securityLevel,
             userRole: parsed.userRole || localSynth.userRole,
             customTokens: localSynth.customTokens,
-            aiSummary: parsed.aiSummary || `Gemini Flash compiled: ${prompt}`,
+            aiSummary: parsed.aiSummary || `${engineName} compiled: ${prompt}`,
           },
-          source: 'gemini',
+          source,
         };
       }
     } catch {
-      console.warn('Gemini API call failed or timed out, using fallback.');
+      console.warn('AI provider call failed or timed out, using fallback.');
     }
   }
 
