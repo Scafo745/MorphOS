@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Rnd } from 'react-rnd';
 import { WindowState } from '../core/types';
 import { useOSStore } from '../core/store';
 import { WindowControls } from './WindowControls';
-import { Terminal } from '../apps/Terminal';
-import { FileManager } from '../apps/FileManager';
-import { Settings } from '../apps/Settings';
-import { SecurityGuard } from '../apps/SecurityGuard';
-import { Copilot } from '../apps/Copilot';
-import { Hyperswitch } from '../apps/Hyperswitch';
-import { Browser } from '../apps/Browser';
-import { Terminal as TermIcon, Folder, Settings as SettingsIcon, Shield, FileText, Bot, Zap, Globe } from 'lucide-react';
+import { Terminal as TermIcon, Folder, Settings as SettingsIcon, Shield, FileText, Bot, Zap, Globe, Loader2 } from 'lucide-react';
 import { getIconTheme } from '../core/icon-theme';
+
+// Lazily load each app body so it ships in its own chunk and the initial
+// bundle shrinks. The app components are NAMED exports, so re-map to default.
+const Terminal = React.lazy(() => import('../apps/Terminal').then(m => ({ default: m.Terminal })));
+const FileManager = React.lazy(() => import('../apps/FileManager').then(m => ({ default: m.FileManager })));
+const Settings = React.lazy(() => import('../apps/Settings').then(m => ({ default: m.Settings })));
+const SecurityGuard = React.lazy(() => import('../apps/SecurityGuard').then(m => ({ default: m.SecurityGuard })));
+const Copilot = React.lazy(() => import('../apps/Copilot').then(m => ({ default: m.Copilot })));
+const Hyperswitch = React.lazy(() => import('../apps/Hyperswitch').then(m => ({ default: m.Hyperswitch })));
+const Browser = React.lazy(() => import('../apps/Browser').then(m => ({ default: m.Browser })));
 
 const APP_ICONS: Record<string, (color?: string) => React.ReactNode> = {
   terminal:    (c) => <TermIcon className="w-3.5 h-3.5" style={{ color: c || '#34d399' }} />,
@@ -153,7 +156,19 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
 
         {/* ── Window body ────────────────────────────── */}
         <div className="flex-1 overflow-hidden relative min-h-0">
-          {renderApp()}
+          <Suspense
+            fallback={
+              <div className="h-full flex items-center justify-center">
+                <Loader2
+                  className="w-5 h-5 animate-spin"
+                  style={{ color: 'var(--accent, #a1a1a1)' }}
+                  aria-label="Loading app"
+                />
+              </div>
+            }
+          >
+            {renderApp()}
+          </Suspense>
         </div>
 
         {/* ── Top-edge specular sheen (macOS only) ───── */}
