@@ -5,6 +5,7 @@ import { useOSStore } from '../core/store';
 import { WindowControls } from './WindowControls';
 import { Terminal as TermIcon, Folder, Settings as SettingsIcon, Shield, FileText, Bot, Zap, Globe, Loader2 } from 'lucide-react';
 import { getIconTheme } from '../core/icon-theme';
+import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
 
 // Lazily load each app body so it ships in its own chunk and the initial
 // bundle shrinks. The app components are NAMED exports, so re-map to default.
@@ -35,6 +36,7 @@ interface WindowProps {
 export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange }) => {
   const { profile, activeWindowId, focusWindow, updateWindowBounds, snapWindow } = useOSStore();
   const [dragZone, setDragZone] = useState<'left-half' | 'right-half' | 'maximize' | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   if (win.isMinimized) return null;
 
@@ -160,8 +162,8 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
             fallback={
               <div className="h-full flex items-center justify-center">
                 <Loader2
-                  className="w-5 h-5 animate-spin"
-                  style={{ color: 'var(--accent, #a1a1a1)' }}
+                  className={`w-5 h-5 ${prefersReducedMotion ? '' : 'animate-spin'}`}
+                  style={{ color: prefersReducedMotion ? 'var(--text-faint, #a1a1a1)' : 'var(--accent, #a1a1a1)' }}
                   aria-label="Loading app"
                 />
               </div>

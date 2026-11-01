@@ -295,7 +295,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
     // screen (never past the right/bottom edges, never above the menu bar).
     const cascade = windows.length * 25;
     const maxX = Math.max(MARGIN, viewportW - width - MARGIN);
-    const maxY = Math.max(TOP_BAR, viewportH - DOCK - height);
+    const maxY = Math.max(TOP_BAR, viewportH - DOCK - MARGIN - height);
     const x = Math.min(80 + cascade, maxX);
     const y = Math.min(60 + cascade, maxY);
 
