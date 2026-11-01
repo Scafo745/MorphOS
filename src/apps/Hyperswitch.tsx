@@ -202,14 +202,14 @@ export const Hyperswitch: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSimulateOutage}
-              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ borderColor: 'rgba(238,0,0,0.3)', color: 'var(--status-error, #ee0000)', background: 'rgba(238,0,0,0.06)' }}
             >
               Simulate SBI Degradation
             </button>
             <button
               onClick={handleSmartFailover}
-              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 flex items-center gap-1"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ borderColor: 'rgba(21,128,61,0.3)', color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.08)' }}
             >
               <RefreshCw className="w-3 h-3" />
@@ -217,7 +217,7 @@ export const Hyperswitch: React.FC = () => {
             </button>
             <button
               onClick={handleDropTableTest}
-              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105"
+              className="px-2.5 py-1 rounded-[6px] text-[10px] font-semibold border transition-all hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ borderColor: 'rgba(245,166,35,0.35)', color: 'var(--status-warn, #b4760a)', background: 'rgba(245,166,35,0.1)' }}
               title="Test Accidental Data Loss Guard on Payments DB"
             >
@@ -375,8 +375,10 @@ export const Hyperswitch: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedTxn(null)}
-                className="px-2 py-0.5 rounded-[6px] hover:bg-geist-hairlineSoft"
+                className="px-2 py-0.5 rounded-[6px] hover:bg-geist-hairlineSoft focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
                 style={{ color: 'var(--text-mute, #8f8f8f)' }}
+                title="Close audit record"
+                aria-label="Close audit record"
               >
                 ✕
               </button>
@@ -426,7 +428,7 @@ export const Hyperswitch: React.FC = () => {
 
             <button
               onClick={() => setSelectedTxn(null)}
-              className="w-full py-1.5 rounded-[6px] font-semibold transition-colors"
+              className="w-full py-1.5 rounded-[6px] font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
               style={{ background: 'var(--accent, #171717)', color: '#ffffff' }}
             >
               Close Audit Record

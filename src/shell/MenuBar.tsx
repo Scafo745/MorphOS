@@ -57,7 +57,10 @@ export const MenuBar: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setAppleMenuOpen(v => !v)}
-              className="flex items-center justify-center w-7 h-6 rounded-md hover:bg-geist-hairlineSoft transition-colors text-sm"
+              className="flex items-center justify-center w-7 h-6 rounded-md hover:bg-geist-hairlineSoft transition-colors text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
+              title="MorphOS menu"
+              aria-label="Open MorphOS menu"
+              aria-expanded={appleMenuOpen}
             >
               {isCyber ? (
                 <span className="font-mono text-[10px] font-bold" style={{ color: 'var(--accent)' }}>&gt;_</span>
@@ -111,7 +114,7 @@ export const MenuBar: React.FC = () => {
                               if (item.label === 'Cloud & n8n Gateway...') toggleCloudModal(true);
                               setAppleMenuOpen(false);
                             }}
-                            className="flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-xs hover:bg-geist-hairlineSoft transition-colors text-left group"
+                            className="flex items-center justify-between w-full px-3 py-1.5 rounded-lg text-xs hover:bg-geist-hairlineSoft transition-colors text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
                           >
                             <span style={{ color: 'var(--ink, #171717)' }}>{item.label}</span>
                             {item.hint && (
@@ -166,7 +169,8 @@ export const MenuBar: React.FC = () => {
           <button
             onClick={() => toggleCloudModal(true)}
             title="Configure Cloud & n8n Gateway"
-            className="hidden lg:flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono hover:bg-geist-hairlineSoft transition-colors"
+            aria-label="Configure Cloud and n8n Gateway"
+            className="hidden lg:flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono hover:bg-geist-hairlineSoft transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60"
             style={{
               background: cloudConfig.n8nWebhookUrl ? 'var(--accent-dim)' : 'var(--canvas, #fafafa)',
               color: cloudConfig.n8nWebhookUrl ? 'var(--accent)' : 'var(--text-mute, #8f8f8f)',

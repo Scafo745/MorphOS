@@ -103,7 +103,7 @@ export const Browser: React.FC = () => {
   }, [currentUrl]);
 
   const toolbarBtn =
-    'flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-geist-hairlineSoft disabled:opacity-30 disabled:cursor-not-allowed';
+    'flex items-center justify-center w-8 h-8 rounded-[8px] transition-colors hover:bg-geist-hairlineSoft disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-geist-link/60';
 
   return (
     <div
