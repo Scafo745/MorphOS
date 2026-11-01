@@ -199,7 +199,7 @@ export const Dock: React.FC = () => {
         initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', damping: 24, stiffness: 220, delay: 0.1 }}
-        className="dock-scroll pointer-events-auto flex items-end gap-1 sm:gap-2 px-2 sm:px-3 py-2.5 max-w-full overflow-x-auto transition-colors duration-300"
+        className="pointer-events-auto flex items-end gap-1 sm:gap-2 px-2 sm:px-3 py-2.5 max-w-full transition-colors duration-300"
         style={{
           background: profile.customTokens?.dockBg || 'var(--dock-bg)',
           backdropFilter: `blur(${profile.customTokens?.windowBlur || 'var(--dock-blur)'}) saturate(180%)`,
