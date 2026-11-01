@@ -1,6 +1,6 @@
 import { OSProfile, ThemeMode, DockStyle, WindowControlsStyle, SnapMode, SecurityLevel, CloudConfig, CustomTokens } from './types';
 import { OS_PRESETS } from './presets';
-import { runProvidersForText } from './ai-chat';
+import { runProvidersForText, hasUsableProviderForMode } from './ai-chat';
 
 /**
  * Synthesizes dynamic CSS & design tokens from arbitrary natural language prompt
@@ -390,11 +390,7 @@ export async function compilePromptAsync(
   // gemini vendor walks the shared prioritized candidate list; openai-compatible
   // vendors use the chat-completions adapter. Falls through to the local engine
   // if every provider is exhausted.
-  const hasUsableProvider =
-    !!config &&
-    (config.providers || []).some(
-      (p) => p.enabled !== false && typeof p.apiKey === 'string' && p.apiKey.trim() !== ''
-    );
+  const hasUsableProvider = !!config && hasUsableProviderForMode(config);
 
   if (config && config.engineMode !== 'local' && hasUsableProvider) {
     const systemPrompt = `You are the MorphOS compiler. Output valid JSON with keys: name (string), tagline (string), theme ("geist"|"macos"|"windows"|"cyber"|"enterprise"|"gothic"|"custom"), dockStyle ("macos-magnify"|"windows-center"|"cyber-minimal"), controlsStyle ("traffic-lights"|"windows-squares"|"cyber-minimal"), snapMode ("free"|"windows-snap"|"tiling"), securityLevel ("standard"|"strict-sudo"|"zero-trust"|"pci-dss-compliance"), userRole ("developer"|"root"|"intern"|"fintech_auditor"), aiSummary (string).`;

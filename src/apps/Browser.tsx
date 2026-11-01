@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, RotateCw, Home, Search, Globe, Shield, Terminal, Folder, Sparkles, ExternalLink, Loader2 } from 'lucide-react';
 import { useOSStore } from '../core/store';
-import { answerQuestionAsync, getLastGeminiDiagnostic } from '../core/ai-chat';
+import { answerQuestionAsync, getLastGeminiDiagnostic, hasUsableProviderForMode } from '../core/ai-chat';
 import type { CloudConfig } from '../core/types';
 
 const HOME_URL = 'morphos://start';
@@ -270,10 +270,10 @@ const SearchResults: React.FC<{
       });
   }, [query, cloudConfig]);
 
-  const hasProvider =
-    Boolean(cloudConfig.geminiApiKey) ||
-    (cloudConfig.providers ?? []).some((p) => p.enabled !== false && p.apiKey.trim());
-  const hasGeminiKey = hasProvider && cloudConfig.engineMode !== 'local';
+  // Gate the display on the SAME predicate the answer path uses so the 'add a
+  // key' hint and the actual answer attempt can never disagree. Fold in the
+  // local-mode check: in 'local' mode nothing cloud is attempted regardless.
+  const hasGeminiKey = hasUsableProviderForMode(cloudConfig) && cloudConfig.engineMode !== 'local';
   const answerLabel =
     source === 'local'
       ? 'Offline answer (local assistant)'

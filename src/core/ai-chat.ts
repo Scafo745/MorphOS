@@ -179,7 +179,10 @@ function reasonForStatus(status: number): string {
  *    on to the next candidate.
  *  - Hard status (400/403/404 etc) -> no retry, move on immediately.
  *  - Network/catch -> move on to the next candidate.
- *  - Honors GEMINI_TOTAL_DEADLINE_MS so the whole walk stays under ~13s.
+ *  - Honors the overall deadline (options.deadline when threaded in by the
+ *    multi-provider orchestrator, else GEMINI_TOTAL_DEADLINE_MS ~13s), clamping
+ *    each attempt's timeout to the remaining budget so the walk never outlasts
+ *    it.
  *
  * The caller supplies the per-request body (QA sends plain text, the compiler
  * adds generationConfig.responseMimeType 'application/json') via buildBody, so
@@ -187,9 +190,13 @@ function reasonForStatus(status: number): string {
  */
 export async function callGeminiCandidates(
   apiKey: string,
-  buildBody: () => Record<string, unknown>
+  buildBody: () => Record<string, unknown>,
+  options?: { deadline?: number }
 ): Promise<string | null> {
-  const deadline = Date.now() + GEMINI_TOTAL_DEADLINE_MS;
+  // The overall wall-clock ceiling. Callers in a multi-provider run thread the
+  // outer AI_TOTAL_DEADLINE_MS down so a single provider can never outlast the
+  // run's remaining budget; standalone callers get the historical ~13s walk.
+  const deadline = options?.deadline ?? Date.now() + GEMINI_TOTAL_DEADLINE_MS;
 
   // Detect the no-key case before the loop so the UI can distinguish "no key
   // configured" from "key present but rejected / unreachable".
@@ -206,13 +213,17 @@ export async function callGeminiCandidates(
   for (const model of GEMINI_MODELS) {
     // At most 2 attempts per model (initial + one quick retry on 503/429).
     for (let attempt = 0; attempt < 2; attempt++) {
-      if (Date.now() >= deadline) {
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
         return null;
       }
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), GEMINI_ATTEMPT_TIMEOUT_MS);
+        // Clamp this attempt to whichever is smaller: the per-attempt timeout
+        // or the budget still left before the overall deadline.
+        const attemptTimeout = Math.min(GEMINI_ATTEMPT_TIMEOUT_MS, remaining);
+        const timeoutId = setTimeout(() => controller.abort(), attemptTimeout);
 
         let res: Response;
         try {
@@ -302,7 +313,7 @@ function reasonForOpenAiStatus(status: number): string {
 export async function callOpenAiCompatible(
   provider: AiProvider,
   messages: { role: string; content: string }[],
-  opts?: { json?: boolean }
+  opts?: { json?: boolean; deadline?: number }
 ): Promise<string | null> {
   if (!provider.apiKey) {
     lastGeminiDiagnostic = {
@@ -323,9 +334,23 @@ export async function callOpenAiCompatible(
     body.response_format = { type: 'json_object' };
   }
 
+  // Clamp this call to the remaining overall budget when a deadline is threaded
+  // in, so a slow provider cannot outlast the multi-provider run's ceiling.
+  const remaining = opts?.deadline !== undefined ? opts.deadline - Date.now() : GEMINI_ATTEMPT_TIMEOUT_MS;
+  if (remaining <= 0) {
+    lastGeminiDiagnostic = {
+      ok: false,
+      status: null,
+      reason: 'network error/timeout',
+      vendor: 'openai-compatible',
+      label: provider.label,
+    };
+    return null;
+  }
+
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), GEMINI_ATTEMPT_TIMEOUT_MS);
+    const timeoutId = setTimeout(() => controller.abort(), Math.min(GEMINI_ATTEMPT_TIMEOUT_MS, remaining));
 
     let res: Response;
     try {
@@ -391,6 +416,27 @@ export async function callOpenAiCompatible(
 }
 
 /**
+ * True when `config` has at least one provider the engine would actually call
+ * for the current engineMode. A provider is usable when it is enabled, has a
+ * non-empty apiKey, and its vendor is allowed by the mode: 'gemini' mode only
+ * counts gemini-vendor providers (so the mode name stays honest), while every
+ * other non-local mode counts any vendor.
+ *
+ * Shared by the QA/compiler gates and by the Browser display gate so the thing
+ * the UI reports and the thing the answer path will actually attempt can never
+ * diverge.
+ */
+export function hasUsableProviderForMode(config: CloudConfig): boolean {
+  return (config.providers || []).some(
+    (p) =>
+      p.enabled !== false &&
+      typeof p.apiKey === 'string' &&
+      p.apiKey.trim() !== '' &&
+      (config.engineMode === 'gemini' ? p.vendor === 'gemini' : true)
+  );
+}
+
+/**
  * Multi-provider orchestrator. Walks the ENABLED providers in order (enabled
  * !== false and a non-empty apiKey), trying non-cooling providers first and
  * cooling ones last, and fails over on any null result until one returns
@@ -413,8 +459,18 @@ export async function runProvidersForText(
 ): Promise<{ text: string; vendor: 'gemini' | 'openai-compatible'; label?: string } | null> {
   const deadline = Date.now() + AI_TOTAL_DEADLINE_MS;
 
+  // Honor the engine mode: 'gemini' means "Gemini only", so it must not walk
+  // openai-compatible providers (that would let a mode named "gemini" answer
+  // via OpenAI/Groq). 'auto'/'n8n' consider every enabled provider.
+  const vendorAllowed = (vendor: AiProvider['vendor']): boolean =>
+    config.engineMode === 'gemini' ? vendor === 'gemini' : true;
+
   const usable = (config.providers || []).filter(
-    (p) => p.enabled !== false && typeof p.apiKey === 'string' && p.apiKey.trim() !== ''
+    (p) =>
+      p.enabled !== false &&
+      typeof p.apiKey === 'string' &&
+      p.apiKey.trim() !== '' &&
+      vendorAllowed(p.vendor)
   );
 
   // Non-cooling providers first, cooling ones last (tried before local).
@@ -428,9 +484,9 @@ export async function runProvidersForText(
 
     let text: string | null = null;
     if (provider.vendor === 'gemini') {
-      text = await callGeminiCandidates(provider.apiKey, build.geminiBody);
+      text = await callGeminiCandidates(provider.apiKey, build.geminiBody, { deadline });
     } else if (provider.vendor === 'openai-compatible') {
-      text = await callOpenAiCompatible(provider, build.openAiMessages, { json: build.json });
+      text = await callOpenAiCompatible(provider, build.openAiMessages, { json: build.json, deadline });
     }
 
     if (text && text.trim()) {
@@ -588,11 +644,7 @@ export async function answerQuestionAsync(
   question: string,
   config?: CloudConfig
 ): Promise<{ answer: string; source: 'gemini' | 'openai-compatible' | 'local'; providerLabel?: string }> {
-  const hasUsableProvider =
-    !!config &&
-    (config.providers || []).some(
-      (p) => p.enabled !== false && typeof p.apiKey === 'string' && p.apiKey.trim() !== ''
-    );
+  const hasUsableProvider = !!config && hasUsableProviderForMode(config);
 
   if (config && config.engineMode !== 'local' && hasUsableProvider) {
     const systemPrompt =
