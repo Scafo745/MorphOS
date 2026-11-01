@@ -5,17 +5,13 @@ import {
   Activity,
   CreditCard,
   ShieldCheck,
-  AlertTriangle,
   ArrowRightLeft,
   Server,
   Zap,
   TrendingUp,
   RefreshCw,
-  Lock,
   CheckCircle2,
-  XCircle,
-  Eye,
-  Sliders
+  XCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -41,7 +37,7 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
 ];
 
 export const Hyperswitch: React.FC = () => {
-  const { profile, addAuditLog, triggerSudoChallenge } = useOSStore();
+  const { addAuditLog, triggerSudoChallenge } = useOSStore();
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [tps, setTps] = useState(1842);
   const [sbiDegraded, setSbiDegraded] = useState(false);

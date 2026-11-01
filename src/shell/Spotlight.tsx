@@ -5,7 +5,7 @@ import { compilePromptAsync } from '../core/prompt-compiler';
 import { isOsSynthesisIntent, answerQuestionAsync } from '../core/ai-chat';
 import { OS_PRESETS } from '../core/presets';
 import { usePrefersReducedMotion } from '../core/usePrefersReducedMotion';
-import { ArrowRight, ShieldCheck, LayoutGrid, Terminal, Wand2, Mic, MicOff, Cloud, Sparkles } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Terminal, Wand2, Mic, MicOff, Cloud, Sparkles } from 'lucide-react';
 
 const PRESETS = [
   { key: 'cupertino-dev',      emoji: '🍎', name: 'Cupertino Pro',            sub: 'macOS glass · fluid dock · standard ACL' },

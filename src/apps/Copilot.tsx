@@ -3,7 +3,7 @@ import { useOSStore } from '../core/store';
 import { executeShell } from '../kernel/shell';
 import { compilePromptAsync } from '../core/prompt-compiler';
 import { answerQuestionAsync, isOsSynthesisIntent } from '../core/ai-chat';
-import { Bot, User, Send, Sparkles, Terminal, ShieldAlert, ArrowRight, CornerDownLeft } from 'lucide-react';
+import { Bot, User, Send, Sparkles, Terminal, ShieldAlert } from 'lucide-react';
 
 interface Message {
   id: string;
