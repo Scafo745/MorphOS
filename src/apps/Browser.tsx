@@ -229,6 +229,7 @@ const SearchResults: React.FC<{
   const [loading, setLoading] = useState(true);
   const [answer, setAnswer] = useState('');
   const [source, setSource] = useState<'gemini' | 'openai-compatible' | 'local'>('local');
+  const [providerLabel, setProviderLabel] = useState<string | undefined>(undefined);
   const [failed, setFailed] = useState(false);
   const [geminiNote, setGeminiNote] = useState<string | null>(null);
   const reqId = useRef(0);
@@ -245,6 +246,7 @@ const SearchResults: React.FC<{
         if (id !== reqId.current) return; // stale response, ignore
         setAnswer(result.answer);
         setSource(result.source);
+        setProviderLabel(result.providerLabel);
         // When we fell back to local with a key configured, surface the real
         // HTTP reason Gemini could not be reached instead of a vague message.
         if (result.source === 'local') {
@@ -268,7 +270,16 @@ const SearchResults: React.FC<{
       });
   }, [query, cloudConfig]);
 
-  const hasGeminiKey = Boolean(cloudConfig.geminiApiKey) && cloudConfig.engineMode !== 'local';
+  const hasProvider =
+    Boolean(cloudConfig.geminiApiKey) ||
+    (cloudConfig.providers ?? []).some((p) => p.enabled !== false && p.apiKey.trim());
+  const hasGeminiKey = hasProvider && cloudConfig.engineMode !== 'local';
+  const answerLabel =
+    source === 'local'
+      ? 'Offline answer (local assistant)'
+      : providerLabel
+      ? `Answer by ${providerLabel}`
+      : 'Answer by cloud AI';
 
   return (
     <div className="min-h-full flex flex-col items-center px-6 py-8 gap-6">
@@ -339,7 +350,7 @@ const SearchResults: React.FC<{
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--link, #0070f3)' }} />
                 <span className="text-[11px] font-medium uppercase tracking-wide" style={{ color: 'var(--text-faint, #a1a1a1)' }}>
-                  {source === 'gemini' ? 'Answer by Gemini' : 'Offline answer (local assistant)'}
+                  {answerLabel}
                 </span>
               </div>
 

@@ -31,7 +31,11 @@ export const Spotlight: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [phIdx, setPhIdx] = useState(0);
-  const [answer, setAnswer] = useState<{ text: string; source: 'gemini' | 'openai-compatible' | 'local' } | null>(null);
+  const [answer, setAnswer] = useState<{
+    text: string;
+    source: 'gemini' | 'openai-compatible' | 'local';
+    providerLabel?: string;
+  } | null>(null);
   const [answering, setAnswering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -76,11 +80,16 @@ export const Spotlight: React.FC = () => {
       setAnswering(true);
       setBusy(true);
       try {
-        const { answer: text, source } = await answerQuestionAsync(q, cloudConfig);
-        setAnswer({ text, source });
+        const { answer: text, source, providerLabel } = await answerQuestionAsync(q, cloudConfig);
+        setAnswer({ text, source, providerLabel });
+        const isCloud = source === 'gemini' || source === 'openai-compatible';
         addToast(
-          source === 'gemini' ? 'Answered via Gemini' : 'Answered offline (local assistant)',
-          source === 'gemini' ? 'success' : 'info'
+          isCloud
+            ? providerLabel
+              ? `Answered via cloud AI (${providerLabel})`
+              : 'Answered via cloud AI'
+            : 'Answered offline (local assistant)',
+          isCloud ? 'success' : 'info'
         );
       } catch {
         addToast('Could not answer right now, please try again', 'error');
@@ -103,8 +112,8 @@ export const Spotlight: React.FC = () => {
 
       if (source === 'n8n') {
         addToast('Synthesized via n8n Cloud Webhook', 'success');
-      } else if (source === 'gemini') {
-        addToast('Synthesized via Gemini', 'success');
+      } else if (source === 'gemini' || source === 'openai-compatible') {
+        addToast('Synthesized via cloud AI', 'success');
       } else if (source === 'local' && expectedCloud) {
         addToast('Cloud engine unreachable — fell back to local 0ms compiler', 'warning');
       } else {
@@ -287,9 +296,11 @@ export const Spotlight: React.FC = () => {
                       >
                         <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--accent)' }} />
                         <span className="text-[10px] font-semibold tracking-[0.14em] uppercase text-geist-mute">
-                          {answer.source === 'gemini'
-                            ? 'Answered via Gemini'
-                            : 'Answered offline (local assistant)'}
+                          {answer.source === 'local'
+                            ? 'Answered offline (local assistant)'
+                            : answer.providerLabel
+                            ? `Answered via cloud AI (${answer.providerLabel})`
+                            : 'Answered via cloud AI'}
                         </span>
                       </div>
                       <div
