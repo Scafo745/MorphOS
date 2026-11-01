@@ -303,7 +303,9 @@ export const Copilot: React.FC = () => {
       }
 
       // Default: general-purpose conversational answer via the QA brain.
-      const { answer, source } = await answerQuestionAsync(query, cloudConfig);
+      const { answer, source, providerLabel } = await answerQuestionAsync(query, cloudConfig);
+      const isCloud = source === 'gemini' || source === 'openai-compatible';
+      const cloudLabel = providerLabel ? `Answered via cloud AI (${providerLabel})` : 'Answered via cloud AI';
       const agentMsg: Message = {
         id: `msg-${Date.now()}`,
         sender: 'agent',
@@ -311,15 +313,15 @@ export const Copilot: React.FC = () => {
         toolCall: {
           tool: `ai.answer(engine: ${source})`,
           input: query,
-          output: source === 'gemini' ? 'Answered via Gemini 1.5 Flash' : 'Answered via local assistant',
+          output: isCloud ? cloudLabel : 'Answered via local assistant',
           isError: false,
         },
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, agentMsg]);
       addToast(
-        source === 'gemini' ? 'Answered via Gemini 1.5 Flash' : 'Offline — local assistant reply',
-        source === 'gemini' ? 'success' : 'info'
+        isCloud ? cloudLabel : 'Offline, local assistant reply',
+        isCloud ? 'success' : 'info'
       );
       setIsThinking(false);
     }, 600);

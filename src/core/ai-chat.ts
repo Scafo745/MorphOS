@@ -1,4 +1,4 @@
-import { CloudConfig } from './types';
+import { CloudConfig, AiProvider } from './types';
 
 /**
  * Prioritized Gemini model candidates, shared by both the QA answerer here and
@@ -51,27 +51,111 @@ export function isRetryableGeminiStatus(status: number): boolean {
 }
 
 /**
- * Outcome of the most recent Gemini attempt. This is purely observable
- * diagnostics so the UI can explain WHY a request fell back to the local
- * engine instead of silently showing a vague offline message. It never holds
- * or logs the API key, only the HTTP status and a short human reason.
+ * Overall wall-clock budget across ALL providers in a single multi-provider
+ * run (milliseconds). Each individual attempt still owns its own ~4s
+ * AbortController; this ceiling guarantees the UI never hangs even when
+ * several providers are configured and all are slow or unreachable.
  */
-export interface GeminiDiagnostic {
+export const AI_TOTAL_DEADLINE_MS = 18000;
+
+/**
+ * How long a provider stays "cooling down" after it reports a rate-limit /
+ * quota exhaustion (429 / RESOURCE_EXHAUSTED). While cooling it is tried LAST
+ * (after every non-cooling provider) so a single throttled key does not block
+ * healthy ones. Short window so a transient throttle self-heals quickly.
+ */
+export const COOLDOWN_MS = 60000;
+
+/**
+ * Default base URLs + default models for well-known OpenAI-compatible
+ * providers. Exported so CloudModal can offer one-click presets. A provider
+ * may still override `baseUrl` and `model` explicitly.
+ */
+export const OPENAI_COMPATIBLE_PRESETS = [
+  { label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+  { label: 'Groq', baseUrl: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant' },
+  { label: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', model: 'openai/gpt-4o-mini' },
+] as const;
+
+/** Trim a single trailing slash from a base URL so path joins stay clean. */
+function trimTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, '');
+}
+
+/**
+ * Pick a sensible default model for a given OpenAI-compatible base URL by
+ * matching it against OPENAI_COMPATIBLE_PRESETS. Falls back to a widely
+ * available small model when the base URL is unknown.
+ */
+export function defaultModelForBaseUrl(baseUrl: string | undefined): string {
+  const trimmed = trimTrailingSlash((baseUrl || '').trim());
+  const preset = OPENAI_COMPATIBLE_PRESETS.find((p) => trimTrailingSlash(p.baseUrl) === trimmed);
+  return preset?.model || 'gpt-4o-mini';
+}
+
+/**
+ * Module-scoped cooldown memory keyed by provider id -> timestamp (ms) of the
+ * last rate-limit / quota failure. Side-effect contained to this module.
+ */
+const providerCooldowns = new Map<string, number>();
+
+/** True when a provider reported a rate-limit / quota error within COOLDOWN_MS. */
+export function isCoolingDown(providerId: string): boolean {
+  const ts = providerCooldowns.get(providerId);
+  if (ts === undefined) return false;
+  if (Date.now() - ts >= COOLDOWN_MS) {
+    providerCooldowns.delete(providerId);
+    return false;
+  }
+  return true;
+}
+
+/** Record that a provider is now cooling down (called on 429 / quota). */
+function markCoolingDown(providerId: string): void {
+  providerCooldowns.set(providerId, Date.now());
+}
+
+/**
+ * Outcome of the most recent AI attempt (across any vendor). This is purely
+ * observable diagnostics so the UI can explain WHY a request fell back to the
+ * local engine instead of silently showing a vague offline message. It never
+ * holds or logs the API key, only the HTTP status and a short human reason.
+ *
+ * The exported getLastGeminiDiagnostic() keeps returning the { ok, status,
+ * reason } shape the existing consumers depend on; the richer vendor/label
+ * fields here are internal only.
+ */
+export interface AiDiagnostic {
   ok: boolean;
   status: number | null;
   reason: string;
+  vendor?: 'gemini' | 'openai-compatible';
+  label?: string;
 }
 
-let lastGeminiDiagnostic: GeminiDiagnostic | null = null;
+/**
+ * Back-compat alias for the diagnostic shape the three UI consumers read. Kept
+ * so Browser.tsx and friends continue to type-check against { ok, status,
+ * reason }.
+ */
+export type GeminiDiagnostic = Pick<AiDiagnostic, 'ok' | 'status' | 'reason'>;
+
+let lastGeminiDiagnostic: AiDiagnostic | null = null;
 
 /**
- * Read why the most recent Gemini call succeeded or failed. Returns null when
- * no call has been attempted yet this session. Reason strings are stable and
+ * Read why the most recent AI call succeeded or failed. Returns null when no
+ * call has been attempted yet this session. Reason strings are stable and
  * UI-friendly: 'no-key', 'http-400 invalid or revoked key', 'http-429 rate
  * limited', 'http-403 forbidden', 'network error/timeout', 'ok', etc.
+ *
+ * The RETURN SHAPE is intentionally unchanged ({ ok, status, reason }) for
+ * backward compatibility with existing consumers, even though internally the
+ * diagnostic may carry extra vendor/label fields.
  */
 export function getLastGeminiDiagnostic(): GeminiDiagnostic | null {
-  return lastGeminiDiagnostic;
+  if (!lastGeminiDiagnostic) return null;
+  const { ok, status, reason } = lastGeminiDiagnostic;
+  return { ok, status, reason };
 }
 
 /** Human-readable reason for a non-OK HTTP status from the Gemini endpoint. */
@@ -95,7 +179,10 @@ function reasonForStatus(status: number): string {
  *    on to the next candidate.
  *  - Hard status (400/403/404 etc) -> no retry, move on immediately.
  *  - Network/catch -> move on to the next candidate.
- *  - Honors GEMINI_TOTAL_DEADLINE_MS so the whole walk stays under ~13s.
+ *  - Honors the overall deadline (options.deadline when threaded in by the
+ *    multi-provider orchestrator, else GEMINI_TOTAL_DEADLINE_MS ~13s), clamping
+ *    each attempt's timeout to the remaining budget so the walk never outlasts
+ *    it.
  *
  * The caller supplies the per-request body (QA sends plain text, the compiler
  * adds generationConfig.responseMimeType 'application/json') via buildBody, so
@@ -103,14 +190,18 @@ function reasonForStatus(status: number): string {
  */
 export async function callGeminiCandidates(
   apiKey: string,
-  buildBody: () => Record<string, unknown>
+  buildBody: () => Record<string, unknown>,
+  options?: { deadline?: number }
 ): Promise<string | null> {
-  const deadline = Date.now() + GEMINI_TOTAL_DEADLINE_MS;
+  // The overall wall-clock ceiling. Callers in a multi-provider run thread the
+  // outer AI_TOTAL_DEADLINE_MS down so a single provider can never outlast the
+  // run's remaining budget; standalone callers get the historical ~13s walk.
+  const deadline = options?.deadline ?? Date.now() + GEMINI_TOTAL_DEADLINE_MS;
 
   // Detect the no-key case before the loop so the UI can distinguish "no key
   // configured" from "key present but rejected / unreachable".
   if (!apiKey) {
-    lastGeminiDiagnostic = { ok: false, status: null, reason: 'no-key' };
+    lastGeminiDiagnostic = { ok: false, status: null, reason: 'no-key', vendor: 'gemini' };
     return null;
   }
 
@@ -122,13 +213,17 @@ export async function callGeminiCandidates(
   for (const model of GEMINI_MODELS) {
     // At most 2 attempts per model (initial + one quick retry on 503/429).
     for (let attempt = 0; attempt < 2; attempt++) {
-      if (Date.now() >= deadline) {
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
         return null;
       }
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), GEMINI_ATTEMPT_TIMEOUT_MS);
+        // Clamp this attempt to whichever is smaller: the per-attempt timeout
+        // or the budget still left before the overall deadline.
+        const attemptTimeout = Math.min(GEMINI_ATTEMPT_TIMEOUT_MS, remaining);
+        const timeoutId = setTimeout(() => controller.abort(), attemptTimeout);
 
         let res: Response;
         try {
@@ -149,7 +244,7 @@ export async function callGeminiCandidates(
           const json = await res.json();
           const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
           if (typeof text === 'string' && text.trim()) {
-            lastGeminiDiagnostic = { ok: true, status: res.status, reason: 'ok' };
+            lastGeminiDiagnostic = { ok: true, status: res.status, reason: 'ok', vendor: 'gemini' };
             return text;
           }
           // 200 but empty/unusable: this model will not do better, move on.
@@ -185,7 +280,220 @@ export async function callGeminiCandidates(
   }
 
   // Every candidate exhausted: surface the most recent failure reason.
-  lastGeminiDiagnostic = { ok: false, status: lastStatus, reason: lastReason };
+  lastGeminiDiagnostic = { ok: false, status: lastStatus, reason: lastReason, vendor: 'gemini' };
+  return null;
+}
+
+/** Human-readable reason for a non-OK HTTP status from an OpenAI-compatible endpoint. */
+function reasonForOpenAiStatus(status: number): string {
+  if (status === 401) return 'http-401 invalid or revoked key';
+  if (status === 403) return 'http-403 forbidden';
+  if (status === 429) return 'http-429 rate limited';
+  if (status === 404) return 'http-404 model not found';
+  if (status === 503) return 'http-503 overloaded';
+  return `http-${status} request failed`;
+}
+
+/**
+ * OpenAI-compatible chat-completions adapter. POSTs to
+ * `${baseUrl}/chat/completions` with Bearer auth and returns the first
+ * choice's message content, or null on any failure.
+ *
+ * Classification (mirrors the Gemini walk's spirit):
+ *  - res.ok with non-empty choices[0].message.content -> return it.
+ *  - 429 -> transient, mark the provider cooling down, return null.
+ *  - 503 / 5xx -> transient, return null.
+ *  - 401 / 403 -> auth error, return null.
+ *  - other non-ok -> hard error, return null.
+ *  - network / abort / timeout -> return null.
+ *
+ * Each call owns its own AbortController wired to GEMINI_ATTEMPT_TIMEOUT_MS.
+ * The apiKey is never logged.
+ */
+export async function callOpenAiCompatible(
+  provider: AiProvider,
+  messages: { role: string; content: string }[],
+  opts?: { json?: boolean; deadline?: number }
+): Promise<string | null> {
+  if (!provider.apiKey) {
+    lastGeminiDiagnostic = {
+      ok: false,
+      status: null,
+      reason: 'no-key',
+      vendor: 'openai-compatible',
+      label: provider.label,
+    };
+    return null;
+  }
+
+  const baseUrl = trimTrailingSlash((provider.baseUrl || OPENAI_COMPATIBLE_PRESETS[0].baseUrl).trim());
+  const model = provider.model || defaultModelForBaseUrl(provider.baseUrl);
+
+  const body: Record<string, unknown> = { model, messages };
+  if (opts?.json) {
+    body.response_format = { type: 'json_object' };
+  }
+
+  // Clamp this call to the remaining overall budget when a deadline is threaded
+  // in, so a slow provider cannot outlast the multi-provider run's ceiling.
+  const remaining = opts?.deadline !== undefined ? opts.deadline - Date.now() : GEMINI_ATTEMPT_TIMEOUT_MS;
+  if (remaining <= 0) {
+    lastGeminiDiagnostic = {
+      ok: false,
+      status: null,
+      reason: 'network error/timeout',
+      vendor: 'openai-compatible',
+      label: provider.label,
+    };
+    return null;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), Math.min(GEMINI_ATTEMPT_TIMEOUT_MS, remaining));
+
+    let res: Response;
+    try {
+      res = await fetch(`${baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${provider.apiKey}`,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    if (res.ok) {
+      const json = await res.json();
+      const content = json.choices?.[0]?.message?.content;
+      if (typeof content === 'string' && content.trim()) {
+        lastGeminiDiagnostic = {
+          ok: true,
+          status: res.status,
+          reason: 'ok',
+          vendor: 'openai-compatible',
+          label: provider.label,
+        };
+        return content;
+      }
+      lastGeminiDiagnostic = {
+        ok: false,
+        status: res.status,
+        reason: 'empty response',
+        vendor: 'openai-compatible',
+        label: provider.label,
+      };
+      return null;
+    }
+
+    // Non-ok: classify and record. A 429 also marks the provider cooling down.
+    if (res.status === 429) {
+      markCoolingDown(provider.id);
+    }
+    lastGeminiDiagnostic = {
+      ok: false,
+      status: res.status,
+      reason: reasonForOpenAiStatus(res.status),
+      vendor: 'openai-compatible',
+      label: provider.label,
+    };
+    return null;
+  } catch {
+    // Network error / abort / timeout.
+    lastGeminiDiagnostic = {
+      ok: false,
+      status: null,
+      reason: 'network error/timeout',
+      vendor: 'openai-compatible',
+      label: provider.label,
+    };
+    return null;
+  }
+}
+
+/**
+ * True when `config` has at least one provider the engine would actually call
+ * for the current engineMode. A provider is usable when it is enabled, has a
+ * non-empty apiKey, and its vendor is allowed by the mode: 'gemini' mode only
+ * counts gemini-vendor providers (so the mode name stays honest), while every
+ * other non-local mode counts any vendor.
+ *
+ * Shared by the QA/compiler gates and by the Browser display gate so the thing
+ * the UI reports and the thing the answer path will actually attempt can never
+ * diverge.
+ */
+export function hasUsableProviderForMode(config: CloudConfig): boolean {
+  return (config.providers || []).some(
+    (p) =>
+      p.enabled !== false &&
+      typeof p.apiKey === 'string' &&
+      p.apiKey.trim() !== '' &&
+      (config.engineMode === 'gemini' ? p.vendor === 'gemini' : true)
+  );
+}
+
+/**
+ * Multi-provider orchestrator. Walks the ENABLED providers in order (enabled
+ * !== false and a non-empty apiKey), trying non-cooling providers first and
+ * cooling ones last, and fails over on any null result until one returns
+ * usable text or the overall AI_TOTAL_DEADLINE_MS budget is hit.
+ *
+ *  - vendor 'gemini' reuses callGeminiCandidates(apiKey, geminiBody) so the
+ *    per-key model-candidate walk behavior is preserved.
+ *  - vendor 'openai-compatible' uses callOpenAiCompatible(provider, messages).
+ *
+ * Returns { text, vendor, label } on the first non-empty answer, or null when
+ * every provider is exhausted or the deadline is reached.
+ */
+export async function runProvidersForText(
+  config: CloudConfig,
+  build: {
+    geminiBody: () => Record<string, unknown>;
+    openAiMessages: { role: string; content: string }[];
+    json?: boolean;
+  }
+): Promise<{ text: string; vendor: 'gemini' | 'openai-compatible'; label?: string } | null> {
+  const deadline = Date.now() + AI_TOTAL_DEADLINE_MS;
+
+  // Honor the engine mode: 'gemini' means "Gemini only", so it must not walk
+  // openai-compatible providers (that would let a mode named "gemini" answer
+  // via OpenAI/Groq). 'auto'/'n8n' consider every enabled provider.
+  const vendorAllowed = (vendor: AiProvider['vendor']): boolean =>
+    config.engineMode === 'gemini' ? vendor === 'gemini' : true;
+
+  const usable = (config.providers || []).filter(
+    (p) =>
+      p.enabled !== false &&
+      typeof p.apiKey === 'string' &&
+      p.apiKey.trim() !== '' &&
+      vendorAllowed(p.vendor)
+  );
+
+  // Non-cooling providers first, cooling ones last (tried before local).
+  const ordered = [
+    ...usable.filter((p) => !isCoolingDown(p.id)),
+    ...usable.filter((p) => isCoolingDown(p.id)),
+  ];
+
+  for (const provider of ordered) {
+    if (Date.now() >= deadline) break;
+
+    let text: string | null = null;
+    if (provider.vendor === 'gemini') {
+      text = await callGeminiCandidates(provider.apiKey, build.geminiBody, { deadline });
+    } else if (provider.vendor === 'openai-compatible') {
+      text = await callOpenAiCompatible(provider, build.openAiMessages, { json: build.json, deadline });
+    }
+
+    if (text && text.trim()) {
+      return { text, vendor: provider.vendor, label: provider.label };
+    }
+  }
+
   return null;
 }
 
@@ -335,29 +643,40 @@ function offlineAnswer(question: string): string {
 export async function answerQuestionAsync(
   question: string,
   config?: CloudConfig
-): Promise<{ answer: string; source: 'gemini' | 'local' }> {
-  if (config?.geminiApiKey && config.engineMode !== 'local') {
+): Promise<{ answer: string; source: 'gemini' | 'openai-compatible' | 'local'; providerLabel?: string }> {
+  const hasUsableProvider = !!config && hasUsableProviderForMode(config);
+
+  if (config && config.engineMode !== 'local' && hasUsableProvider) {
     const systemPrompt =
       'You are Morph Copilot, a helpful general-purpose assistant that lives inside MorphOS, a browser-based prompt-synthesized operating system built for the Juspay hackathon. Answer general questions naturally and accurately like any good assistant. You are also aware you can reconfigure the OS, audit payments, and inspect processes, but for general questions just answer them. Keep answers reasonably short, a few sentences at most, and use plain conversational text.';
 
     try {
-      // Plain-text QA body: no responseMimeType so Gemini replies conversationally.
-      const text = await callGeminiCandidates(config.geminiApiKey, () => ({
-        contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: "${question}"` }] }],
-      }));
-      if (text) {
-        const answer = text.trim();
+      const result = await runProvidersForText(config, {
+        // Plain-text QA body: no responseMimeType so Gemini replies conversationally.
+        geminiBody: () => ({
+          contents: [{ parts: [{ text: `${systemPrompt}\n\nUser: "${question}"` }] }],
+        }),
+        openAiMessages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: question },
+        ],
+        json: false,
+      });
+
+      if (result) {
+        const answer = result.text.trim();
         if (answer) {
-          return { answer, source: 'gemini' };
+          const source = result.vendor === 'gemini' ? 'gemini' : 'openai-compatible';
+          return { answer, source, providerLabel: result.label };
         }
       }
     } catch {
-      console.warn('Gemini QA call failed or timed out, using local fallback.');
+      console.warn('AI QA call failed or timed out, using local fallback.');
     }
 
-    // A key was configured but every candidate model failed, timed out, or
-    // returned a non-OK/empty response. Be honest about why we fell back
-    // instead of asking the user to configure a key they already have.
+    // Providers were configured but every one failed, timed out, or returned a
+    // non-OK/empty response. Be honest about why we fell back instead of asking
+    // the user to configure a key they already have.
     return { answer: offlineAnswer(question), source: 'local' };
   }
 
