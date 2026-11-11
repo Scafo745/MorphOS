@@ -21,7 +21,7 @@ const PLACEHOLDERS = [
   'royal gold luxury theme with 24k gold icons on midnight black...',
   'arch linux hyprland matrix green neon cyber tiling...',
   'macOS glass design with Windows snap tiling and strict Linux security...',
-  'fintech workstation with PCI-DSS compliance — compliance mode, PCI-DSS enforced...',
+  'fintech workstation — compliance mode, PCI-DSS enforced...',
   'kawaii sakura pastel pink anime theme with rounded bubbly icons...',
 ];
 

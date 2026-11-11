@@ -301,7 +301,7 @@ export function synthesizeTokensFromPrompt(prompt: string): { tokens: CustomToke
 }
 
 /**
- * Local high-precision semantic compiler (0ms latency, 100% demo-proof)
+ * Local high-precision semantic compiler (0ms latency, fully offline)
  */
 export function compilePromptLocal(prompt: string): OSProfile {
   const synth = synthesizeTokensFromPrompt(prompt);

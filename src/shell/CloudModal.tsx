@@ -516,7 +516,7 @@ export const CloudModal: React.FC = () => {
                   { id: 'auto', title: 'Auto (n8n → Gemini → Local)', desc: 'Best resilience' },
                   { id: 'n8n', title: 'n8n Cloud Webhook Only', desc: 'Direct workflow pipeline' },
                   { id: 'gemini', title: 'Gemini API Only', desc: 'Google AI Studio direct' },
-                  { id: 'local', title: 'Local Heuristic (Offline)', desc: 'Zero latency instant demo' },
+                  { id: 'local', title: 'Local Heuristic (Offline)', desc: 'Zero latency, works offline' },
                 ].map((opt) => (
                   <button
                     key={opt.id}
