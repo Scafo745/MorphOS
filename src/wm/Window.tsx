@@ -14,7 +14,7 @@ const FileManager = React.lazy(() => import('../apps/FileManager').then(m => ({ 
 const Settings = React.lazy(() => import('../apps/Settings').then(m => ({ default: m.Settings })));
 const SecurityGuard = React.lazy(() => import('../apps/SecurityGuard').then(m => ({ default: m.SecurityGuard })));
 const Copilot = React.lazy(() => import('../apps/Copilot').then(m => ({ default: m.Copilot })));
-const Hyperswitch = React.lazy(() => import('../apps/Hyperswitch').then(m => ({ default: m.Hyperswitch })));
+const Payments = React.lazy(() => import('../apps/Payments').then(m => ({ default: m.Payments })));
 const Browser = React.lazy(() => import('../apps/Browser').then(m => ({ default: m.Browser })));
 
 const APP_ICONS: Record<string, (color?: string) => React.ReactNode> = {
@@ -24,7 +24,7 @@ const APP_ICONS: Record<string, (color?: string) => React.ReactNode> = {
   security:    (c) => <Shield className="w-3.5 h-3.5" style={{ color: c || '#fbbf24' }} />,
   copilot:     (c) => <Bot className="w-3.5 h-3.5" style={{ color: c || '#c084fc' }} />,
   notes:       (c) => <FileText className="w-3.5 h-3.5" style={{ color: c || '#fda4af' }} />,
-  hyperswitch: (c) => <Zap className="w-3.5 h-3.5" style={{ color: c || '#38bdf8' }} />,
+  payments: (c) => <Zap className="w-3.5 h-3.5" style={{ color: c || '#38bdf8' }} />,
   browser:     (c) => <Globe className="w-3.5 h-3.5" style={{ color: c || '#2dd4bf' }} />,
 };
 
@@ -52,7 +52,7 @@ export const Window: React.FC<WindowProps> = ({ window: win, onSnapZoneChange })
       case 'settings':    return <Settings />;
       case 'security':    return <SecurityGuard />;
       case 'copilot':     return <Copilot />;
-      case 'hyperswitch': return <Hyperswitch />;
+      case 'payments': return <Payments />;
       case 'browser':     return <Browser />;
       default:
         return (

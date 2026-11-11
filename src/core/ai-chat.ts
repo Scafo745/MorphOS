@@ -499,7 +499,7 @@ export async function runProvidersForText(
 
 /**
  * Centralized keyword set that classifies a prompt as an OS reconfiguration /
- * tool intent (theme, color, security, process, payments, Juspay, etc) rather
+ * tool intent (theme, color, security, process, payments, etc) rather
  * than a general question. This consolidates the keyword branches that drive
  * Copilot's synthesis cascade so classification stays consistent everywhere.
  */
@@ -541,8 +541,7 @@ export const SYNTHESIS_KEYWORDS: string[] = [
   'geist',
   // fintech / payments
   'compliance',
-  'juspay',
-  'hyperswitch',
+  'payments',
   'payment',
   'transaction',
   'audit',
@@ -580,15 +579,7 @@ function localAnswer(question: string): string {
   }
 
   if (q.includes('what is morphos') || q.includes('what can you do') || q === 'help' || q.includes('what can i do')) {
-    return "MorphOS is a browser-based operating system you shape with natural language. I can synthesize new themes and layouts on demand, audit Hyperswitch payments, inspect running processes and daemons, test the security guards, and answer general questions. Just tell me what you want.";
-  }
-
-  if (q.includes('what is juspay') || q.includes('who is juspay')) {
-    return "Juspay is a payments technology company that builds infrastructure for secure, high-scale digital transactions, including the open-source Hyperswitch payment orchestration stack. MorphOS is a demo built for a Juspay hackathon.";
-  }
-
-  if (q.includes('what is hyperswitch') || q.includes('who is hyperswitch')) {
-    return "Hyperswitch is Juspay's open-source payment orchestration layer. It routes transactions across many payment processors, with smart routing, retries, and PCI-DSS aware compliance. You can open the Hyperswitch app here to watch routing and audits in action.";
+    return "MorphOS is a prompt-adaptive operating system that reshapes itself around what you need. Describe your goal, for example an OS that prioritizes gaming above everything else, and it adapts the theme, window manager, security policy, apps and tooling to match. I can synthesize new themes and layouts on demand, audit payments, inspect running processes and daemons, test the security guards, and answer general questions. Just tell me what you want.";
   }
 
   if (q.includes('who are you') || q.includes('your name') || q.includes('what are you')) {
@@ -601,7 +592,7 @@ function localAnswer(question: string): string {
 /**
  * Fallback used when a Gemini key IS configured but the cloud call failed,
  * timed out, or returned a non-OK response. First tries localAnswer's useful
- * canned replies (greetings, what-is-MorphOS, Juspay, Hyperswitch, etc) so the
+ * canned replies (greetings, what-is-MorphOS, who-are-you, etc) so the
  * user still gets a real answer when one matches, then explains that the AI
  * service could not be reached and it is answering offline. Never tells the
  * user to configure a key they already configured.
@@ -618,10 +609,6 @@ function offlineAnswer(question: string): string {
     q.includes('what can you do') ||
     q === 'help' ||
     q.includes('what can i do') ||
-    q.includes('what is juspay') ||
-    q.includes('who is juspay') ||
-    q.includes('what is hyperswitch') ||
-    q.includes('who is hyperswitch') ||
     q.includes('who are you') ||
     q.includes('your name') ||
     q.includes('what are you');
@@ -648,7 +635,7 @@ export async function answerQuestionAsync(
 
   if (config && config.engineMode !== 'local' && hasUsableProvider) {
     const systemPrompt =
-      'You are Morph Copilot, a helpful general-purpose assistant that lives inside MorphOS, a browser-based prompt-synthesized operating system built for the Juspay hackathon. Answer general questions naturally and accurately like any good assistant. You are also aware you can reconfigure the OS, audit payments, and inspect processes, but for general questions just answer them. Keep answers reasonably short, a few sentences at most, and use plain conversational text.';
+      'You are Morph Copilot, a helpful general-purpose assistant that lives inside MorphOS, MorphOS, a prompt-adaptive operating system that reshapes itself around what the user needs. Answer general questions naturally and accurately like any good assistant. You are also aware you can reconfigure the OS, audit payments, and inspect processes, but for general questions just answer them. Keep answers reasonably short, a few sentences at most, and use plain conversational text.';
 
     try {
       const result = await runProvidersForText(config, {

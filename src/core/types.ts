@@ -61,7 +61,7 @@ export interface OSProfile {
   customTokens: CustomTokens;
 }
 
-export type AppId = 'terminal' | 'filemanager' | 'settings' | 'security' | 'copilot' | 'notes' | 'hyperswitch' | 'browser';
+export type AppId = 'terminal' | 'filemanager' | 'settings' | 'security' | 'copilot' | 'notes' | 'payments' | 'browser';
 
 /**
  * A single AI provider the engine can call for answers / prompt synthesis.

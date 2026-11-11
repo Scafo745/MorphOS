@@ -11,7 +11,7 @@ const PRESETS = [
   { key: 'cupertino-dev',      emoji: '🍎', name: 'Cupertino Pro',            sub: 'macOS glass · fluid dock · standard ACL' },
   { key: 'gothic-obsidian',    emoji: '🦇', name: 'Gothic Obsidian OS',      sub: 'Pitch-black glass · crimson icons · zero-trust' },
   { key: 'cyber-hacker',       icon: Terminal,    name: 'Arch Hyprland Cyber',   sub: 'Matrix neon · auto-tiling · root shell' },
-  { key: 'enterprise-fintech', icon: ShieldCheck, name: 'Juspay FinTech Shield', sub: 'Win11 snap · PCI-DSS · zero-trust audit' },
+  { key: 'enterprise-fintech', icon: ShieldCheck, name: 'FinTech Shield', sub: 'Win11 snap · PCI-DSS · zero-trust audit' },
   { key: 'golden-luxury',      emoji: '👑', name: 'Royal Sovereign OS',       sub: '24K gold borders · midnight amber glow' },
   { key: 'synthwave-retro',    emoji: '🌇', name: 'Synthwave 1984 OS',        sub: 'Neon magenta · electric purple outrun' },
 ];
@@ -21,7 +21,7 @@ const PLACEHOLDERS = [
   'royal gold luxury theme with 24k gold icons on midnight black...',
   'arch linux hyprland matrix green neon cyber tiling...',
   'macOS glass design with Windows snap tiling and strict Linux security...',
-  'fintech workstation for Juspay — compliance mode, PCI-DSS enforced...',
+  'fintech workstation with PCI-DSS compliance — compliance mode, PCI-DSS enforced...',
   'kawaii sakura pastel pink anime theme with rounded bubbly icons...',
 ];
 

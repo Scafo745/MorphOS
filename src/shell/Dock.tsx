@@ -14,8 +14,8 @@ interface DockItemDef {
 
 const ITEMS: DockItemDef[] = [
   {
-    id: 'hyperswitch',
-    label: 'Juspay Hyperswitch',
+    id: 'payments',
+    label: 'Payments Console',
     icon: (c) => <Zap className="w-6 h-6" style={{ color: c }} />,
   },
   {

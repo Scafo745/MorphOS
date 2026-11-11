@@ -94,27 +94,27 @@ export const Copilot: React.FC = () => {
         return;
       }
 
-      // 2.5 Juspay FinTech Business Workstation Synthesis
+      // 2.5 FinTech Business Workstation Synthesis
       if (
-        qLower.includes('juspay') ||
-        qLower.includes('hyperswitch') ||
-        (qLower.includes('business') && (qLower.includes('payment') || qLower.includes('juspay') || qLower.includes('os') || qLower.includes('work')))
+        qLower.includes('fintech') ||
+        qLower.includes('payments') ||
+        (qLower.includes('business') && (qLower.includes('payment') || qLower.includes('os') || qLower.includes('work')))
       ) {
         const { profile: newProfile } = await compilePromptAsync(
-          'juspay enterprise fintech windows snap zero trust pci compliance',
+          'enterprise fintech windows snap zero trust pci compliance',
           cloudConfig
         );
         setProfile(newProfile);
-        openApp('hyperswitch');
+        openApp('payments');
 
         const agentMsg: Message = {
           id: `msg-${Date.now()}`,
           sender: 'agent',
-          text: `⚡ **Synthesized MorphOS into Juspay Production Payment Workstation!**\n\nHere is what just adapted across the entire OS stack:\n\n1. **🚀 Launched Juspay Hyperswitch™ Console**:\n   • Streaming live payments (1,842 TPS) across Swiggy, Flipkart, Cred, and Zepto.\n   • Real-time bank routing rails for HDFC, ICICI, SBI, and Axis Bank.\n2. **🛡️ Enforced PCI-DSS 4.0 Microkernel Policy**:\n   • SELinux switched to \`Enforcing\` with immutable cryptographic audit logging.\n   • All cardholder and VPA data inside \`/var/log/transactions.csv\` is masked & tokenized.\n3. **⚠️ Accidental Data Loss Guard Active**:\n   • Destructive operations (e.g. \`DROP TABLE transactions\`, \`rm -rf /\`) are actively intercepted before reaching storage.\n4. **🔄 Smart Gateway Failover**:\n   • Automatic routing failover if bank gateway drops below 99.5% success SLA.\n\n**What to tell the Hackathon Judges:**\n*"MorphOS is an adaptive microkernel that synthesizes role-specific workstations on demand. For Juspay, a single prompt turns any browser into an immutable, PCI-DSS compliant payment operations terminal that prevents developer accidents and monitors Hyperswitch routing in real time."*`,
+          text: `⚡ **Synthesized MorphOS into a FinTech Workstation!**\n\nHere is what just adapted across the entire OS stack:\n\n1. **🚀 Launched Payments Router Console**:\n   • Streaming live payments (1,842 TPS) across Swiggy, Flipkart, Cred, and Zepto.\n   • Real-time bank routing rails for HDFC, ICICI, SBI, and Axis Bank.\n2. **🛡️ Enforced PCI-DSS 4.0 Microkernel Policy**:\n   • SELinux switched to \`Enforcing\` with immutable cryptographic audit logging.\n   • All cardholder and VPA data inside \`/var/log/transactions.csv\` is masked & tokenized.\n3. **⚠️ Accidental Data Loss Guard Active**:\n   • Destructive operations (e.g. \`DROP TABLE transactions\`, \`rm -rf /\`) are actively intercepted before reaching storage.\n4. **🔄 Smart Gateway Failover**:\n   • Automatic routing failover if bank gateway drops below 99.5% success SLA.`,
           toolCall: {
-            tool: `juspay_orchestrator.recompile(target: "HYPERSWITCH_PROD")`,
+            tool: `os_orchestrator.recompile(target: "FINTECH_WORKSTATION")`,
             input: query,
-            output: `Synthesized Juspay FinTech Shield: Hyperswitch router connected, 1,842 TPS telemetry live, PCI-DSS 4.0 Level 1 enforced.`,
+            output: `Synthesized FinTech Shield: Payments router connected, 1,842 TPS telemetry live, PCI-DSS 4.0 Level 1 enforced.`,
             isError: false,
           },
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

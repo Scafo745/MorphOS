@@ -513,7 +513,7 @@ export const CloudModal: React.FC = () => {
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { id: 'auto', title: 'Auto (n8n → Gemini → Local)', desc: 'Best hackathon resilience' },
+                  { id: 'auto', title: 'Auto (n8n → Gemini → Local)', desc: 'Best resilience' },
                   { id: 'n8n', title: 'n8n Cloud Webhook Only', desc: 'Direct workflow pipeline' },
                   { id: 'gemini', title: 'Gemini API Only', desc: 'Google AI Studio direct' },
                   { id: 'local', title: 'Local Heuristic (Offline)', desc: 'Zero latency instant demo' },

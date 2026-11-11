@@ -36,7 +36,7 @@ const INITIAL_TRANSACTIONS: Transaction[] = [
   { id: 'TXN_98417', time: '13:13:38', merchant: 'Uber India Bangalore', amount: 249, method: 'UPI AutoPay', gateway: 'AXIS', status: 'SUCCESS', latencyMs: 8, vpa: 'uber***@axis' },
 ];
 
-export const Hyperswitch: React.FC = () => {
+export const Payments: React.FC = () => {
   const { addAuditLog, triggerSudoChallenge } = useOSStore();
   const [transactions, setTransactions] = useState<Transaction[]>(INITIAL_TRANSACTIONS);
   const [tps, setTps] = useState(1842);
@@ -85,14 +85,14 @@ export const Hyperswitch: React.FC = () => {
   const handleSimulateOutage = () => {
     setSbiDegraded(true);
     setSmartRouted(false);
-    addAuditLog('hyperswitch.simulate_outage(SBI_UPI)', 'CHALLENGE_REQUIRED', 'SBI UPI gateway response latency spiked to 450ms (504 Timeouts detected)', 'WARNING');
+    addAuditLog('payments.simulate_outage(SBI_UPI)', 'CHALLENGE_REQUIRED', 'SBI UPI gateway response latency spiked to 450ms (504 Timeouts detected)', 'WARNING');
   };
 
   // Handle Smart Reroute
   const handleSmartFailover = () => {
     setSmartRouted(true);
     setSbiDegraded(false);
-    addAuditLog('hyperswitch.smart_reroute(source: SBI, target: [HDFC, ICICI])', 'ALLOWED', 'Dynamic ML route switch: 100% of SBI traffic rerouted. Success rate restored to 99.98%', 'INFO');
+    addAuditLog('payments.smart_reroute(source: SBI, target: [HDFC, ICICI])', 'ALLOWED', 'Dynamic ML route switch: 100% of SBI traffic rerouted. Success rate restored to 99.98%', 'INFO');
   };
 
   // Handle Catastrophic test inside payment switch
@@ -113,7 +113,7 @@ export const Hyperswitch: React.FC = () => {
       className="h-full flex flex-col text-xs font-sans overflow-hidden select-none"
       style={{ background: 'var(--canvas, #fafafa)', color: 'var(--text-body, #4d4d4d)' }}
     >
-      {/* ── TOP HEADER: Juspay Hyperswitch Branding ────────────── */}
+      {/* ── TOP HEADER: Payments Console Branding ────────────── */}
       <div
         className="flex items-center justify-between px-4 py-2.5 border-b"
         style={{ background: 'var(--canvas-elevated, #ffffff)', borderColor: 'var(--hairline, #ebebeb)' }}
@@ -124,7 +124,7 @@ export const Hyperswitch: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h2 className="text-sm font-bold tracking-tight" style={{ color: 'var(--ink, #171717)' }}>Juspay Hyperswitch™</h2>
+              <h2 className="text-sm font-bold tracking-tight" style={{ color: 'var(--ink, #171717)' }}>Payments Router</h2>
               <span
                 className="px-1.5 py-0.5 rounded-[6px] text-[10px] font-mono font-semibold border"
                 style={{ borderColor: 'var(--hairline, #ebebeb)', color: 'var(--link, #0070f3)' }}
@@ -179,7 +179,7 @@ export const Hyperswitch: React.FC = () => {
           <div className="text-base font-bold mt-0.5" style={{ color: sbiDegraded ? 'var(--status-warn, #b4760a)' : 'var(--link, #0070f3)' }}>
             {sbiDegraded ? '184ms' : '16ms'}
           </div>
-          <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Hyperswitch Native Engine</div>
+          <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Payments Native Engine</div>
         </div>
 
         <div className="p-2.5 rounded-[12px] border" style={cardStyle}>
@@ -213,7 +213,7 @@ export const Hyperswitch: React.FC = () => {
               style={{ borderColor: 'rgba(21,128,61,0.3)', color: 'var(--status-success, #15803d)', background: 'rgba(21,128,61,0.08)' }}
             >
               <RefreshCw className="w-3 h-3" />
-              <span>Hyperswitch Smart Failover</span>
+              <span>Smart Failover</span>
             </button>
             <button
               onClick={handleDropTableTest}
@@ -293,7 +293,7 @@ export const Hyperswitch: React.FC = () => {
         <div className="flex items-center justify-between mb-1.5">
           <div className="text-[11px] font-semibold flex items-center gap-1.5" style={{ color: 'var(--text-body, #4d4d4d)' }}>
             <Activity className="w-3.5 h-3.5" style={{ color: 'var(--link, #0070f3)' }} />
-            <span>Live Hyperswitch Routing Stream (Real-Time POSIX VFS /var/log/transactions.csv)</span>
+            <span>Live Payments Routing Stream (Real-Time POSIX VFS /var/log/transactions.csv)</span>
           </div>
           <span className="text-[10px] font-mono" style={{ color: 'var(--text-mute, #8f8f8f)' }}>Click transaction for cryptographic trace</span>
         </div>
@@ -371,7 +371,7 @@ export const Hyperswitch: React.FC = () => {
             <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: 'var(--hairline, #ebebeb)' }}>
               <div className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4" style={{ color: 'var(--link, #0070f3)' }} />
-                <span className="font-bold text-sm" style={{ color: 'var(--ink, #171717)' }}>Juspay Audit: {selectedTxn.id}</span>
+                <span className="font-bold text-sm" style={{ color: 'var(--ink, #171717)' }}>Payment Audit: {selectedTxn.id}</span>
               </div>
               <button
                 onClick={() => setSelectedTxn(null)}

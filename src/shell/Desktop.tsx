@@ -90,7 +90,7 @@ export const Desktop: React.FC = () => {
       {/* ── Desktop file icons ───────────────────────── */}
       <div className="absolute top-11 left-3 flex flex-col gap-3 z-10">
         {[
-          { app: 'hyperswitch' as const, label: 'Hyperswitch', icon: (c: string) => <Zap className="w-6 h-6" style={{ color: c }} /> },
+          { app: 'payments' as const, label: 'Payments', icon: (c: string) => <Zap className="w-6 h-6" style={{ color: c }} /> },
           { app: 'copilot' as const, label: 'Copilot', icon: (c: string) => <Bot className="w-6 h-6" style={{ color: c }} /> },
           { app: 'terminal' as const, label: 'Terminal', icon: (c: string) => <Terminal className="w-6 h-6" style={{ color: c }} /> },
           { app: 'filemanager' as const, label: 'Files', icon: (c: string) => <Folder className="w-6 h-6" style={{ color: c }} /> },

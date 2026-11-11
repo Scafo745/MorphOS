@@ -70,7 +70,7 @@ Syscall terminated with SIGABRT (exit code 134).`,
     setenforce <1|0>     Toggle SELinux mode (Enforcing vs Permissive)
     audit                Display real-time PCI-DSS security event logs
     morph <prompt>       Synthesize and recompile entire OS from CLI prompt!
-    hyperswitch [status|reroute] Juspay financial switch telemetry & smart router
+    payments [status|reroute]  Payments router telemetry & smart failover
     whoami               Display current user role and security profile
 
   Packages:
@@ -256,17 +256,17 @@ ${processes
     };
   }
 
-  // ── 13.5 HYPERSWITCH (Juspay financial router) ──
-  if (cmd === 'hyperswitch' || cmd === 'juspay') {
+  // ── 13.5 PAYMENTS (financial router) ──
+  if (cmd === 'payments') {
     const sub = args[0] || 'status';
     if (sub === 'reroute') {
       return {
-        output: `[JUSPAY HYPERSWITCH] Dynamic failover executed via ML router.
+        output: `[PAYMENTS ROUTER] Dynamic failover executed via ML router.
 Traffic redistributed to HDFC (60%) and ICICI (40%). Active SR: 99.98%.`,
       };
     }
     return {
-      output: `Juspay Hyperswitch™ Financial Core (PROD-BLR-01)
+      output: `Payments Router Financial Core (PROD-BLR-01)
 TPS: 1,842 txns/sec | Success Rate: 99.98% | P99: 16ms
 Bank Rails:
   [HDFC UPI]   SR: 99.6% | Latency: 12ms | HEALTHY

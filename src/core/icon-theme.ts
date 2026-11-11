@@ -178,7 +178,7 @@ export function getIconTheme(
       glow: 'rgba(244,114,182,0.4)',
       text: '#f9a8d4',
     },
-    hyperswitch: {
+    payments: {
       bg: 'linear-gradient(145deg, #02203c, #075985)',
       border: 'rgba(14,165,233,0.4)',
       glow: 'rgba(14,165,233,0.55)',

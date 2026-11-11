@@ -17,15 +17,15 @@ export const Settings: React.FC = () => {
     try {
       const { profile: newProfile } = await compilePromptAsync(text, cloudConfig);
       setProfile(newProfile);
-      if (text.toLowerCase().includes('juspay') || text.toLowerCase().includes('hyperswitch') || text.toLowerCase().includes('payment')) {
-        openApp('hyperswitch');
+      if (text.toLowerCase().includes('payments') || text.toLowerCase().includes('payment')) {
+        openApp('payments');
       }
       setPromptInput('');
     } catch {
       const local = compilePromptLocal(text);
       setProfile(local);
-      if (text.toLowerCase().includes('juspay') || text.toLowerCase().includes('hyperswitch') || text.toLowerCase().includes('payment')) {
-        openApp('hyperswitch');
+      if (text.toLowerCase().includes('payments') || text.toLowerCase().includes('payment')) {
+        openApp('payments');
       }
     } finally {
       setIsCompiling(false);
@@ -81,7 +81,7 @@ export const Settings: React.FC = () => {
     { label: '👑 Royal Gold Luxury', prompt: 'royal gold luxury midnight black theme with 24k gold icons' },
     { label: '🌇 Synthwave 1984', prompt: 'synthwave 1984 neon magenta and electric purple outrun theme' },
     { label: '🌸 Kawaii Sakura Pastel', prompt: 'kawaii sakura pastel pink anime theme with rounded bubbly icons' },
-    { label: '💳 Juspay FinTech Shield', prompt: 'juspay enterprise fintech windows snap zero trust pci compliance' },
+    { label: '💳 FinTech Shield', prompt: 'enterprise fintech windows snap zero trust pci compliance' },
     { label: '🍏 Cupertino Sonoma Glass', prompt: 'macos sonoma cupertino glass aesthetics with fluid dock' },
     { label: '🧊 Nordic Arctic Ice', prompt: 'nordic arctic ice blue frost glass theme' },
   ];

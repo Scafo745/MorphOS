@@ -171,10 +171,9 @@ export function synthesizeTokensFromPrompt(prompt: string): { tokens: CustomToke
     };
   }
 
-  // ── 6. JUSPAY / ENTERPRISE FINTECH / BLUE ──
+  // ── 6. ENTERPRISE FINTECH / BLUE ──
   if (
-    p.includes('juspay') ||
-    p.includes('hyperswitch') ||
+    p.includes('payments') ||
     p.includes('fintech') ||
     p.includes('compliance') ||
     p.includes('bank') ||
@@ -184,8 +183,8 @@ export function synthesizeTokensFromPrompt(prompt: string): { tokens: CustomToke
   ) {
     return {
       theme: 'enterprise',
-      name: 'Juspay FinTech Workstation',
-      tagline: 'Hyperswitch payment routing with PCI-DSS 4.0 zero-trust auditing',
+      name: 'FinTech Workstation',
+      tagline: 'Payment routing with PCI-DSS 4.0 zero-trust auditing',
       dockStyle: 'windows-center',
       controlsStyle: 'windows-squares',
       snapMode: 'windows-snap',

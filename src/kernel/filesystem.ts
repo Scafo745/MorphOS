@@ -25,7 +25,7 @@ export const INITIAL_FILESYSTEM: FileItem[] = [
     classification: 'RESTRICTED',
     updatedAt: '2026-10-31 09:05',
     size: '1.2 KB',
-    content: `root:x:0:0:root:/root:/bin/zsh\ndeveloper:x:1000:1000:Dev User:/home/developer:/bin/zsh\nintern:x:1001:1001:Junior Intern:/home/intern:/bin/bash\nfintech_auditor:x:1002:1002:Juspay Auditor:/home/auditor:/bin/zsh`,
+    content: `root:x:0:0:root:/root:/bin/zsh\ndeveloper:x:1000:1000:Dev User:/home/developer:/bin/zsh\nintern:x:1001:1001:Junior Intern:/home/intern:/bin/bash\nfintech_auditor:x:1002:1002:Payments Auditor:/home/auditor:/bin/zsh`,
   },
   {
     id: '6',
@@ -41,15 +41,15 @@ export const INITIAL_FILESYSTEM: FileItem[] = [
   },
   {
     id: '6b',
-    name: 'hyperswitch.json',
-    path: '/etc/hyperswitch.json',
+    name: 'payments.json',
+    path: '/etc/payments.json',
     type: 'file',
     permissions: '-rw-r-----',
     owner: 'root',
     classification: 'CONFIDENTIAL',
     updatedAt: '2026-10-31 09:02',
     size: '580 B',
-    content: `{\n  "switch_id": "hyperswitch_blr_prod_01",\n  "routing_policy": "ml_cost_latency_optimized",\n  "pci_dss_compliance": "Level_1_Enforced",\n  "max_tps_capacity": 5000,\n  "auto_failover_enabled": true,\n  "active_rails": [\n    {"gateway": "HDFC_UPI", "weight": 40, "status": "HEALTHY"},\n    {"gateway": "ICICI_DIRECT", "weight": 30, "status": "HEALTHY"},\n    {"gateway": "AXIS_TURBO", "weight": 20, "status": "HEALTHY"},\n    {"gateway": "SBI_DIRECT", "weight": 10, "status": "FAILOVER_CANDIDATE"}\n  ]\n}`,
+    content: `{\n  "switch_id": "payments_blr_prod_01",\n  "routing_policy": "ml_cost_latency_optimized",\n  "pci_dss_compliance": "Level_1_Enforced",\n  "max_tps_capacity": 5000,\n  "auto_failover_enabled": true,\n  "active_rails": [\n    {"gateway": "HDFC_UPI", "weight": 40, "status": "HEALTHY"},\n    {"gateway": "ICICI_DIRECT", "weight": 30, "status": "HEALTHY"},\n    {"gateway": "AXIS_TURBO", "weight": 20, "status": "HEALTHY"},\n    {"gateway": "SBI_DIRECT", "weight": 10, "status": "FAILOVER_CANDIDATE"}\n  ]\n}`,
   },
 
   // var/log
@@ -64,7 +64,7 @@ export const INITIAL_FILESYSTEM: FileItem[] = [
     classification: 'RESTRICTED',
     updatedAt: '2026-10-31 09:12',
     size: '12.4 KB',
-    content: `txn_id,amount,currency,gateway,status,risk_score\nTXN_98412,4500.00,INR,JUSPAY_HYPERSWITCH,SUCCESS,0.02\nTXN_98413,12999.00,INR,JUSPAY_EXPRESS,SUCCESS,0.01\nTXN_98414,249.50,USD,STRIPE_ROUTED,SUCCESS,0.05\nTXN_98415,89000.00,INR,UPI_INTENT,CHALLENGED,0.89`,
+    content: `txn_id,amount,currency,gateway,status,risk_score\nTXN_98412,4500.00,INR,PAYMENTS_ROUTER,SUCCESS,0.02\nTXN_98413,12999.00,INR,EXPRESS_ROUTED,SUCCESS,0.01\nTXN_98414,249.50,USD,STRIPE_ROUTED,SUCCESS,0.05\nTXN_98415,89000.00,INR,UPI_INTENT,CHALLENGED,0.89`,
   },
 
   // home/developer
@@ -92,7 +92,7 @@ export const INITIAL_FILESYSTEM: FileItem[] = [
     classification: 'CONFIDENTIAL',
     updatedAt: '2026-10-31 09:25',
     size: '420 B',
-    content: `AWS_ACCESS_KEY_ID=AKIA_JUSPAY_HACK_PROD_99\nDATABASE_URL=postgresql://root:ultra_secure_hash@aws-rds.internal:5432/payments\nJWT_SECRET_SIGNING_KEY=morphos_zero_trust_super_entropy_token_2026`,
+    content: `AWS_ACCESS_KEY_ID=AKIA_EXAMPLE_PROD_KEY_99\nDATABASE_URL=postgresql://root:ultra_secure_hash@aws-rds.internal:5432/payments\nJWT_SECRET_SIGNING_KEY=morphos_zero_trust_super_entropy_token_2026`,
   },
   {
     id: '13',

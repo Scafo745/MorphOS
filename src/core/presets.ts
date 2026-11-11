@@ -125,7 +125,7 @@ export const OS_PRESETS: Record<string, OSProfile> = {
     },
   },
   'enterprise-fintech': {
-    name: 'Juspay FinTech Shield',
+    name: 'FinTech Shield',
     tagline: 'Windows 11 Snap multitasking with PCI-DSS zero-trust security & auditing',
     theme: 'enterprise',
     dockStyle: 'windows-center',

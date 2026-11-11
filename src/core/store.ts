@@ -255,7 +255,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
       security: 'Security & Compliance Guard',
       copilot: 'Morph Copilot — Autonomous Agent',
       notes: 'Scratchpad Notes',
-      hyperswitch: 'Juspay Hyperswitch™ — Payments Orchestrator',
+      payments: 'Payments Console — Payments Orchestrator',
       browser: 'MorphOS Browser',
     };
 
@@ -266,7 +266,7 @@ export const useOSStore = create<OSStore>((set, get) => ({
     // viewport on small displays / projectors. Floors match the Rnd minimums
     // in Window.tsx (minWidth 340 / minHeight 220).
     const desiredSize =
-      appId === 'hyperswitch'
+      appId === 'payments'
         ? { width: 760, height: 520 }
         : appId === 'terminal'
         ? { width: 680, height: 420 }
