@@ -2,12 +2,7 @@
   "name": "MorphOS",
   "version": "2.4.0",
   "liveDeployment": "https://morphos-zic5.onrender.com",
-  "description": "Prompt-Synthesized Adaptive Operating System for FinTech, Cloud & Zero-Trust Security",
-  "hackathon": {
-    "event": "Juspay Ship Happens Hackathon (Bangalore)",
-    "primaryTrack": "Track 01: Cloud Nine (AWS + Kiro)",
-    "secondaryTrack": "Track 03: Trust Issues (Failproof AI & Zero Accidental Data Loss)"
-  },
+  "description": "Prompt-adaptive operating system that reshapes its theme, window manager, security policy, apps and tooling around what the user asks for",
   "architecture": {
     "engine": "React 18 + TypeScript + Vite + Tailwind CSS + Framer Motion + Zustand",
     "subsystems": [
@@ -37,9 +32,9 @@
         "description": "Runtime token injection for custom canvas shaders, ambient orbs, window glass, and icon styles (Gothic, Matrix, Gold, Synthwave, FinTech)"
       },
       {
-        "name": "Juspay Hyperswitch™ Payment Router",
-        "path": "src/apps/Hyperswitch.tsx",
-        "description": "Live financial switch stream (1,842 TPS), bank routing rails (HDFC, ICICI, SBI, Axis), and automated failover orchestration"
+        "name": "Payments Router",
+        "path": "src/apps/Payments.tsx",
+        "description": "Live payments stream (1,842 TPS), bank routing rails (HDFC, ICICI, SBI, Axis), and automated failover orchestration"
       },
       {
         "name": "Morph Copilot AI Agent",

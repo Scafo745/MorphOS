@@ -1,9 +1,6 @@
-# 🌌 MorphOS — Prompt-Synthesized Adaptive Operating System
+# 🌌 MorphOS: A Prompt-Adaptive Operating System
 
-> 🌐 **Live Production Deployment**: **[https://morphos-zic5.onrender.com](https://morphos-zic5.onrender.com)**  
-> **Built for the Juspay "Ship Happens" Hackathon (Bangalore, 2026)**  
-> **Primary Track**: Track 01 (Cloud Nine | AWS + Kiro)  
-> **Secondary Track**: Track 03 (Trust Issues | Failproof AI & Zero Accidental Data Loss)
+> **Live deployment**: [morphos-zic5.onrender.com](https://morphos-zic5.onrender.com)
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-morphos--zic5.onrender.com-success?style=for-the-badge&logo=render&logoColor=white)](https://morphos-zic5.onrender.com)
 [![Vite](https://img.shields.io/badge/Vite-8.3-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -11,107 +8,83 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Zustand](https://img.shields.io/badge/State-Zustand-orange)](https://github.com/pmndrs/zustand)
-[![Kiro Spec](https://img.shields.io/badge/Kiro-Spec--Driven-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
 
 ---
 
 ## 💡 What is MorphOS?
 
-In traditional computing, an Operating System is static. If a **Juspay FinTech SRE**, an **intern**, and a **compliance auditor** log into a machine, they receive the exact same desktop environment, leaving production payment switches vulnerable to developer accidents (`rm -rf /`, `DROP TABLE`) and audit violations.
+Traditional operating systems are static: everyone gets the same desktop, the same defaults and the same tooling, whatever they actually need.
 
-**MorphOS** is the world's first **Prompt-Synthesized Operating System**. With a single natural language prompt like:
-> *"Make this OS according to Juspay business with Hyperswitch routing and PCI-DSS compliance"*  
-> or  
-> *"Gothic obsidian dark theme with blood-crimson icons and strict root privilege rings"*
+**MorphOS** is a **prompt-adaptive operating system**. You describe what you need, and the OS reshapes itself around it. For example:
 
-...the entire operating system dynamically recompiles its **window compositor, desktop shader canvas, every single app/dock icon, SELinux policies, and active telemetry tools in real time**.
+> *"I need an operating system which prioritizes gaming more than anything else."*
 
----
+The OS responds by reconfiguring its theme, window manager, security policy, bundled apps and tooling to fit that goal. The same idea works for developer workstations, fintech and compliance setups, security-hardened systems, or purely aesthetic requests.
 
-## ⚡ Core Capabilities
+### MVP scope
 
-### 1. 💳 Juspay Hyperswitch™ Financial Orchestration
-- **Live Payments Stream**: Real-time routing feed processing **1,842 TPS** across Indian merchants (**Swiggy, Flipkart, Cred, Zepto, Uber Bangalore**).
-- **Multi-Bank Gateway Health**: Live SLA telemetry for **HDFC UPI, ICICI Direct, Axis Turbo, and SBI Switch**.
-- **Interactive Smart Failover**: Simulate bank gateway degradations (e.g. SBI 504 timeout spikes) and trigger instant Hyperswitch ML auto-rerouting to HDFC & ICICI with 99.98% guaranteed uptime.
-- **PCI-DSS 4.0 Level 1 Tokenization**: Click any transaction in the feed to inspect masked cardholder data (`4111-XXXX-XXXX-8921`) and cryptographic SHA-256 audit hashes.
-
-### 2. 🛡️ LSM Accidental Data Loss Guard (Track 03: Failproof AI)
-- **Zero Accidental Wipes**: If an autonomous agent or developer runs `rm -rf /`, `DROP TABLE transactions`, or attempts unauthorized modifications to `/etc/passwd`, the MorphOS microkernel LSM halts execution at the syscall layer.
-- **Biometric / 2FA Sudo Challenge**: Critical system elevation requires biometric challenge resolution before modifying restricted hierarchies.
-- **Cryptographic Audit Trail**: Every security intercept is logged to the in-memory immutable audit ledger with severity grading (`INFO`, `WARNING`, `CRITICAL`).
-
-### 3. 🎨 Dynamic Design Token & Icon Engine
-- MorphOS synthesizes **complete aesthetic architectures on the fly**:
-  - **Desktop Canvas**: Dynamic CSS shader gradients & animated ambient orbs.
-  - **Every Single Icon**: Copilot, Terminal, Files, Settings, Security, Notes, Hyperswitch, and Spotlight dynamically transform their **background gradient, border, glow luminescence, glyph color, and corner radius** (Sharp `0px` matrix blocks, Crimson obsidian gems, 24K Royal Gold, Sakura bubbles).
-  - **Window Chrome**: Active window border luminescence and title bar controls adapt dynamically.
-
-### 4. 🪟 Hybrid Window Compositor
-- **macOS Sonoma Floating Glass**: Fluid spring physics, translucent backdrops, and floating magnifying dock.
-- **Windows 11 Snap Quadrants**: Drag windows to screen edges to snap into split-screen and quadrant productivity layouts.
-- **Arch Hyprland Auto-Tiling**: Automatic matrix terminal tiling layout with zero-latency boundaries.
-
-### 5. ☁️ Dual-Engine Synthesis (Local + n8n Cloud + Gemini 1.5 Flash)
-- **0ms Local Heuristic Engine**: Zero-latency offline resilience so the system never fails a live demo.
-- **n8n Cloud Webhook Integration**: Cloud-orchestrated workflow execution.
-- **Google Gemini API**: Extended natural language synthesis for arbitrary aesthetic prompts.
+The long-term goal is to make this adaptation happen at the kernel level. This MVP does not do that yet. Today MorphOS adapts the **shell, window manager, design tokens, security policy and bundled apps** in the browser.
 
 ---
 
-## 🏗️ Architecture
+## ⚡ Capabilities
+
+- 🎨 **Dynamic design tokens and icon packs**: wallpaper shaders, ambient orbs, window chrome and every dock/desktop icon are rebuilt from the prompt (gothic, matrix, gold, sakura, synthwave, fintech and more).
+- 🪟 **Window compositor modes**: macOS-style floating glass, Windows 11 snap quadrants, and Hyprland-style auto-tiling.
+- 🛡 **LSM data-loss guard**: destructive actions such as `rm -rf /` or `DROP TABLE` are intercepted. Critical elevation requires a sudo challenge, and every intercept lands in an audit trail with severity grading.
+- 💳 **Payments console**: live payments stream (1,842 TPS), multi-bank rails (HDFC, ICICI, SBI, Axis), simulated gateway degradation with smart failover, and PCI-DSS 4.0 masked transaction audits.
+- 🤖 **Copilot with tool use**: reconfigures the OS, inspects processes, runs security checks and answers general questions.
+- 🌐 **In-OS browser** with AI search.
+- 📦 **Simulated package manager** in the terminal.
+- ☁ **Multi-provider AI with failover**: a zero-latency local heuristic engine, n8n webhook, Gemini and OpenAI-compatible providers.
+
+---
+
+## 🏗 Architecture
 
 ```mermaid
 flowchart TD
     UserPrompt["Natural Language Prompt\n(Copilot / Spotlight / CLI / Settings)"]
-    
+
     subgraph CompilerLayer ["1. Adaptive Synthesis Engine"]
-        LocalNLP["Local Semantic Compiler\n(0ms latency fallback)"]
-        N8N["n8n Cloud Webhook Gateway"]
-        Gemini["Google Gemini 1.5 Flash"]
+        LocalNLP["Local Semantic Compiler\n(0ms fallback)"]
+        N8N["n8n Webhook Gateway"]
+        LLM["Gemini / OpenAI-compatible"]
     end
-    
-    subgraph Microkernel ["2. MorphOS Microkernel Subsystem"]
+
+    subgraph Microkernel ["2. Kernel Layer"]
         Scheduler["Process Table & PID Scheduler"]
-        SELinux["SELinux & LSM Access Controller\n(Targeted / MLS / PCI-DSS Enforcing)"]
-        VFS["In-Memory POSIX VFS\n(/bin, /etc, /var/log/transactions.csv)"]
-        LSMGuard["Accidental Data Loss Guard\n(Intercepts rm -rf, drops, wipes)"]
+        LSM["Security Module\n(policy profiles, sudo challenge)"]
+        VFS["In-Memory POSIX VFS"]
+        LSMGuard["Data Loss Guard\n(intercepts rm -rf, drops, wipes)"]
     end
-    
+
     subgraph UICompositor ["3. Adaptive Shell & Token Pipeline"]
-        WindowManager["Window Manager\n(Free / Win11 Snap / Hyprland Tiling)"]
-        TokenEngine["Design Token Shaders\n(--bg-desktop, --accent, --window-bg)"]
-        IconEngine["Dynamic Icon Pack Engine\n(Gothic / Cyber / Gold / Sakura / FinTech)"]
-        Hyperswitch["Juspay Hyperswitch™ Console\n(1,842 TPS Live Payment Router)"]
+        WindowManager["Window Manager\n(Free / Snap / Tiling)"]
+        TokenEngine["Design Tokens"]
+        IconEngine["Dynamic Icon Packs"]
+        Payments["Payments Console"]
     end
 
     UserPrompt --> LocalNLP
     UserPrompt --> N8N
-    UserPrompt --> Gemini
-    
+    UserPrompt --> LLM
+
     LocalNLP --> Microkernel
     N8N --> Microkernel
-    Gemini --> Microkernel
-    
+    LLM --> Microkernel
+
     Microkernel --> UICompositor
 ```
 
 ---
 
-## 🚀 Live Demo & Quickstart
+## 🚀 Quickstart
 
-- 🌐 **Live Website**: **[https://morphos-zic5.onrender.com](https://morphos-zic5.onrender.com)**
-
-### Running Locally
 ```bash
-# Clone the repository
 git clone https://github.com/Scafo745/MorphOS.git
 cd MorphOS
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
@@ -119,40 +92,17 @@ Open [http://127.0.0.1:5173/](http://127.0.0.1:5173/) in your browser.
 
 ---
 
-## 🎯 Hackathon Presentation Cheatsheet
+## 🎯 Demo cheat-sheet
 
-### 1. The Juspay FinTech Workstation Demo
-In **Morph Copilot** or **Spotlight** (`Ctrl+K`), type:
-```
-make this os according to juspay business
-```
-- Watch MorphOS instantly launch the **Juspay Hyperswitch™** payment router.
-- Show live payments streaming at 1,842 TPS across Swiggy, Flipkart, Cred, and Zepto.
-- Click **"Simulate SBI Degradation"** to demonstrate gateway latency spike, then click **"Hyperswitch Smart Failover"** to show instant ML re-routing.
+In **Morph Copilot** or **Spotlight** (`Ctrl+K`), try:
 
-### 2. The Accidental Data Loss Demo (Track 03)
-In the Terminal, run:
-```bash
-rm -rf /
-```
-- Show the microkernel LSM intercepting the command and popping an emergency protection alert.
-
-### 3. The Aesthetic Morph Demo
-Type:
-```
-make the colors dark, like gothic theme with crimson red icons
-```
-- Watch the wallpaper, orbs, dock icons, desktop shortcuts, and window controls transform into blood-crimson obsidian glass.
-
----
-
-## 🛠️ Built with Kiro & AWS
-
-MorphOS was developed using **AWS Kiro** spec-driven development.
-- Project specifications are persisted in `.kiro/spec.json`.
-- Agent steering rules are located in `.kiro/steering/guidelines.md`.
+1. `make an operating system that prioritizes gaming above everything else`
+2. `fintech workstation with PCI-DSS compliance`: launches the payments console. Try "Simulate SBI Degradation", then "Smart Failover".
+3. `gothic theme with crimson icons`: the wallpaper, orbs, icons and window controls re-theme.
+4. In the Terminal, run `rm -rf /` to watch the guard intercept it.
 
 ---
 
 ## 📄 License
-MIT License. Built for the Juspay "Ship Happens" Hackathon 2026.
+
+MIT License.
